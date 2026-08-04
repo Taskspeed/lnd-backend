@@ -1,0 +1,78 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "SPMS API Documentation",
+        "description": "API documentation for Strategic Performance Management System",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://192.168.8.182:7000",
+            "description": "Local development server"
+        }
+    ],
+    "paths": {
+        "/index": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get list of all users",
+                "operationId": "4e9102003408bf74eb4efb2562bd146f",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "example": "Juan Dela Cruz"
+                                            },
+                                            "email": {
+                                                "type": "string",
+                                                "example": "juan@example.com"
+                                            },
+                                            "created_at": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            },
+                                            "updated_at": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "sanctum": {
+                "type": "apiKey",
+                "description": "Enter token in format: Bearer {token}",
+                "name": "Authorization",
+                "in": "header"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Users",
+            "description": "Users"
+        }
+    ]
+}
