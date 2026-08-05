@@ -113,6 +113,19 @@ return [
             // 'encrypt' => env('DB_ENCRYPT', 'yes'),
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
+         'second_db' => [
+            'driver'   => 'sqlsrv',
+            'host'     => env('SECOND_DB_HOST', 'localhost'),
+            'port'     => env('SECOND_DB_PORT', '1433'),
+            'database' => env('SECOND_DB_DATABASE', 'laravel'),
+            'username' => env('SECOND_DB_USERNAME', ''),
+            'password' => env('SECOND_DB_PASSWORD', ''),
+            'charset'  => 'utf8',
+            'prefix'   => '',
+            'prefix_indexes' => true,
+            'trust_server_certificate' => env('SECOND_DB_TRUST_SERVER_CERTIFICATE', 'true'),
+            'encrypt'  => env('SECOND_DB_ENCRYPT', 'false'),
+        ],
 
     ],
 
