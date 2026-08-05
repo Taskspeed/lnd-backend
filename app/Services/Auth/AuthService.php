@@ -14,7 +14,9 @@ class AuthService
 
         $user = User::create([
             'name'     => $validated['name'],
-            'email'    => $validated['email'],
+            'office' => $validated['office'],
+            'username'    => $validated['username'],
+            'control_no'    => $validated['control_no'],
             'password' => Hash::make($validated['password']),
         ]);
 
@@ -30,7 +32,7 @@ class AuthService
     public function login(array $validated)
     {
 
-        $user = User::where('email', $validated['email'])->first();
+        $user = User::where('username', $validated['username'])->first();
 
         if (!$user || !Hash::check($validated['password'], $user->password)) {
             throw ValidationException::withMessages([
