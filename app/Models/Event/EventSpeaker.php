@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Models\Event;
+
+use Illuminate\Database\Eloquent\Model;
+
+class EventSpeaker extends Model
+{
+    //
+
+    protected $table = 'event_speakers';
+
+    protected $fillable = [
+        'event_id',
+        'speaker_name'
+    ];
+
+     protected $appends = ['speakerId'];
+    protected $hidden = ['id'];
+
+    public function getSpeakerIdAttribute()
+    {
+        return $this->id;
+    }
+}
