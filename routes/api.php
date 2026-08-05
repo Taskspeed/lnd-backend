@@ -1,14 +1,14 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Event\EventController;
 use App\Http\Controllers\Event\Library\EventModeController;
 use App\Http\Controllers\Event\Library\EventSourceController;
 use App\Http\Controllers\Event\Library\EventTitleController;
 use App\Http\Controllers\Event\Library\EventTypeController;
 use App\Http\Controllers\Event\Library\EventVenueController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Office\EmployeeController;
+use App\Http\Controllers\Office\OfficeController;;
 use Illuminate\Support\Facades\Route;
 
 
@@ -58,7 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/index', [EventVenueController::class, 'index']);
         Route::post('/store', [EventVenueController::class, 'store']);
         Route::put('/update/{venueId}', [EventVenueController::class, 'update']);
-        Route::delete('/delete/{venueId}', [EventVenueController::class, 'delete']);
+        Route::delete('/delete/{venueId}', [EventVenueController::class, 'destory']);
     });
 
      Route::prefix('event')->group(function () {
@@ -67,6 +67,16 @@ Route::middleware('auth:sanctum')->group(function () {
         // Route::put('/update/{event}', [EventController::class, 'update']);
         Route::get('view/{eventId}', [EventController::class, 'view']);
         Route::delete('/delete/{eventId}', [EventController::class, 'destory']);
+    });
+
+      Route::prefix('employee')->group(function () {
+        Route::post('/store', [EmployeeController::class, 'store']);
+        Route::delete('/delete{nominatedId}', [EmployeeController::class, 'destory']);
+    });
+
+    Route::prefix('office')->group(function () {
+        Route::get('/index', [OfficeController::class, 'index']);
+        Route::get('/employee', [OfficeController::class, 'show']);
     });
 
 });
