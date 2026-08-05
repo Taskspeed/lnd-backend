@@ -31,7 +31,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-            Schema::create('core_monitoring', function (Blueprint $table) {
+        Schema::create('core_monitoring', function (Blueprint $table) {
             $table->id();
             $table->foreignId('learning_application_monitoring_report_id')->constrained('learning_application_monitoring_reports')->onDelete('cascade');
             $table->boolean('delivering_service_excellence')->default(false);
@@ -40,7 +40,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-           Schema::create('technical_monitoring', function (Blueprint $table) {
+        Schema::create('technical_monitoring', function (Blueprint $table) {
             $table->id();
             $table->foreignId('learning_application_monitoring_report_id')->constrained('learning_application_monitoring_reports')->onDelete('cascade');
             $table->boolean('planning_organizing')->default(false);
@@ -51,7 +51,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-            Schema::create('leadership_monitoring', function (Blueprint $table) {
+        Schema::create('leadership_monitoring', function (Blueprint $table) {
             $table->id();
             $table->foreignId('learning_application_monitoring_report_id')->constrained('learning_application_monitoring_reports')->onDelete('cascade');
             $table->boolean('managing_performance_coaching_results')->default(false);
@@ -60,8 +60,6 @@ return new class extends Migration
             $table->boolean('problem_solving_decision_making')->default(false);
             $table->timestamps();
         });
-
-
     }
 
     /**
@@ -69,6 +67,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists(['learning_application_monitoring_reports', 'core_monitoring', 'technical_monitoring', 'leadership_monitoring']);
+       
+        Schema::dropIfExists('core_monitoring');
+        Schema::dropIfExists('technical_monitoring');
+        Schema::dropIfExists('leadership_monitoring');
+        Schema::dropIfExists('learning_application_monitoring_reports');
     }
 };

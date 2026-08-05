@@ -69,6 +69,11 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists(['learning_implementation_reports', 'core_implementation', 'technical_implementation', 'leadership_implementation']);
+       
+        Schema::dropIfExists('core_implementation');
+        Schema::dropIfExists('technical_implementation');
+        Schema::dropIfExists('leadership_implementation');
+        Schema::dropIfExists('learning_implementation_reports');
+
     }
 };

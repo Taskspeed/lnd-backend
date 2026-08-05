@@ -82,7 +82,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-           Schema::create('performance_indicators', function (Blueprint $table) {
+        Schema::create('performance_indicators', function (Blueprint $table) {
             $table->id();
             $table->foreignId('learning_application_plan_form_id')->constrained('learning_application_plan_forms')->onDelete('cascade');
             $table->boolean('strategic_functions')->default(false);
@@ -112,7 +112,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('target_Date_Completions', function (Blueprint $table) {
+        Schema::create('target_date_completions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('learning_application_plan_form_id')->constrained('learning_application_plan_forms')->onDelete('cascade');
             $table->boolean('within_2_weeks_after_training')->default(false);
@@ -121,7 +121,6 @@ return new class extends Migration
             $table->boolean('within_3_months_after_training')->default(false);
             $table->timestamps();
         });
-
     }
 
     /**
@@ -129,6 +128,16 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists(['learning_application_plan_forms', 'foundation_competencies', 'technical_competencies', 'managerial_competencies', 'supervisory_competencies', 'learning_strategies_implemented', 'performance_indicators', 'beneficiaries_strategie_applied', 'resources_utilized', 'target_Date_Completions']);
+   Schema::dropIfExists('target_date_completions');
+    Schema::dropIfExists('resources_utilized');
+    Schema::dropIfExists('beneficiaries_strategie_applied');
+    Schema::dropIfExists('performance_indicators');
+    Schema::dropIfExists('learning_strategies_implemented');
+    Schema::dropIfExists('supervisory_competencies');
+    Schema::dropIfExists('managerial_competencies');
+    Schema::dropIfExists('technical_competencies');
+    Schema::dropIfExists('foundation_competencies');
+    Schema::dropIfExists('learning_application_plan_forms');
+
     }
 };

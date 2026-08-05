@@ -71,6 +71,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists(['learner_progress_reports', 'core_progress', 'technical_progress', 'leadership_progress']);
-    }
+    Schema::dropIfExists('leadership_progress');
+    Schema::dropIfExists('technical_progress');
+    Schema::dropIfExists('core_progress');
+    Schema::dropIfExists('learner_progress_reports');   
+     }
 };
