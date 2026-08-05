@@ -88,7 +88,7 @@ class EventService
         $event = Event::find($eventId);
 
         if (!$event) {
-            throw new \Exception('not found');
+            throw new \Exception('Event not found');
         }
 
         $event->delete();
