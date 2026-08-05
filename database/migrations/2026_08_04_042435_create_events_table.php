@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('venue_name')->nullable();
             $table->string('type_name')->nullable();
             $table->string('source_name')->nullable();
-            $table->string('speaker_name')->nullable();
+            // $table->string('speaker_name')->nullable();
             $table->string('status')->nullable();
             $table->string('created_by')->nullable();
             $table->timestamps();
