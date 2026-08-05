@@ -12,4 +12,12 @@ class EventType extends Model
     protected $fillable = [
         'type_name',
     ];
+    
+    protected $appends = ['eventTypeId'];
+    protected $hidden = ['id'];
+
+    public function getEventTypeIdAttribute()
+    {
+        return $this->id;
+    }
 }

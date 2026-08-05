@@ -13,4 +13,12 @@ class EventMode extends Model
     protected $fillable = [
         'mode_name',
     ];
+
+    protected $appends = ['eventModeId'];
+    protected $hidden = ['id'];
+
+    public function getEventModeIdAttribute()
+    {
+        return $this->id;
+    }
 }

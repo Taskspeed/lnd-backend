@@ -12,4 +12,11 @@ class EventTitle extends Model
     protected $fillable = [
         'title_name',
     ];
+     protected $appends = ['eventTitleId'];
+    protected $hidden = ['id'];
+
+    public function getEventTitleIdAttribute()
+    {
+        return $this->id;
+    }
 }

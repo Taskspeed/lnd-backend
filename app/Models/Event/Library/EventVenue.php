@@ -12,4 +12,12 @@ class EventVenue extends Model
     protected $fillable = [
         'venue_name',
     ];
+
+    protected $appends = ['eventVenueId'];
+    protected $hidden = ['id'];
+
+    public function getEventVenueIdAttribute()
+    {
+        return $this->id;
+    }
 }
