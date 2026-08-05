@@ -13,10 +13,10 @@ class EventVenue extends Model
         'venue_name',
     ];
 
-    protected $appends = ['eventVenueId'];
+    protected $appends = ['venueId'];
     protected $hidden = ['id'];
 
-    public function getEventVenueIdAttribute()
+    public function getVenueIdAttribute()
     {
         return $this->id;
     }

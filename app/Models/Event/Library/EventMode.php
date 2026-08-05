@@ -14,10 +14,10 @@ class EventMode extends Model
         'mode_name',
     ];
 
-    protected $appends = ['eventModeId'];
+    protected $appends = ['modeId'];
     protected $hidden = ['id'];
 
-    public function getEventModeIdAttribute()
+    public function getModeIdAttribute()
     {
         return $this->id;
     }

@@ -13,10 +13,10 @@ class EventType extends Model
         'type_name',
     ];
     
-    protected $appends = ['eventTypeId'];
+    protected $appends = ['typeId'];
     protected $hidden = ['id'];
 
-    public function getEventTypeIdAttribute()
+    public function getTypeIdAttribute()
     {
         return $this->id;
     }

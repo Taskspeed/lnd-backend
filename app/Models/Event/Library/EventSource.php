@@ -13,10 +13,10 @@ class EventSource extends Model
     protected $fillable = [
         'source_name',
     ];
-    protected $appends = ['eventSourceId'];
+    protected $appends = ['sourceId'];
     protected $hidden = ['id'];
 
-    public function getEventSourceIdAttribute()
+    public function getSourceIdAttribute()
     {
         return $this->id;
     }
