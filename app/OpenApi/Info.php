@@ -7,8 +7,8 @@ use OpenApi\Attributes as OA;
 
 #[OA\Info(
     version: "1.0.0",
-    title: "SPMS API Documentation",
-    description: "API documentation for Strategic Performance Management System"
+    title: "LND API Documentation",
+    description: "API documentation for Learning and Development"
 )]
 #[OA\Server(
     url: "http://192.168.8.182:7000",
@@ -16,10 +16,10 @@ use OpenApi\Attributes as OA;
 )]
 #[OA\SecurityScheme(
     securityScheme: "sanctum",
-    type: "apiKey",
-    in: "header",
-    name: "Authorization",
-    description: "Enter token in format: Bearer {token}"
+    type: "http",
+    scheme: "bearer",
+    bearerFormat: "Sanctum",
+    description: "Enter your Sanctum token"
 )]
 class Info
 {
