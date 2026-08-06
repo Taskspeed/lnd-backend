@@ -3,13 +3,28 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Services\User\RoleService;
+use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
-{public function index()
+
+{
+    use ApiResponseTrait;
+
+    protected RoleService $roleService;
+
+    protected function __construct(RoleService $roleService)
     {
-        return response()->json(Role::all(), 200);
+        $this->roleService = $roleService;
+    }
+
+    public function index()
+    {
+        $role = Role::all();
+
+        return $this->successMessage($role, 'Role fetch successfully', 200);
     }
 
     public function store(Request $request)
@@ -18,33 +33,39 @@ class RoleController extends Controller
             'name' => 'required|string|unique:roles,name',
         ]);
 
-        $role = Role::create(['name' => $validated['name']]);
-        return response()->json($role, 201);
+        $role = $this->roleService->create($validated);
+
+        return $this->successMessage($role, 'Role created successfully', 201);
     }
 
-    public function show($id)
+    public function show(int $roleId)
     {
-        $role = Role::findOrFail($id);
-        return response()->json($role, 200);
+        $role = Role::findOrFail($roleId);
+        return $this->successMessage($role, 'Role show successfully', 201);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, int $roleId)
     {
-        $role = Role::findOrFail($id);
+        $role = Role::find($roleId);
+
+        if (!$role) {
+            return $this->errorMessage('Role not found', 404);
+        }
 
         $validated = $request->validate([
             'name' => 'required|string|unique:roles,name,' . $role->id,
         ]);
 
-        $role->update(['name' => $validated['name']]);
-        return response()->json($role, 200);
+        $role = $this->roleService->update($validated, $role);
+
+        return $this->successMessage($role, 'Role updated successfully', 200);
     }
 
-    public function destroy($id)
+    public function destroy(int $roleId)
     {
-        $role = Role::findOrFail($id);
+        $role = Role::findOrFail($roleId);
         $role->delete();
 
-        return response()->json(['message' => 'Role deleted successfully'], 200);
+        return $this->successMessage($role, 'Role deleted successfully', 200);
     }
 }
