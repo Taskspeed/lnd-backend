@@ -3,6 +3,7 @@
 namespace App\Services\Auth;
 
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -11,27 +12,33 @@ class AuthService
 
     public function register(array $validated)
     {
+        return DB::transaction(function () use ($validated) {
+            $user = User::create([
+                'name'       => $validated['name'],
+                'office'     => $validated['office'],
+                'username'   => $validated['username'],
+                'control_no' => $validated['control_no'],
+                'password'   => Hash::make($validated['password']),
+            ]);
 
-        $user = User::create([
-            'name'     => $validated['name'],
-            'office' => $validated['office'],
-            'username'    => $validated['username'],
-            'control_no'    => $validated['control_no'],
-            'password' => Hash::make($validated['password']),
-        ]);
+            // assign role (isa lang usually, pero pwede array kung multiple)
+            if (!empty($validated['role'])) {
+                $user->assignRole($validated['role']);
+            }
 
-        // Optional: issue a token right away if you're using Sanctum
-        $token = $user->createToken('auth_token')->plainTextToken;
+            // direct permissions (hiwalay sa permissions na galing sa role)
+            if (!empty($validated['permissions'])) {
+                $user->givePermissionTo($validated['permissions']);
+            }
 
-        return [
-            $user,
-            $token, // token Sanctum
-        ];
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return [$user->load('roles', 'permissions'), $token];
+        });
     }
-
+    
     public function login(array $validated)
     {
-
         $user = User::where('username', $validated['username'])->first();
 
         if (!$user || !Hash::check($validated['password'], $user->password)) {
@@ -40,14 +47,13 @@ class AuthService
             ]);
         }
 
-        // optional but recommended: wipe old tokens before issuing a new one
         $user->tokens()->delete();
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return [
-             $user,
-             $token,
+            'user'  => $user->load('roles', 'permissions'),
+            'token' => $token,
         ];
     }
 }

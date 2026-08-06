@@ -29,6 +29,10 @@ class RegisterRequest extends FormRequest
             'password' => 'required|string|min:5',
             'office' => 'required|string',
             'control_no' => 'required|string',
+            
+            'role'           => 'required|string|exists:roles,name',
+            'permissions'    => 'sometimes|array',
+            'permissions.*'  => 'string|exists:permissions,name',
         ];
     }
 }

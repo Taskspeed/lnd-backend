@@ -9,13 +9,10 @@ use App\Http\Controllers\Event\Library\EventTypeController;
 use App\Http\Controllers\Event\Library\EventVenueController;
 use App\Http\Controllers\Office\EmployeeController;
 use App\Http\Controllers\Office\OfficeController;;
+
+use App\Http\Controllers\User\PermissionController;
+use App\Http\Controllers\User\RoleController;
 use Illuminate\Support\Facades\Route;
-
-
-
-
-
-
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -61,7 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/delete/{venueId}', [EventVenueController::class, 'destory']);
     });
 
-     Route::prefix('event')->group(function () {
+    Route::prefix('event')->group(function () {
         Route::get('/index', [EventController::class, 'index']);
         Route::post('/store', [EventController::class, 'store']);
         // Route::put('/update/{event}', [EventController::class, 'update']);
@@ -69,7 +66,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/delete/{eventId}', [EventController::class, 'destory']);
     });
 
-      Route::prefix('employee')->group(function () {
+    Route::prefix('employee')->group(function () {
         Route::post('/store', [EmployeeController::class, 'store']);
         Route::delete('/delete{nominatedId}', [EmployeeController::class, 'destory']);
     });
@@ -77,6 +74,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('office')->group(function () {
         Route::get('/index', [OfficeController::class, 'index']);
         Route::get('/employee', [OfficeController::class, 'show']);
+    });
+
+
+    // Roles
+    Route::prefix('role')->group(function () {
+        Route::get('/index', [RoleController::class, 'index']);
+        Route::post('/store', [RoleController::class, 'store']);
+    });
+
+    // Permission
+    Route::prefix('permission')->group(function () {
+        Route::get('/index', [PermissionController::class, 'index']);
+        Route::post('/store', [PermissionController::class, 'store']);
     });
 
 });

@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Resources\User\UserLoginResource;
 use App\Services\Auth\AuthService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
+
 
 class AuthController extends Controller
 {
@@ -22,7 +22,7 @@ class AuthController extends Controller
         $this->authService = $authService;
     }
 
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
         $validated = $request->validated();
 
@@ -45,7 +45,10 @@ class AuthController extends Controller
         try {
 
             $result = $this->authService->login($validated);
-            return $this->successMessage($result, 'User login successfully.', 200);
+            return $this->successMessage([
+                'user'  => new UserLoginResource($result['user']),
+                'token' => $result['token'],
+            ], 'User login successfully.', 200);
         } catch (\Throwable $e) {
             return $this->errorMessage($e->getMessage(), 500);
         }
@@ -55,6 +58,6 @@ class AuthController extends Controller
     {
         // deletes only the token used for this request
         $request->user()->currentAccessToken()->delete();
-         return $this->successMessage(null, 'Logged out successfully.', 200);
+        return $this->successMessage(null, 'Logged out successfully.', 200);
     }
 }
