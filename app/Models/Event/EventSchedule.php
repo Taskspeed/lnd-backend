@@ -2,6 +2,7 @@
 
 namespace App\Models\Event;
 
+use App\Casts\TimeFormatCast;
 use Illuminate\Database\Eloquent\Model;
 
 class EventSchedule extends Model
@@ -20,7 +21,15 @@ class EventSchedule extends Model
     ];
 
     protected $appends = ['scheduleId'];
-    protected $hidden = ['id'];
+    protected $hidden = ['id','created_at','updated_at'];
+
+    protected $casts = [
+        'morning_in'   => TimeFormatCast::class,
+        'morning_out'  => TimeFormatCast::class,
+        'afternoon_in' => TimeFormatCast::class,
+        'afternoon_out' => TimeFormatCast::class,
+        'event_id' => 'integer'
+    ];
 
     public function getScheduleIdAttribute()
     {
