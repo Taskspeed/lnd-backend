@@ -16,5 +16,6 @@ class EmployeeFormSubmission extends Model
         'control_no',
         'status',
         'submitted_at',
+        'remarks'
     ];
 }

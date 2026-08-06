@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('form_name')->nullable();
             $table->string('control_no')->nullable();
             $table->string('status')->default('pending');
+            $table->string('remarks')->nullable();
             $table->timestamp('submitted_at')->nullable();
             $table->timestamps();
         });
