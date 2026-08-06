@@ -2,6 +2,7 @@
 
 namespace App\Models\Employee;
 
+use App\Models\Event\Event;
 use Illuminate\Database\Eloquent\Model;
 
 class NominatedEmployee extends Model
@@ -14,4 +15,9 @@ class NominatedEmployee extends Model
         'control_no',
         'office'
     ];
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class);
+    }
 }
