@@ -19,17 +19,19 @@ return new class extends Migration
             $table->string('learner')->nullable();
             $table->string('lnd_attended')->nullable();
             $table->string('date_of_attendance')->nullable();
-            $table->integer('delivering_service_excellence')->nullable();
-            $table->integer('exemplifying_integrity')->nullable();
-            $table->integer('interpersonal_skills')->nullable();
-            $table->integer('planning_organizing')->nullable();
-            $table->integer('records_management')->nullable();
-            $table->integer('partnering_networking')->nullable();
-            $table->integer('process_management')->nullable();
-            $table->integer('managing_performance_coaching_results')->nullable();
-            $table->integer('building_collaborative_inclusive_working_relationships')->nullable();
-            $table->integer('thinking_strategically_creatively')->nullable();
-            $table->integer('problem_solving_decision_making')->nullable();
+
+            $table->integer('delivering_service_excellence_competency')->nullable();
+            $table->integer('exemplifying_integrity_competency')->nullable();
+            $table->integer('interpersonal_skills_competency')->nullable();
+            $table->integer('planning_organizing_competency')->nullable();
+            $table->integer('records_management_competency')->nullable();
+            $table->integer('partnering_networking_competency')->nullable();
+            $table->integer('process_management_competency')->nullable();
+            $table->integer('managing_performance_coaching_results_competency')->nullable();
+            $table->integer('building_collaborative_inclusive_working_relationships_competency')->nullable();
+            $table->integer('thinking_strategically_creatively_competency')->nullable();
+            $table->integer('problem_solving_decision_making_competency')->nullable();
+
             $table->text('remarks')->nullable();
             $table->timestamps();
         });
