@@ -12,7 +12,7 @@ class LearningApplicationMonitoringReport extends Model
 
     protected $fillable = [
         'event_id',
-        'forms_name',
+        'form_name',
         'control_no',
         'learner',
         'lnd_attended',

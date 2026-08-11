@@ -26,7 +26,7 @@ class LearningApplicationMonitoringRequest extends FormRequest
             //
 
             'event_id' => 'required|exists:events,id',
-            'forms_name' => 'required|string',  
+            'form_name' => 'required|string',  
             'control_no' => 'required|string',
             'learner' => 'nullable|string',
             'lnd_attended' => 'nullable|string',

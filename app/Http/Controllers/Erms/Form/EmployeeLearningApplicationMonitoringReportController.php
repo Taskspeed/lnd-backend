@@ -54,7 +54,7 @@ class EmployeeLearningApplicationMonitoringReportController extends Controller
 
         $learnera_application_monitoring = LearningApplicationMonitoringReport::with(['coreMonitoring', 'leaderShipMonitoring', 'technicalMonitoring'])
             ->where('event_id', $eventId)
-            ->where('forms_name', $formName)
+            ->where('form_name', $formName)
             ->where('control_no', $controlNo)->first();
 
         if (!$learnera_application_monitoring) {

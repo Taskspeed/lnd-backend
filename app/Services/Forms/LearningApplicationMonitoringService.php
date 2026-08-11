@@ -22,7 +22,7 @@ class LearningApplicationMonitoringService
 
             // check first if employee are already submit
             $employee_submit = LearningApplicationMonitoringReport::where('event_id', $validated['event_id'])
-                ->where('forms_name', 'Learning Application Monitoring Report') // match sa ginagamit mo sa create()
+                ->where('form_name', 'Learning Application Monitoring Report') // match sa ginagamit mo sa create()
                 ->where('control_no', $validated['control_no'])
                 ->first();
 
@@ -33,7 +33,7 @@ class LearningApplicationMonitoringService
 
             $learning_application_form = LearningApplicationMonitoringReport::create([
                 'event_id' => $validated['event_id'],
-                'forms_name' => 'Learning Application Monitoring Report',
+                'form_name' => 'Learning Application Monitoring Report',
                 'control_no' => $validated['control_no'],
 
                 'learner' => $validated['learner'] ?? null,
@@ -113,7 +113,7 @@ class LearningApplicationMonitoringService
 
             $learning_application_form->update([
                 'event_id' => $validated['event_id'],
-                'forms_name' => 'Learning Application Monitoring Report',
+                'form_name' => 'Learning Application Monitoring Report',
                 'control_no' => $validated['control_no'],
 
                 'learner' => $validated['learner'] ?? null,
@@ -193,7 +193,7 @@ class LearningApplicationMonitoringService
             }
 
             $employee_submit_form = EmployeeFormSubmission::where('event_id', $learner_application_monitoring->event_id)
-                ->where('forms_name', $learner_application_monitoring->forms_name)
+                ->where('form_name', $learner_application_monitoring->forms_name)
                 ->where('control_no', $learner_application_monitoring->control_no)
                 ->first();
 

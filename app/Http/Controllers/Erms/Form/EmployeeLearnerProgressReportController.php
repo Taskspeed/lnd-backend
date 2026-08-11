@@ -4,13 +4,10 @@ namespace App\Http\Controllers\Erms\Form;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Form\LearnerProgressReportRequest;
-use App\Models\Forms\LPR\CoreProgress;
-use App\Models\Forms\LPR\LeanerProgressReport;
 use App\Models\Forms\LPR\LearnerProgressReport;
 use App\Services\Forms\LearnerProgressReportService;
 use App\Traits\ApiResponseTrait;
-use Illuminate\Http\Request;
-use PhpParser\Node\Stmt\TryCatch;
+
 
 class EmployeeLearnerProgressReportController extends Controller
 {
@@ -58,7 +55,7 @@ class EmployeeLearnerProgressReportController extends Controller
 
         $learnerProgressReport = LearnerProgressReport::with(['coreProgress', 'leaderShipProgress', 'technicalProgress'])
             ->where('event_id', $eventId)
-            ->where('forms_name', $formName)
+            ->where('form_name', $formName)
             ->where('control_no', $controlNo)->first();
 
         if (!$learnerProgressReport) {

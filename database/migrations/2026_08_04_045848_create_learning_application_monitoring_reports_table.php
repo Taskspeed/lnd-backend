@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('learning_application_monitoring_reports', function (Blueprint $table) {
             $table->id();
             $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
-            $table->string('forms_name')->nullable();
+            $table->string('form_name')->nullable();
             $table->string('control_no')->nullable();
             $table->string('learner')->nullable();
             $table->string('lnd_attended')->nullable();
