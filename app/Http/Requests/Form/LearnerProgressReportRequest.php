@@ -25,9 +25,9 @@ class LearnerProgressReportRequest extends FormRequest
         return [
             //
 
-            'event_id' => 'sometimes|required|exists:events,id',
-            'forms_name' => 'sometimes|required|string',
-            'control_no' => 'sometimes|required|string',
+            'event_id' => 'required|exists:events,id',
+            'forms_name' => 'required|string',
+            'control_no' => 'required|string',
             'office' => 'nullable|string',
             'learner' => 'nullable|string',
             'lnd_attended' => 'nullable|string',

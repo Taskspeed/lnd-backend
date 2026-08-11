@@ -199,7 +199,7 @@ class LearnerProgressReportService
             }
 
             $employee_submit_form = EmployeeFormSubmission::where('event_id', $learnerForm->event_id)
-                ->where('forms_name', $learnerForm->forms_name)
+                ->where('form_name', $learnerForm->forms_name)
                 ->where('control_no', $learnerForm->control_no)
                 ->first();
 
