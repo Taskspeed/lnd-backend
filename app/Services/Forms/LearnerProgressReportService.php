@@ -116,25 +116,25 @@ class LearnerProgressReportService
             }
 
             $learnerForm->update([
-                'event_id' => $validated['event_id'] ?? $learnerForm->event_id,
-                'control_no' => $validated['control_no'] ?? $learnerForm->control_no,
-                'learner' => $validated['learner'] ?? $learnerForm->learner,
-                'lnd_attended' => $validated['lnd_attended'] ?? $learnerForm->lnd_attended,
-                'date_of_attendance' => $validated['date_of_attendance'] ?? $learnerForm->date_of_attendance,
+                'event_id' => $validated['event_id'],
+                'control_no' => $validated['control_no'],
+                'learner' => $validated['learner'] ?? null,
+                'lnd_attended' => $validated['lnd_attended'] ?? null,
+                'date_of_attendance' => $validated['date_of_attendance'] ?? null,
 
                 // competency ratings — 1 to 5 scale
-                'delivering_service_excellence_competency' => $validated['delivering_service_excellence_competency'] ?? $learnerForm->delivering_service_excellence_competency,
-                'exemplifying_integrity_competency' => $validated['exemplifying_integrity_competency'] ?? $learnerForm->exemplifying_integrity_competency,
-                'interpersonal_skills_competency' => $validated['interpersonal_skills_competency'] ?? $learnerForm->interpersonal_skills_competency,
-                'planning_organizing_competency' => $validated['planning_organizing_competency'] ?? $learnerForm->planning_organizing_competency,
-                'monitoring_evaluation_competency' => $validated['monitoring_evaluation_competency'] ?? $learnerForm->monitoring_evaluation_competency,
-                'records_management_competency' => $validated['records_management_competency'] ?? $learnerForm->records_management_competency,
-                'partnering_networking_competency' => $validated['partnering_networking_competency'] ?? $learnerForm->partnering_networking_competency,
-                'process_management_competency' => $validated['process_management_competency'] ?? $learnerForm->process_management_competency,
-                'managing_performance_coaching_results_competency' => $validated['managing_performance_coaching_results_competency'] ?? $learnerForm->managing_performance_coaching_results_competency,
-                'building_collaborative_inclusive_working_relationships_competency' => $validated['building_collaborative_inclusive_working_relationships_competency'] ?? $learnerForm->building_collaborative_inclusive_working_relationships_competency,
-                'thinking_strategically_creatively_competency' => $validated['thinking_strategically_creatively_competency'] ?? $learnerForm->thinking_strategically_creatively_competency,
-                'problem_solving_decision_making_competency' => $validated['problem_solving_decision_making_competency'] ?? $learnerForm->problem_solving_decision_making_competency,
+                'delivering_service_excellence_competency' => $validated['delivering_service_excellence_competency'] ?? null,
+                'exemplifying_integrity_competency' => $validated['exemplifying_integrity_competency'] ?? null,
+                'interpersonal_skills_competency' => $validated['interpersonal_skills_competency'] ?? null,
+                'planning_organizing_competency' => $validated['planning_organizing_competency'] ?? null,
+                'monitoring_evaluation_competency' => $validated['monitoring_evaluation_competency'] ?? null,
+                'records_management_competency' => $validated['records_management_competency'] ?? null,
+                'partnering_networking_competency' => $validated['partnering_networking_competency'] ?? null,
+                'process_management_competency' => $validated['process_management_competency'] ?? null,
+                'managing_performance_coaching_results_competency' => $validated['managing_performance_coaching_results_competency'] ?? null,
+                'building_collaborative_inclusive_working_relationships_competency' => $validated['building_collaborative_inclusive_working_relationships_competency'] ?? null,
+                'thinking_strategically_creatively_competency' => $validated['thinking_strategically_creatively_competency'] ?? null,
+                'problem_solving_decision_making_competency' => $validated['problem_solving_decision_making_competency'] ?? null,
 
             ]);
 
