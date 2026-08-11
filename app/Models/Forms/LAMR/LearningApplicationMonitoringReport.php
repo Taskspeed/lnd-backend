@@ -27,4 +27,32 @@ class LearningApplicationMonitoringReport extends Model
         'status_as_of_v2',
         'remarks'
     ];
+
+    protected $appends = ['learning_application_monitoring_id'];
+    protected $hidden = ['id', 'created_at', 'updated_at'];
+
+    protected $casts = [
+        'date_of_attendance' => 'date:F d, Y',
+        'event_id' => 'integer'
+    ];
+
+    public function getLearningApplicationMonitoringIdAttribute()
+    {
+        return $this->id;
+    }
+
+    public function coreMonitoring(){
+
+        return $this->hasOne(CoreMonitoring::class);
+    }
+    
+    public function leaderShipMonitoring(){
+
+        return $this->hasOne(LeadershipMonitoring::class);
+    }
+    
+    public function technicalMonitoring(){
+
+        return $this->hasOne(technicalMonitoring::class);
+    }
 }
