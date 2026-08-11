@@ -25,4 +25,42 @@ class LearningApplicationPlan extends Model
         'managerial',
         'significant_learning_insight'
     ];
+
+    public function foundation()
+    {
+        return $this->hasOne(FoundationCompetencie::class);
+    }
+    public function technical()
+    {
+        return $this->hasOne(TechnicalCompetencie::class);
+    }
+    public function managerial()
+    {
+        return $this->hasOne(ManagerialCompetencie::class);
+    }
+    public function supervisory()
+    {
+        return $this->hasOne(SupervisoryCompetencie::class);
+    }
+    public function learningStrategies()
+    {
+        return $this->hasOne(LearningStrategiesImplemented::class);
+    }
+    public function performanceIndicator()
+    {
+        return $this->hasOne(PerformanceIndicator::class);
+    }
+    public function beneficiaries()
+    {
+        return $this->hasOne(BeneficiariesStrategieApplied::class);
+    }
+    public function resources()
+    {
+        return $this->hasOne(ResourcesUtilized::class);
+    }
+
+    public function targetCompletion()
+    {
+        return $this->hasOne(TargetDateCompletion::class);
+    }
 }

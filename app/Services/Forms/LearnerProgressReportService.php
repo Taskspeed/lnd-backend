@@ -14,7 +14,10 @@ use Illuminate\Support\Facades\DB;
 
 class LearnerProgressReportService
 {
-
+    private function formName()
+    {
+        return 'Leaner Progress Report';
+    }
     public function create(?array $validated)
     {
 
@@ -22,7 +25,7 @@ class LearnerProgressReportService
 
             // check first if employee are already submit
             $employee_submit = LearnerProgressReport::where('event_id', $validated['event_id'])
-                ->where('forms_name', 'Leaner Progress Report') // match sa ginagamit mo sa create()
+                ->where('forms_name', $this->formName()) // match sa ginagamit mo sa create()
                 ->where('control_no', $validated['control_no'])
                 ->first();
 
@@ -35,7 +38,7 @@ class LearnerProgressReportService
 
                 'event_id' => $validated['event_id'] ?? null,
 
-                'forms_name' => 'Leaner Progress Report',
+                'forms_name' => $this->formName(),
                 'control_no' => $validated['control_no'] ?? null,
                 'learner' => $validated['learner'] ?? null,
                 'lnd_attended' => $validated['lnd_attended'] ?? null,
@@ -88,7 +91,7 @@ class LearnerProgressReportService
             $form_submit = EmployeeFormSubmission::create([
 
                 'event_id' => $validated['event_id'] ?? null,
-                'form_name' => 'Leaner Progress Report',
+                'form_name' => $this->formName(),
                 'control_no' => $validated['control_no'] ?? null,
                 'status' => 'Pending',
 
@@ -111,13 +114,14 @@ class LearnerProgressReportService
 
             $learnerForm = LearnerProgressReport::find($learnerProgressReportId);
 
-             if (!$learnerForm) {
+            if (!$learnerForm) {
                 throw new ModelNotFoundException('Learner progrees report id not found');
             }
 
             $learnerForm->update([
                 'event_id' => $validated['event_id'],
                 'control_no' => $validated['control_no'],
+                'form_name' => $this->formName(),
                 'learner' => $validated['learner'] ?? null,
                 'lnd_attended' => $validated['lnd_attended'] ?? null,
                 'date_of_attendance' => $validated['date_of_attendance'] ?? null,

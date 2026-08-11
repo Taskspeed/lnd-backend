@@ -26,4 +26,14 @@ class LearningImplementationReport extends Model
         'financial_aid_training_attended',
         'return_financial_aid'
     ];
+
+    public function coreImplementation(){
+        return $this->hasOne(CoreImplementation::class);
+    }
+    public function technicalImplementation(){
+        return $this->hasOne(TechinicalImplementation::class);
+    }
+    public function learderShipImplementation(){
+        return $this->hasOne(LeadershipImplementation::class);
+    }
 }

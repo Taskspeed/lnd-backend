@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\DB;
 class LearningApplicationMonitoringService
 {
 
+    private function formName()
+    {
+        return 'Learning Application Monitoring Report';
+    }
 
     public function create(?array $validated)
     {
@@ -22,7 +26,7 @@ class LearningApplicationMonitoringService
 
             // check first if employee are already submit
             $employee_submit = LearningApplicationMonitoringReport::where('event_id', $validated['event_id'])
-                ->where('form_name', 'Learning Application Monitoring Report') // match sa ginagamit mo sa create()
+                ->where('form_name', $this->formName()) // match sa ginagamit mo sa create()
                 ->where('control_no', $validated['control_no'])
                 ->first();
 
@@ -33,7 +37,7 @@ class LearningApplicationMonitoringService
 
             $learning_application_form = LearningApplicationMonitoringReport::create([
                 'event_id' => $validated['event_id'],
-                'form_name' => 'Learning Application Monitoring Report',
+                'form_name' => $this->formName(),
                 'control_no' => $validated['control_no'],
 
                 'learner' => $validated['learner'] ?? null,
@@ -84,7 +88,7 @@ class LearningApplicationMonitoringService
             $form_submit = EmployeeFormSubmission::create([
 
                 'event_id' => $validated['event_id'] ?? null,
-                'form_name' => 'Learning Application Monitoring Report',
+                'form_name' => $this->formName(),
                 'control_no' => $validated['control_no'] ?? null,
                 'status' => 'Pending',
 
@@ -113,7 +117,7 @@ class LearningApplicationMonitoringService
 
             $learning_application_form->update([
                 'event_id' => $validated['event_id'],
-                'form_name' => 'Learning Application Monitoring Report',
+                'form_name' => $this->formName(),
                 'control_no' => $validated['control_no'],
 
                 'learner' => $validated['learner'] ?? null,
