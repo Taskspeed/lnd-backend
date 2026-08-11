@@ -10,9 +10,9 @@ class SupervisoryCompetencie extends Model
     protected $table = 'supervisory_competencies';
 
     protected $fillable = [
-        'learning_application_plan_form_id',
-        'managing_performance_coaching_results',
-        'building_collaborative_inclusive_working_relationships',
+        'supervisory_learning_application_plan_form_id',
+        'supervisory_managing_performance_coaching_results',
+        'supervisory_building_collaborative_inclusive_working_relationships',
 
     ];
 }

@@ -56,7 +56,6 @@ return new class extends Migration
             $table->boolean('managing_performance_coaching_results')->default(false);
             $table->boolean('building_collaborative_inclusive_working_relationships')->default(false);
             $table->boolean('thinking_strategically_creatively')->default(false);
-            $table->boolean('partnering_networking')->default(false);
             $table->boolean('problem_solving_decision_making')->default(false);
             $table->timestamps();
         });
@@ -65,8 +64,8 @@ return new class extends Migration
         Schema::create('supervisory_competencies', function (Blueprint $table) {
             $table->id();
             $table->foreignId('learning_application_plan_form_id')->constrained('learning_application_plan_forms')->onDelete('cascade');
-            $table->boolean('managing_performance_coaching_results')->default(false);
-            $table->boolean('building_collaborative_inclusive_working_relationships')->default(false);
+            $table->boolean('supervisory_managing_performance_coaching_results')->default(false);
+            $table->boolean('supervisory_building_collaborative_inclusive_working_relationships')->default(false);
             $table->timestamps();
         });
 
