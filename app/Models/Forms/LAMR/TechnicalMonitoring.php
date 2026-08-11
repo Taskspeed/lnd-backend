@@ -7,13 +7,32 @@ use Illuminate\Database\Eloquent\Model;
 class TechnicalMonitoring extends Model
 {
     //
-    protected $table = 'leadership_monitoring';
+    protected $table = 'technical_monitoring';
 
     protected $fillable = [
         'learning_application_monitoring_report_id',
-        'managing_performance_coaching_results',
-        'building_collaborative_inclusive_working_relationships',
-        'thinking_strategically_creatively',
-        'problem_solving_decision_making'
+        'planning_organizing',
+        'monitoring_evaluation',
+        'records_management',
+        'partnering_networking',
+        'process_management',
+    ];
+
+    protected $appends = ['technical_monitoring_id'];
+    protected $hidden = ['id','created_at','updated_at'];
+
+    public function getTechnicalMonitoringIdAttribute()
+    {
+        return $this->id;
+    }
+
+    protected $casts = [
+        
+       'learning_application_monitoring_report_id' => 'integer',
+        'planning_organizing'=> 'boolean',
+        'monitoring_evaluation'=> 'boolean',
+        'records_management'=> 'boolean',
+        'partnering_networking'=> 'boolean',
+        'process_management'=> 'boolean',
     ];
 }
