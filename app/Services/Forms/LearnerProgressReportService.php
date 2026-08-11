@@ -20,6 +20,17 @@ class LearnerProgressReportService
 
         return DB::transaction(function () use ($validated) {
 
+            // check first if employee are already submit
+            $employee_submit = LearnerProgressReport::where('event_id', $validated['event_id'])
+                ->where('forms_name', 'Leaner Progress Report') // match sa ginagamit mo sa create()
+                ->where('control_no', $validated['control_no'])
+                ->first();
+
+            if ($employee_submit) {
+                throw new \Exception('You already submitted this form. You can edit or delete it instead.');
+            }
+
+
             $learnerForm = LearnerProgressReport::create([
 
                 'event_id' => $validated['event_id'] ?? null,
@@ -98,7 +109,11 @@ class LearnerProgressReportService
     {
         return DB::transaction(function () use ($learnerProgressReportId, $validated) {
 
-            $learnerForm = LearnerProgressReport::findOrFail($learnerProgressReportId);
+            $learnerForm = LearnerProgressReport::find($learnerProgressReportId);
+
+             if (!$learnerForm) {
+                throw new ModelNotFoundException('Learner progrees report id not found');
+            }
 
             $learnerForm->update([
                 'event_id' => $validated['event_id'] ?? $learnerForm->event_id,
@@ -180,7 +195,7 @@ class LearnerProgressReportService
             $learnerForm = LearnerProgressReport::find($learnerProgressReportId);
 
             if (!$learnerForm) {
-                throw new ModelNotFoundException('Not found');
+                throw new ModelNotFoundException('Learner progrees report id not found');
             }
 
             $employee_submit_form = EmployeeFormSubmission::where('event_id', $learnerForm->event_id)

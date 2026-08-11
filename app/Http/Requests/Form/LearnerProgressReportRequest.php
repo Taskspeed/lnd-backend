@@ -26,12 +26,12 @@ class LearnerProgressReportRequest extends FormRequest
             //
 
             'event_id' => 'sometimes|required|exists:events,id',
-            'forms_name' => 'nullable|string',
-            'control_no' => 'nullable|string',
+            'forms_name' => 'sometimes|required|string',
+            'control_no' => 'sometimes|required|string',
             'office' => 'nullable|string',
             'learner' => 'nullable|string',
             'lnd_attended' => 'nullable|string',
-            'date_of_attendance' => 'nullable|date',
+            'date_of_attendance' => 'nullable|date_format:Y-m-d',
  
             // competency ratings — 1 to 5 scale
             'delivering_service_excellence_competency' => 'nullable|integer|min:1|max:5',

@@ -10,6 +10,7 @@ use App\Models\Forms\LPR\LearnerProgressReport;
 use App\Services\Forms\LearnerProgressReportService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
+use PhpParser\Node\Stmt\TryCatch;
 
 class EmployeeLearnerProgressReportController extends Controller
 {
@@ -20,7 +21,7 @@ class EmployeeLearnerProgressReportController extends Controller
 
     public function __construct(LearnerProgressReportService $learnProgressReportService)
     {
-       $this->learnProgressReportService = $learnProgressReportService;
+        $this->learnProgressReportService = $learnProgressReportService;
     }
 
 
@@ -37,28 +38,34 @@ class EmployeeLearnerProgressReportController extends Controller
      */
     public function store(LearnerProgressReportRequest $request)
     {
-        
-
         $validated = $request->validated();
 
-      
-        $result = $this->learnProgressReportService->create($validated);
+        try {
+            $result = $this->learnProgressReportService->create($validated);
 
-        return $this->successMessage($result, 'success created', 201);
+            return $this->successMessage($result, 'success created', 201);
+        } catch (\Exception $e) {
+
+            return $this->errorMessage($e->getMessage(), 409);
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(int $eventId, string $formName,string $controlNo)
+    public function show(int $eventId, string $formName, string $controlNo)
     {
-        
-        $learnerProgressReportId = LearnerProgressReport::with(['coreProgress','leaderShipProgress','technicalProgress'])
-        ->where('event_id',$eventId)
-        ->where('forms_name',$formName)
-        ->where('control_no',$controlNo)->first();
 
-        return $this->successMessage($learnerProgressReportId,'success fetch');
+        $learnerProgressReport = LearnerProgressReport::with(['coreProgress', 'leaderShipProgress', 'technicalProgress'])
+            ->where('event_id', $eventId)
+            ->where('forms_name', $formName)
+            ->where('control_no', $controlNo)->first();
+
+        if (!$learnerProgressReport) {
+            return $this->errorMessage('Learner progrees report id not found', 400);
+        }
+
+        return $this->successMessage($learnerProgressReport, 'success fetch');
     }
 
     /**
@@ -68,9 +75,15 @@ class EmployeeLearnerProgressReportController extends Controller
     {
         $validated = $request->validated();
 
-        $result =  $this->learnProgressReportService->edit($learnerProgressReportId,$validated);
+        try {
+            $result =  $this->learnProgressReportService->edit($learnerProgressReportId, $validated);
 
-     return $this->successMessage($result, 'success update', 200);
+            return $this->successMessage($result, 'success update', 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return $this->errorMessage($e->getMessage(), 404);
+        } catch (\Exception $e) {
+            return $this->errorMessage($e->getMessage(), 400);
+        }
     }
 
     /**
@@ -78,11 +91,13 @@ class EmployeeLearnerProgressReportController extends Controller
      */
     public function destroy(int $learnerProgressReportId)
     {
-        //
-
-    $result =  $this->learnProgressReportService->delete($learnerProgressReportId);
-
-         
-     return $this->successMessage($result, 'success delete', 200);
+        try {
+            $result = $this->learnProgressReportService->delete($learnerProgressReportId);
+            return $this->successMessage($result, 'success delete', 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return $this->errorMessage($e->getMessage(), 404);
+        } catch (\Exception $e) {
+            return $this->errorMessage($e->getMessage(), 400);
+        }
     }
 }
