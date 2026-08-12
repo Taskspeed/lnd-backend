@@ -57,7 +57,7 @@ use OpenApi\Attributes as OA;
  * and the relation were documented under the same key — the docs below now
  * only show the relation (matching actual runtime output).
  */
-class LearningApplicationPlanPaths
+class LearningApplicationPlanFormPaths
 {
     #[OA\Post(
         path: "/api/erms/learning-application-plan/store",

@@ -31,7 +31,7 @@ use OpenApi\Attributes as OA;
  * form_name values contain spaces, the client must URL-encode them before calling
  * this endpoint (e.g. "Learning Application Monitoring Report Form" has spaces).
  */
-class LearningApplicationMonitoringReportPaths
+class LearningApplicationMonitoringFormPaths
 {
     #[OA\Get(
         path: "/api/erms/learning-application-monitoring/{eventId}/{formName}/{controlNo}",
