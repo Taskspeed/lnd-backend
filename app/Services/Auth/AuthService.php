@@ -36,7 +36,7 @@ class AuthService
             return [$user->load('roles', 'permissions'), $token];
         });
     }
-    
+
     public function login(array $validated)
     {
         $user = User::where('username', $validated['username'])->first();
@@ -55,5 +55,41 @@ class AuthService
             'user'  => $user->load('roles', 'permissions'),
             'token' => $token,
         ];
+    }
+
+
+    public function update(?array $validated, int $userId)
+    {
+        return DB::transaction(function () use ($validated, $userId) {
+
+            $user = User::find($userId);
+
+            if (!$user) {
+                throw new \Exception('User not found');
+            }
+
+            $data = [
+                'name'       => $validated['name'],
+                'username'   => $validated['username'],
+                'office'     => $validated['office'],
+                'control_no' => $validated['control_no'],
+            ];
+
+            if (!empty($validated['password'])) {
+                $data['password'] = Hash::make($validated['password']);
+            }
+
+            $user->update($data);
+
+            // Role: syncRoles replaces existing role(s) with the new one
+            $user->syncRoles([$validated['role']]);
+
+            // Permissions: optional, direct permissions on top of role
+            if (array_key_exists('permissions', $validated)) {
+                $user->syncPermissions($validated['permissions'] ?? []);
+            }
+
+            return $user->load(['roles', 'permissions']);
+        });
     }
 }

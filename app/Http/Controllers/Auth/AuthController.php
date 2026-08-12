@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\UpdateUserRequest;
 use App\Http\Resources\User\UserLoginResource;
 use App\Services\Auth\AuthService;
 use App\Traits\ApiResponseTrait;
@@ -59,5 +60,17 @@ class AuthController extends Controller
         // deletes only the token used for this request
         $request->user()->currentAccessToken()->delete();
         return $this->successMessage(null, 'Logged out successfully.', 200);
+    }
+
+    public function update(UpdateUserRequest $request, int $userId)
+    {
+        $validated = $request->validated();
+
+        try {
+            $result = $this->authService->update($validated, $userId);
+            return $this->successMessage($result, 'User updated successfully.', 200);
+        } catch (\Exception $e) {
+            return $this->errorMessage($e->getMessage(), 500);
+        }
     }
 }
