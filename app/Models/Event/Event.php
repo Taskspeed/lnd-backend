@@ -24,6 +24,10 @@ class Event extends Model
         'fee'
 
     ];
+    protected $casts = [
+        'created_at' =>'date: F d, Y',
+        'updated_at' =>'date: F d, Y',
+    ];
 
     protected $hidden = ['id'];
     protected $appends = ['eventId'];

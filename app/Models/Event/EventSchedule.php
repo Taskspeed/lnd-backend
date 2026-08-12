@@ -28,7 +28,8 @@ class EventSchedule extends Model
         'morning_out'  => TimeFormatCast::class,
         'afternoon_in' => TimeFormatCast::class,
         'afternoon_out' => TimeFormatCast::class,
-        'event_id' => 'integer'
+        'event_id' => 'integer',
+        'schedule_date' =>  'date: F d, Y'
     ];
 
     public function getScheduleIdAttribute()

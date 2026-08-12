@@ -16,7 +16,10 @@ class EventSpeaker extends Model
     ];
 
      protected $appends = ['speakerId'];
-    protected $hidden = ['id'];
+    protected $hidden = ['id' ,'created_at','updated_at'];
+       protected $casts = [ 
+           'event_id' => 'integer',
+    ];
 
     public function getSpeakerIdAttribute()
     {

@@ -15,7 +15,10 @@ class EventDepartment extends Model
     ];
 
     protected $appends = ['departmentId'];
-    protected $hidden = ['id'];
+    protected $hidden = ['id','created_at','updated_at'];
+       protected $casts = [ 
+           'event_id' => 'integer',
+    ];
 
     public function getdepartmentIdAttribute()
     {

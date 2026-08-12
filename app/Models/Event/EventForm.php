@@ -16,7 +16,10 @@ class EventForm extends Model
         'form_name'
     ];
     protected $appends = ['formId'];
-    protected $hidden = ['id'];
+    protected $hidden = ['id','created_at','updated_at'];
+    protected $casts = [ 
+           'event_id' => 'integer',
+    ];
 
     public function getFormIdAttribute()
     {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Event;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Event\EventCreateRequest;
+use App\Models\Event\Event;
 use App\Services\Event\EventService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
@@ -44,7 +45,6 @@ class EventController extends Controller
         }
     }
 
-
     public function store(EventCreateRequest $request)
     {
         $validated = $request->validated();
@@ -58,6 +58,20 @@ class EventController extends Controller
         }
     }
 
+    public function update(Request $request, int $eventId)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:Pending,Complete,Cancel'
+        ]);
+
+        try {
+            $result = $this->eventService->updateEventStatus($validated, $eventId);
+
+            return $this->successMessage($result, 'success update', 200,);
+        } catch (\Exception $e) {
+            return $this->errorMessage($e->getMessage(), 500);
+        }
+    }
 
     public function destory(int $eventId)
     {
