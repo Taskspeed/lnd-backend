@@ -47,7 +47,7 @@ class AuthService
             ]);
         }
 
-        $user->tokens()->delete();
+        // $user->tokens()->delete();
 
         $token = $user->createToken('auth_token')->plainTextToken;
 

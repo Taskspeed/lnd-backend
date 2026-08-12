@@ -6,11 +6,11 @@ use OpenApi\Attributes as OA;
 
 class AuthPaths
 {
-    
+
     #[OA\Post(
         path: "/api/user/login",
         summary: "Authenticate a user",
-        description: "Validates credentials, revokes any previously issued tokens for that user, and issues a new Sanctum token.",
+        description: "Validates credentials, revokes any previously issued tokens for that user, and issues a new Sanctum token along with the user's roles and permissions.",
         operationId: "loginUser",
         tags: ["Authentication"],
         requestBody: new OA\RequestBody(
@@ -33,23 +33,33 @@ class AuthPaths
                         new OA\Property(property: "message", type: "string", example: "User login successfully."),
                         new OA\Property(
                             property: "data",
-                            type: "array",
-                            description: "Tuple: [0] = user object, [1] = new Sanctum plain-text token",
-                            items: new OA\Items(
-                                oneOf: [
-                                    new OA\Schema(
-                                        type: "object",
-                                        properties: [
-                                            new OA\Property(property: "id", type: "integer", example: 1),
-                                            new OA\Property(property: "username", type: "string", example: "juan.delacruz"),
-                                            new OA\Property(property: "control_no", type: "string", example: "2024-001"),
-                                            new OA\Property(property: "created_at", type: "string", format: "date-time", example: "2026-08-05T08:00:00.000000Z"),
-                                            new OA\Property(property: "updated_at", type: "string", format: "date-time", example: "2026-08-05T08:00:00.000000Z"),
-                                        ]
-                                    ),
-                                    new OA\Schema(type: "string", example: "2|zyxwVUTSrqponMLKjihgFEDCba0987654321"),
-                                ]
-                            )
+                            type: "object",
+                            properties: [
+                                new OA\Property(
+                                    property: "user",
+                                    type: "object",
+                                    properties: [
+                                        new OA\Property(property: "id", type: "integer", example: 4),
+                                        new OA\Property(property: "name", type: "string", example: "Juan Dela Cruz"),
+                                        new OA\Property(property: "username", type: "string", example: "jdelacruz"),
+                                        new OA\Property(property: "office", type: "string", nullable: true, example: "OFFICE OF THE CITY INFORMATION AND COMMUNICATIONS TECHNOLOGY MANAGEMENT OFFICER"),
+                                        new OA\Property(property: "control_no", type: "string", nullable: true, example: "2024-001"),
+                                        new OA\Property(
+                                            property: "roles",
+                                            type: "array",
+                                            items: new OA\Items(type: "string"),
+                                            example: ["admin"]
+                                        ),
+                                        new OA\Property(
+                                            property: "permissions",
+                                            type: "array",
+                                            items: new OA\Items(type: "string"),
+                                            example: ["view_reports", "edit_users"]
+                                        ),
+                                    ]
+                                ),
+                                new OA\Property(property: "token", type: "string", example: "9|goTwiaO9F1BuEZSjoqA7elV2UluqShjF2NziIwFpb3dbf5cc"),
+                            ]
                         ),
                     ]
                 )
@@ -78,24 +88,32 @@ class AuthPaths
             ),
         ]
     )]
-    
     public function login() {}
 
     #[OA\Post(
         path: "/api/user/register",
         summary: "Register a new user",
-        description: "Creates a new user account linked to an employee (via control_no) and returns an authentication token.",
+        description: "Creates a new user account linked to an employee (via control_no), assigns a role and optional direct permissions, and returns an authentication token.",
         operationId: "registerUser",
         tags: ["Authentication"],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ["username", "password", "control_no","office"],
+                required: ["name", "username", "password", "office", "control_no", "role"],
                 properties: [
-                    new OA\Property(property: "username", type: "string", example: "juan.delacruz", description: "Must be unique in the users table"),
+                    new OA\Property(property: "name", type: "string", example: "Juan Dela Cruz"),
+                    new OA\Property(property: "username", type: "string", example: "jdelacruz", description: "Must be unique in the users table"),
                     new OA\Property(property: "password", type: "string", format: "password", minLength: 5, example: "secret123"),
                     new OA\Property(property: "control_no", type: "string", example: "2024-001", description: "Employee control number (links user to xPersonal/xService record)"),
                     new OA\Property(property: "office", type: "string", example: "OFFICE OF THE CITY INFORMATION AND COMMUNICATIONS TECHNOLOGY MANAGEMENT OFFICER", description: "Office already provided on the employee"),
+                    new OA\Property(property: "role", type: "string", example: "hr_admin", description: "Must exist in the roles table (guard: sanctum)"),
+                    new OA\Property(
+                        property: "permissions",
+                        type: "array",
+                        items: new OA\Items(type: "string"),
+                        example: ["create_event", "create_user"],
+                        description: "Optional. Direct permissions granted on top of the role's permissions. Each value must exist in the permissions table."
+                    ),
                 ]
             )
         ),
@@ -110,17 +128,31 @@ class AuthPaths
                         new OA\Property(
                             property: "data",
                             type: "array",
-                            description: "Tuple: [0] = created user object, [1] = Sanctum plain-text token",
+                            description: "Tuple: [0] = created user object (with roles/permissions loaded), [1] = Sanctum plain-text token",
                             items: new OA\Items(
                                 oneOf: [
                                     new OA\Schema(
                                         type: "object",
                                         properties: [
-                                            new OA\Property(property: "id", type: "integer", example: 1),
-                                            new OA\Property(property: "username", type: "string", example: "juan.delacruz"),
+                                            new OA\Property(property: "id", type: "integer", example: 4),
+                                            new OA\Property(property: "name", type: "string", example: "Juan Dela Cruz"),
+                                            new OA\Property(property: "username", type: "string", example: "jdelacruz"),
+                                            new OA\Property(property: "office", type: "string", example: "OFFICE OF THE CITY INFORMATION AND COMMUNICATIONS TECHNOLOGY MANAGEMENT OFFICER"),
                                             new OA\Property(property: "control_no", type: "string", example: "2024-001"),
-                                            new OA\Property(property: "created_at", type: "string", format: "date-time", example: "2026-08-05T08:00:00.000000Z"),
-                                            new OA\Property(property: "updated_at", type: "string", format: "date-time", example: "2026-08-05T08:00:00.000000Z"),
+                                            new OA\Property(property: "created_at", type: "string", format: "date-time", example: "2026-08-06T01:06:53.130000Z"),
+                                            new OA\Property(property: "updated_at", type: "string", format: "date-time", example: "2026-08-06T01:06:53.130000Z"),
+                                            new OA\Property(
+                                                property: "roles",
+                                                type: "array",
+                                                items: new OA\Items(type: "object"),
+                                                description: "Full role model objects (not yet resource-transformed)"
+                                            ),
+                                            new OA\Property(
+                                                property: "permissions",
+                                                type: "array",
+                                                items: new OA\Items(type: "object"),
+                                                description: "Direct permission model objects only (not role-inherited)"
+                                            ),
                                         ]
                                     ),
                                     new OA\Schema(type: "string", example: "1|abcdEFGHijklMNOPqrstUVWXyz1234567890"),
@@ -132,7 +164,7 @@ class AuthPaths
             ),
             new OA\Response(
                 response: 422,
-                description: "Validation error",
+                description: "Validation error (e.g. duplicate username, role/permission not found)",
                 content: new OA\JsonContent(
                     properties: [
                         new OA\Property(property: "message", type: "string", example: "The username has already been taken."),
@@ -155,8 +187,6 @@ class AuthPaths
         ]
     )]
     public function register() {}
-
-
     #[OA\Post(
         path: "/api/user/logout",
         summary: "Log out the current user",
