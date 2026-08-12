@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\User;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class RegisterRequest extends FormRequest
+class EditRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,17 +23,10 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-        
             'name'     => 'required|string',
-            'username'    => 'required|string|unique:users,username',
-            'password' => 'required|string|min:5',
-            'office' => 'required|string',
+            'username' => 'required|string|unique:users,username,'. $this->route('userId'),
+            'password' => 'nullable|string|min:5',
             'control_no' => 'required|string',
-            
-            'role'           => 'required|string|exists:roles,name',
-            
-            'permissions'    => 'nullable|array',
-            'permissions.*'  => 'nullable|string|exists:permissions,name',
         ];
     }
 }

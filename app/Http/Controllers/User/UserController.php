@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\User\EditRequest;
 use App\Services\User\UserService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
@@ -19,7 +21,7 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
-   public function index()
+    public function index()
     {
 
         try {
@@ -31,8 +33,8 @@ class UserController extends Controller
         }
     }
 
-    
-    public function destory(int $userId)
+
+    public function destroy(int $userId)
     {
 
         try {
@@ -44,5 +46,16 @@ class UserController extends Controller
         }
     }
 
+    public function edit(EditRequest $request, int $userId)
+    {
+        $validated = $request->validated();
 
+        try {
+            $result = $this->userService->edit($validated, $userId);
+
+            return $this->successMessage($result, 'success edit', 200,);
+        } catch (\Exception $e) {
+            return $this->errorMessage($e->getMessage(), 500);
+        }
+    }
 }
