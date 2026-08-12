@@ -5,12 +5,11 @@ namespace App\Services\Forms;
 use App\Models\Event\EmployeeFormSubmission;
 use App\Models\Forms\LAMR\CoreMonitoring;
 use App\Models\Forms\LAMR\LeadershipMonitoring;
-use App\Models\Forms\LAMR\LearningApplicationMonitoringReport;
+use App\Models\Forms\LAMR\LearningApplicationMonitoringForm;
 use App\Models\Forms\LAMR\TechnicalMonitoring;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 
-class LearningApplicationMonitoringService
+class LearningApplicationMonitoringFormService
 {
 
     private function formName()
@@ -25,7 +24,7 @@ class LearningApplicationMonitoringService
 
 
             // check first if employee are already submit
-            $employee_submit = LearningApplicationMonitoringReport::where('event_id', $validated['event_id'])
+            $employee_submit = LearningApplicationMonitoringForm::where('event_id', $validated['event_id'])
                 ->where('form_name', $this->formName()) // match sa ginagamit mo sa create()
                 ->where('control_no', $validated['control_no'])
                 ->first();
@@ -35,7 +34,7 @@ class LearningApplicationMonitoringService
             }
 
 
-            $learning_application_form = LearningApplicationMonitoringReport::create([
+            $learning_application_form = LearningApplicationMonitoringForm::create([
                 'event_id' => $validated['event_id'],
                 'form_name' => $this->formName(),
                 'control_no' => $validated['control_no'],
@@ -105,11 +104,11 @@ class LearningApplicationMonitoringService
     }
 
 
-    public function edit(int $learningApplicationMonitoringId, ?array $validated)
+    public function edit(int $learningApplicationMonitoringFormId, ?array $validated)
     {
-        return DB::transaction(function () use ($learningApplicationMonitoringId, $validated) {
+        return DB::transaction(function () use ($learningApplicationMonitoringFormId, $validated) {
 
-            $learning_application_form = LearningApplicationMonitoringReport::find($learningApplicationMonitoringId);
+            $learning_application_form = LearningApplicationMonitoringForm::find($learningApplicationMonitoringFormId);
 
             if (!$learning_application_form) {
                 throw new \Exception('Learner progrees report id not found');
@@ -186,11 +185,11 @@ class LearningApplicationMonitoringService
         });
     }
 
-    public function delete(int $learningApplicationMonitoringId)
+    public function delete(int $learningApplicationMonitoringFormId)
     {
-        return DB::transaction(function () use ($learningApplicationMonitoringId) {
+        return DB::transaction(function () use ($learningApplicationMonitoringFormId) {
 
-            $learner_application_monitoring = LearningApplicationMonitoringReport::find($learningApplicationMonitoringId);
+            $learner_application_monitoring = LearningApplicationMonitoringForm::find($learningApplicationMonitoringFormId);
 
             if (!$learner_application_monitoring) {
                 throw new \Exception('Learning application monitoring id not found');

@@ -5,7 +5,7 @@ namespace App\Http\Requests\Form;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class LearningApplicationMonitoringRequest extends FormRequest
+class LearningApplicationMonitoringFormRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,7 +26,7 @@ class LearningApplicationMonitoringRequest extends FormRequest
             //
 
             'event_id' => 'required|exists:events,id',
-            'form_name' => 'required|string',  
+            // 'form_name' => 'required|string',  
             'control_no' => 'required|string',
             'learner' => 'nullable|string',
             'lnd_attended' => 'nullable|string',

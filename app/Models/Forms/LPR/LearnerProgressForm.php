@@ -4,10 +4,10 @@ namespace App\Models\Forms\LPR;
 
 use Illuminate\Database\Eloquent\Model;
 
-class LearnerProgressReport extends Model
+class LearnerProgressForm extends Model
 {
     //
-    protected $table = 'learner_progress_reports';
+    protected $table = 'learner_progress_forms';
 
     protected $fillable = [
         'event_id',
@@ -30,10 +30,10 @@ class LearnerProgressReport extends Model
         'remarks'
     ];
 
-    protected $appends = ['learner_progress_reports_id'];
+    protected $appends = ['learner_progress_form_id'];
     protected $hidden = ['id','created_at','updated_at'];
 
-    public function getLearnerProgressReportsIdAttribute()
+    public function getLearnerProgressFormsIdAttribute()
     {
         return $this->id;
     }

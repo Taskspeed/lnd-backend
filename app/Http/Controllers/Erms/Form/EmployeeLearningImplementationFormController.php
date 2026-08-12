@@ -3,24 +3,25 @@
 namespace App\Http\Controllers\Erms\Form;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Form\LearningImplementationReportRequest;
+use App\Http\Requests\Form\LearningImplementationFormRequest;
+use App\Models\Forms\LAMR\LearningApplicationMonitoringForm;
 use App\Models\Forms\LAP\LearningApplicationPlan;
 use App\Models\Forms\LIR\LearningImplementationReport;
-use App\Services\Forms\LearningImplementationReportService;
+use App\Services\Forms\LearningImplementationFormService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
 
-class EmployeeLearningImplementationReportController extends Controller
+class EmployeeLearningImplementationFormController extends Controller
 {
 
 
     use ApiResponseTrait;
 
-    protected LearningImplementationReportService $LearningImplementationReportService;
+    protected LearningImplementationFormService $LearningImplementationFormService;
 
-    public function __construct(LearningImplementationReportService $LearningImplementationReportService)
+    public function __construct(LearningImplementationFormService $LearningImplementationFormService)
     {
-        $this->LearningImplementationReportService = $LearningImplementationReportService;
+        $this->LearningImplementationFormService = $LearningImplementationFormService;
     }
     /**
      * Display a listing of the resource.
@@ -33,13 +34,13 @@ class EmployeeLearningImplementationReportController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(LearningImplementationReportRequest $request)
+    public function store(LearningImplementationFormRequest $request)
     {
         //
         $validated = $request->validated();
 
         try {
-            $result = $this->LearningImplementationReportService->create($validated);
+            $result = $this->LearningImplementationFormService->create($validated);
             return $this->successMessage($result, 'success create', 201);
         } catch (\Exception $e) {
             return $this->errorMessage($e->getMessage(), 400);
@@ -51,10 +52,11 @@ class EmployeeLearningImplementationReportController extends Controller
      */
     public function show(int $eventId, string $formName, string $controlNo)
     {
-        $learning_implementation = LearningImplementationReport::with([
+        $learning_implementation = LearningApplicationMonitoringForm::with([
             'coreImplementation',
             'coreImplementation',
-            'learderShipImplementation'
+            'learderShipImplementation',
+            'technicalImplementation'
         ])
             ->where('event_id', $eventId)
             ->where('form_name', $formName)
@@ -70,13 +72,13 @@ class EmployeeLearningImplementationReportController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(LearningImplementationReport $request, int $learningImplementationId)
+    public function update(LearningImplementationFormRequest $request, int $learningImplementationId)
     {
         //
         $validated = $request->validated();
 
         try {
-            $result =  $this->LearningImplementationReportService->edit($learningImplementationId, $validated);
+            $result =  $this->LearningImplementationFormService->edit($learningImplementationId, $validated);
 
             return $this->successMessage($result, 'success update', 200);
         } catch (\Exception $e) {
@@ -93,7 +95,7 @@ class EmployeeLearningImplementationReportController extends Controller
 
         try {
 
-            $result = $this->LearningImplementationReportService->delete($learningImplementationId);
+            $result = $this->LearningImplementationFormService->delete($learningImplementationId);
             return $this->successMessage($result, 'success delete', 200);
         } catch (\Exception $e) {
             return $this->errorMessage($e->getMessage(), 400);

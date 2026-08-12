@@ -4,16 +4,16 @@ namespace App\Models\Forms\LIR;
 
 use Illuminate\Database\Eloquent\Model;
 
-class LearningImplementationReport extends Model
+class LearningImplementationForm extends Model
 {
     //
 
-    protected $table = 'learning_implementation_reports';
+    protected $table = 'learning_implementation_forms';
 
     protected $fillable = [
 
         'event_id',
-        'forms_name',
+        'form_name',
         'control_no',
         'learner',
         'lnd_attended',

@@ -3125,6 +3125,3394 @@
                 ]
             }
         },
+        "/api/erms/learner-progress/{eventId}/{formName}/{controlNo}": {
+            "get": {
+                "tags": [
+                    "Learner Progress Report Form"
+                ],
+                "summary": "Get a Learner Progress Report Form by event, form name, and control no",
+                "description": "Returns a single Learner Progress Report Form with its related core, leadership, and technical progress records.",
+                "operationId": "showLearnerProgressReport",
+                "parameters": [
+                    {
+                        "name": "eventId",
+                        "in": "path",
+                        "description": "Event ID the form was submitted for",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "formName",
+                        "in": "path",
+                        "description": "Form name (URL-encode if it contains spaces)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "Leaner Progress Report"
+                        }
+                    },
+                    {
+                        "name": "controlNo",
+                        "in": "path",
+                        "description": "Employee control number (URL-encode if it contains spaces)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "2021-00123"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success fetch"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "event_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "forms_name": {
+                                                    "type": "string",
+                                                    "example": "Leaner Progress Report"
+                                                },
+                                                "control_no": {
+                                                    "type": "string",
+                                                    "example": "2021-00123"
+                                                },
+                                                "learner": {
+                                                    "type": "string",
+                                                    "example": "Juan Dela Cruz"
+                                                },
+                                                "lnd_attended": {
+                                                    "type": "string",
+                                                    "example": "Basic Supervisory Course"
+                                                },
+                                                "date_of_attendance": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "2026-01-15"
+                                                },
+                                                "delivering_service_excellence_competency": {
+                                                    "type": "integer",
+                                                    "example": 4
+                                                },
+                                                "exemplifying_integrity_competency": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                },
+                                                "interpersonal_skills_competency": {
+                                                    "type": "integer",
+                                                    "example": 4
+                                                },
+                                                "planning_organizing_competency": {
+                                                    "type": "integer",
+                                                    "example": 3
+                                                },
+                                                "monitoring_evaluation_competency": {
+                                                    "type": "integer",
+                                                    "example": 3
+                                                },
+                                                "records_management_competency": {
+                                                    "type": "integer",
+                                                    "example": 4
+                                                },
+                                                "partnering_networking_competency": {
+                                                    "type": "integer",
+                                                    "example": 4
+                                                },
+                                                "process_management_competency": {
+                                                    "type": "integer",
+                                                    "example": 3
+                                                },
+                                                "managing_performance_coaching_results_competency": {
+                                                    "type": "integer",
+                                                    "example": 4
+                                                },
+                                                "building_collaborative_inclusive_working_relationships_competency": {
+                                                    "type": "integer",
+                                                    "example": 4
+                                                },
+                                                "thinking_strategically_creatively_competency": {
+                                                    "type": "integer",
+                                                    "example": 3
+                                                },
+                                                "problem_solving_decision_making_competency": {
+                                                    "type": "integer",
+                                                    "example": 4
+                                                },
+                                                "core_progress": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "learner_progress_report_id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "delivering_service_excellence": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "exemplifying_integrity": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "interpersonal_skills": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "leader_ship_progress": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "learner_progress_report_id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "managing_performance_coaching_results": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "building_collaborative_inclusive_working_relationships": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        },
+                                                        "thinking_strategically_creatively": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "problem_solving_decision_making": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "technical_progress": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "learner_progress_report_id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "planning_organizing": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "monitoring_evaluation": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        },
+                                                        "records_management": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "partnering_networking": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        },
+                                                        "process_management": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Learner Progress Report Form not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Learner progrees report id not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/erms/learner-progress/store": {
+            "post": {
+                "tags": [
+                    "Learner Progress Report Form"
+                ],
+                "summary": "Submit a new Learner Progress Report Form",
+                "description": "Creates a Learner Progress Report Form along with its Core, Leadership, and Technical progress child records, and an associated EmployeeFormSubmission (status defaults to 'Pending'). Fails if the employee (control_no) already submitted this form for the given event.",
+                "operationId": "storeLearnerProgressReport",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "event_id",
+                                    "control_no"
+                                ],
+                                "properties": {
+                                    "event_id": {
+                                        "description": "Must exist in events table",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "control_no": {
+                                        "type": "string",
+                                        "example": "2021-00123"
+                                    },
+                                    "office": {
+                                        "type": "string",
+                                        "example": "HR Office",
+                                        "nullable": true
+                                    },
+                                    "learner": {
+                                        "type": "string",
+                                        "example": "Juan Dela Cruz",
+                                        "nullable": true
+                                    },
+                                    "lnd_attended": {
+                                        "type": "string",
+                                        "example": "Basic Supervisory Course",
+                                        "nullable": true
+                                    },
+                                    "date_of_attendance": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-01-15",
+                                        "nullable": true
+                                    },
+                                    "delivering_service_excellence_competency": {
+                                        "type": "integer",
+                                        "example": 4,
+                                        "nullable": true,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "exemplifying_integrity_competency": {
+                                        "type": "integer",
+                                        "example": 5,
+                                        "nullable": true,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "interpersonal_skills_competency": {
+                                        "type": "integer",
+                                        "example": 4,
+                                        "nullable": true,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "planning_organizing_competency": {
+                                        "type": "integer",
+                                        "example": 3,
+                                        "nullable": true,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "monitoring_evaluation_competency": {
+                                        "type": "integer",
+                                        "example": 3,
+                                        "nullable": true,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "records_management_competency": {
+                                        "type": "integer",
+                                        "example": 4,
+                                        "nullable": true,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "partnering_networking_competency": {
+                                        "type": "integer",
+                                        "example": 4,
+                                        "nullable": true,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "process_management_competency": {
+                                        "type": "integer",
+                                        "example": 3,
+                                        "nullable": true,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "managing_performance_coaching_results_competency": {
+                                        "type": "integer",
+                                        "example": 4,
+                                        "nullable": true,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "building_collaborative_inclusive_working_relationships_competency": {
+                                        "type": "integer",
+                                        "example": 4,
+                                        "nullable": true,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "thinking_strategically_creatively_competency": {
+                                        "type": "integer",
+                                        "example": 3,
+                                        "nullable": true,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "problem_solving_decision_making_competency": {
+                                        "type": "integer",
+                                        "example": 4,
+                                        "nullable": true,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "remarks": {
+                                        "type": "string",
+                                        "example": "Good progress overall",
+                                        "nullable": true
+                                    },
+                                    "delivering_service_excellence": {
+                                        "description": "Core progress",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "exemplifying_integrity": {
+                                        "description": "Core progress",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "interpersonal_skills": {
+                                        "description": "Core progress",
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "managing_performance_coaching_results": {
+                                        "description": "Leadership progress",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "building_collaborative_inclusive_working_relationships": {
+                                        "description": "Leadership progress",
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "thinking_strategically_creatively": {
+                                        "description": "Leadership progress",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "problem_solving_decision_making": {
+                                        "description": "Leadership progress",
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "planning_organizing": {
+                                        "description": "Technical progress",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "monitoring_evaluation": {
+                                        "description": "Technical progress",
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "records_management": {
+                                        "description": "Technical progress",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "partnering_networking": {
+                                        "description": "Technical progress",
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "process_management": {
+                                        "description": "Technical progress",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success created"
+                                        },
+                                        "data": {
+                                            "description": "Indexed array: [0] LearnerProgressReport, [1] CoreProgress, [2] LeadershipProgress, [3] TechnicalProgress, [4] EmployeeFormSubmission",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Employee already submitted this form for the event, or another error occurred",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "You already submitted this form. You can edit or delete it instead."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The event id field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/erms/learner-progress/update/{learnerProgressReportId}": {
+            "put": {
+                "tags": [
+                    "Learner Progress Report Form"
+                ],
+                "summary": "Update an existing Learner Progress Report Form",
+                "description": "Updates the LearnerProgressReport record and upserts (updateOrCreate) its Core, Leadership, and Technical progress child records. If a matching EmployeeFormSubmission exists for the event/control_no, its status is reset back to 'Pending'.",
+                "operationId": "updateLearnerProgressReport",
+                "parameters": [
+                    {
+                        "name": "learnerProgressReportId",
+                        "in": "path",
+                        "description": "LearnerProgressReport primary key",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "event_id",
+                                    "control_no"
+                                ],
+                                "properties": {
+                                    "event_id": {
+                                        "description": "Must exist in events table",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "control_no": {
+                                        "type": "string",
+                                        "example": "2021-00123"
+                                    },
+                                    "office": {
+                                        "type": "string",
+                                        "example": "HR Office",
+                                        "nullable": true
+                                    },
+                                    "learner": {
+                                        "type": "string",
+                                        "example": "Juan Dela Cruz",
+                                        "nullable": true
+                                    },
+                                    "lnd_attended": {
+                                        "type": "string",
+                                        "example": "Basic Supervisory Course",
+                                        "nullable": true
+                                    },
+                                    "date_of_attendance": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-01-15",
+                                        "nullable": true
+                                    },
+                                    "delivering_service_excellence_competency": {
+                                        "type": "integer",
+                                        "example": 4,
+                                        "nullable": true,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "exemplifying_integrity_competency": {
+                                        "type": "integer",
+                                        "example": 5,
+                                        "nullable": true,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "interpersonal_skills_competency": {
+                                        "type": "integer",
+                                        "example": 4,
+                                        "nullable": true,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "planning_organizing_competency": {
+                                        "type": "integer",
+                                        "example": 3,
+                                        "nullable": true,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "monitoring_evaluation_competency": {
+                                        "type": "integer",
+                                        "example": 3,
+                                        "nullable": true,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "records_management_competency": {
+                                        "type": "integer",
+                                        "example": 4,
+                                        "nullable": true,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "partnering_networking_competency": {
+                                        "type": "integer",
+                                        "example": 4,
+                                        "nullable": true,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "process_management_competency": {
+                                        "type": "integer",
+                                        "example": 3,
+                                        "nullable": true,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "managing_performance_coaching_results_competency": {
+                                        "type": "integer",
+                                        "example": 4,
+                                        "nullable": true,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "building_collaborative_inclusive_working_relationships_competency": {
+                                        "type": "integer",
+                                        "example": 4,
+                                        "nullable": true,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "thinking_strategically_creatively_competency": {
+                                        "type": "integer",
+                                        "example": 3,
+                                        "nullable": true,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "problem_solving_decision_making_competency": {
+                                        "type": "integer",
+                                        "example": 4,
+                                        "nullable": true,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "remarks": {
+                                        "type": "string",
+                                        "example": "Good progress overall",
+                                        "nullable": true
+                                    },
+                                    "delivering_service_excellence": {
+                                        "description": "Core progress",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "exemplifying_integrity": {
+                                        "description": "Core progress",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "interpersonal_skills": {
+                                        "description": "Core progress",
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "managing_performance_coaching_results": {
+                                        "description": "Leadership progress",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "building_collaborative_inclusive_working_relationships": {
+                                        "description": "Leadership progress",
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "thinking_strategically_creatively": {
+                                        "description": "Leadership progress",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "problem_solving_decision_making": {
+                                        "description": "Leadership progress",
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "planning_organizing": {
+                                        "description": "Technical progress",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "monitoring_evaluation": {
+                                        "description": "Technical progress",
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "records_management": {
+                                        "description": "Technical progress",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "partnering_networking": {
+                                        "description": "Technical progress",
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "process_management": {
+                                        "description": "Technical progress",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success update"
+                                        },
+                                        "data": {
+                                            "description": "Indexed array: [0] LearnerProgressReport (fresh), [1] CoreProgress, [2] LeadershipProgress, [3] TechnicalProgress, [4] EmployeeFormSubmission|null",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Learner Progress Report Form not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Learner progrees report id not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error updating the report",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The event id field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/erms/learner-progress/delete/{learnerProgressReportId}": {
+            "delete": {
+                "tags": [
+                    "Learner Progress Report Form"
+                ],
+                "summary": "Delete a Learner Progress Report Form",
+                "description": "Deletes the LearnerProgressReport and its associated EmployeeFormSubmission. Blocked if the associated EmployeeFormSubmission status is already 'Approved'.",
+                "operationId": "destroyLearnerProgressReport",
+                "parameters": [
+                    {
+                        "name": "learnerProgressReportId",
+                        "in": "path",
+                        "description": "LearnerProgressReport primary key",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success delete"
+                                        },
+                                        "data": {
+                                            "description": "The deleted LearnerProgressReport",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "event_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "control_no": {
+                                                    "type": "string",
+                                                    "example": "2021-00123"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Learner Progress Report Form not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Learner progrees report id not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Cannot delete an already approved report",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Cannot delete an already approved Learner Progress Report Form."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/erms/learning-application-monitoring/{eventId}/{formName}/{controlNo}": {
+            "get": {
+                "tags": [
+                    "Learning Application Monitoring Report Form"
+                ],
+                "summary": "Get a Learning Application Monitoring Report Form by event, form name, and control no",
+                "description": "Returns a single Learning Application Monitoring Report Form with its related core, leadership, and technical monitoring records.",
+                "operationId": "showLearningApplicationMonitoringReport",
+                "parameters": [
+                    {
+                        "name": "eventId",
+                        "in": "path",
+                        "description": "Event ID the form was submitted for",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "formName",
+                        "in": "path",
+                        "description": "Form name (URL-encode if it contains spaces)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "Learning Application Monitoring Report Form"
+                        }
+                    },
+                    {
+                        "name": "controlNo",
+                        "in": "path",
+                        "description": "Employee control number (URL-encode if it contains spaces)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "2021-00123"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success fetch"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "event_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "form_name": {
+                                                    "type": "string",
+                                                    "example": "Learning Application Monitoring Report Form"
+                                                },
+                                                "control_no": {
+                                                    "type": "string",
+                                                    "example": "2021-00123"
+                                                },
+                                                "learner": {
+                                                    "type": "string",
+                                                    "example": "Juan Dela Cruz"
+                                                },
+                                                "lnd_attended": {
+                                                    "type": "string",
+                                                    "example": "Basic Supervisory Course"
+                                                },
+                                                "date_of_attendance": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "2026-01-15"
+                                                },
+                                                "competency_developed_acquired": {
+                                                    "type": "string",
+                                                    "example": "Records Management"
+                                                },
+                                                "goals": {
+                                                    "type": "string",
+                                                    "example": "Improve records filing turnaround time"
+                                                },
+                                                "performance_indicator": {
+                                                    "type": "string",
+                                                    "example": "100% of records filed within 24 hours"
+                                                },
+                                                "learning_strategies_applied": {
+                                                    "type": "string",
+                                                    "example": "On-the-job coaching"
+                                                },
+                                                "required_resources": {
+                                                    "type": "string",
+                                                    "example": "Filing cabinet, scanner"
+                                                },
+                                                "target_date_completion": {
+                                                    "type": "string",
+                                                    "example": "2026-03-01"
+                                                },
+                                                "status_as_of_v1": {
+                                                    "type": "string",
+                                                    "example": "Ongoing"
+                                                },
+                                                "status_as_of_v2": {
+                                                    "type": "string",
+                                                    "example": "Completed"
+                                                },
+                                                "core_monitoring": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "learning_application_monitoring_report_id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "delivering_service_excellence": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "exemplifying_integrity": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "interpersonal_skills": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "leader_ship_monitoring": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "learning_application_monitoring_report_id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "managing_performance_coaching_results": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "building_collaborative_inclusive_working_relationships": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        },
+                                                        "thinking_strategically_creatively": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "problem_solving_decision_making": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "technical_monitoring": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "learning_application_monitoring_report_id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "planning_organizing": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "monitoring_evaluation": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        },
+                                                        "records_management": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "partnering_networking": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        },
+                                                        "process_management": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Learning Application Monitoring Report Form not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Learning Application Monitoring Report Form id not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/erms/learning-application-monitoring/store": {
+            "post": {
+                "tags": [
+                    "Learning Application Monitoring Report Form"
+                ],
+                "summary": "Submit a new Learning Application Monitoring Report Form",
+                "description": "Creates a Learning Application Monitoring Report Form along with its Core, Leadership, and Technical monitoring child records, and an associated EmployeeFormSubmission (status defaults to 'Pending'). Fails if the employee (control_no) already submitted this form for the given event.",
+                "operationId": "storeLearningApplicationMonitoringReport",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "event_id",
+                                    "form_name",
+                                    "control_no"
+                                ],
+                                "properties": {
+                                    "event_id": {
+                                        "description": "Must exist in events table",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "form_name": {
+                                        "type": "string",
+                                        "example": "Learning Application Monitoring Report Form"
+                                    },
+                                    "control_no": {
+                                        "type": "string",
+                                        "example": "2021-00123"
+                                    },
+                                    "learner": {
+                                        "type": "string",
+                                        "example": "Juan Dela Cruz",
+                                        "nullable": true
+                                    },
+                                    "lnd_attended": {
+                                        "type": "string",
+                                        "example": "Basic Supervisory Course",
+                                        "nullable": true
+                                    },
+                                    "date_of_attendance": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-01-15",
+                                        "nullable": true
+                                    },
+                                    "competency_developed_acquired": {
+                                        "type": "string",
+                                        "example": "Records Management",
+                                        "nullable": true
+                                    },
+                                    "goals": {
+                                        "type": "string",
+                                        "example": "Improve records filing turnaround time",
+                                        "nullable": true
+                                    },
+                                    "performance_indicator": {
+                                        "type": "string",
+                                        "example": "100% of records filed within 24 hours",
+                                        "nullable": true
+                                    },
+                                    "learning_strategies_applied": {
+                                        "type": "string",
+                                        "example": "On-the-job coaching",
+                                        "nullable": true
+                                    },
+                                    "required_resources": {
+                                        "type": "string",
+                                        "example": "Filing cabinet, scanner",
+                                        "nullable": true
+                                    },
+                                    "target_date_completion": {
+                                        "type": "string",
+                                        "example": "2026-03-01",
+                                        "nullable": true
+                                    },
+                                    "status_as_of_v1": {
+                                        "type": "string",
+                                        "example": "Ongoing",
+                                        "nullable": true
+                                    },
+                                    "status_as_of_v2": {
+                                        "type": "string",
+                                        "example": "Completed",
+                                        "nullable": true
+                                    },
+                                    "planning_organizing": {
+                                        "description": "Technical monitoring",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "monitoring_evaluation": {
+                                        "description": "Technical monitoring",
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "records_management": {
+                                        "description": "Technical monitoring",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "partnering_networking": {
+                                        "description": "Technical monitoring",
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "process_management": {
+                                        "description": "Technical monitoring",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "managing_performance_coaching_results": {
+                                        "description": "Leadership monitoring",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "building_collaborative_inclusive_working_relationships": {
+                                        "description": "Leadership monitoring",
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "thinking_strategically_creatively": {
+                                        "description": "Leadership monitoring",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "problem_solving_decision_making": {
+                                        "description": "Leadership monitoring",
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "delivering_service_excellence": {
+                                        "description": "Core monitoring",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "exemplifying_integrity": {
+                                        "description": "Core monitoring",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "interpersonal_skills": {
+                                        "description": "Core monitoring",
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success create"
+                                        },
+                                        "data": {
+                                            "description": "Indexed array: [0] LearningApplicationMonitoringReport, [1] CoreMonitoring, [2] LeadershipMonitoring, [3] TechnicalMonitoring, [4] EmployeeFormSubmission",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Employee already submitted this form for the event, or another error occurred",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "You already submitted this form. You can edit or delete it instead."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The event id field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/erms/learning-application-monitoring/update/{learningApplicationMonitoringId}": {
+            "put": {
+                "tags": [
+                    "Learning Application Monitoring Report Form"
+                ],
+                "summary": "Update an existing Learning Application Monitoring Report Form",
+                "description": "Updates the LearningApplicationMonitoringReport record and upserts (updateOrCreate) its Core, Leadership, and Technical monitoring child records. If a matching EmployeeFormSubmission exists for the event/control_no, its status is reset back to 'Pending'.",
+                "operationId": "updateLearningApplicationMonitoringReport",
+                "parameters": [
+                    {
+                        "name": "learningApplicationMonitoringId",
+                        "in": "path",
+                        "description": "LearningApplicationMonitoringReport primary key",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "event_id",
+                                    "form_name",
+                                    "control_no"
+                                ],
+                                "properties": {
+                                    "event_id": {
+                                        "description": "Must exist in events table",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "form_name": {
+                                        "type": "string",
+                                        "example": "Learning Application Monitoring Report Form"
+                                    },
+                                    "control_no": {
+                                        "type": "string",
+                                        "example": "2021-00123"
+                                    },
+                                    "learner": {
+                                        "type": "string",
+                                        "example": "Juan Dela Cruz",
+                                        "nullable": true
+                                    },
+                                    "lnd_attended": {
+                                        "type": "string",
+                                        "example": "Basic Supervisory Course",
+                                        "nullable": true
+                                    },
+                                    "date_of_attendance": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-01-15",
+                                        "nullable": true
+                                    },
+                                    "competency_developed_acquired": {
+                                        "type": "string",
+                                        "example": "Records Management",
+                                        "nullable": true
+                                    },
+                                    "goals": {
+                                        "type": "string",
+                                        "example": "Improve records filing turnaround time",
+                                        "nullable": true
+                                    },
+                                    "performance_indicator": {
+                                        "type": "string",
+                                        "example": "100% of records filed within 24 hours",
+                                        "nullable": true
+                                    },
+                                    "learning_strategies_applied": {
+                                        "type": "string",
+                                        "example": "On-the-job coaching",
+                                        "nullable": true
+                                    },
+                                    "required_resources": {
+                                        "type": "string",
+                                        "example": "Filing cabinet, scanner",
+                                        "nullable": true
+                                    },
+                                    "target_date_completion": {
+                                        "type": "string",
+                                        "example": "2026-03-01",
+                                        "nullable": true
+                                    },
+                                    "status_as_of_v1": {
+                                        "type": "string",
+                                        "example": "Ongoing",
+                                        "nullable": true
+                                    },
+                                    "status_as_of_v2": {
+                                        "type": "string",
+                                        "example": "Completed",
+                                        "nullable": true
+                                    },
+                                    "planning_organizing": {
+                                        "description": "Technical monitoring",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "monitoring_evaluation": {
+                                        "description": "Technical monitoring",
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "records_management": {
+                                        "description": "Technical monitoring",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "partnering_networking": {
+                                        "description": "Technical monitoring",
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "process_management": {
+                                        "description": "Technical monitoring",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "managing_performance_coaching_results": {
+                                        "description": "Leadership monitoring",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "building_collaborative_inclusive_working_relationships": {
+                                        "description": "Leadership monitoring",
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "thinking_strategically_creatively": {
+                                        "description": "Leadership monitoring",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "problem_solving_decision_making": {
+                                        "description": "Leadership monitoring",
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "delivering_service_excellence": {
+                                        "description": "Core monitoring",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "exemplifying_integrity": {
+                                        "description": "Core monitoring",
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "interpersonal_skills": {
+                                        "description": "Core monitoring",
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success update"
+                                        },
+                                        "data": {
+                                            "description": "Indexed array: [0] LearningApplicationMonitoringReport (fresh), [1] CoreMonitoring, [2] LeadershipMonitoring, [3] TechnicalMonitoring, [4] EmployeeFormSubmission|null",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Learning Application Monitoring Report Form not found, or another error occurred",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Learner progrees report id not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The event id field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/erms/learning-application-monitoring/delete/{learningApplicationMonitoringId}": {
+            "delete": {
+                "tags": [
+                    "Learning Application Monitoring Report Form"
+                ],
+                "summary": "Delete a Learning Application Monitoring Report Form",
+                "description": "Deletes the LearningApplicationMonitoringReport and its associated EmployeeFormSubmission. Blocked if the associated EmployeeFormSubmission status is already 'Approved'.",
+                "operationId": "destroyLearningApplicationMonitoringReport",
+                "parameters": [
+                    {
+                        "name": "learningApplicationMonitoringId",
+                        "in": "path",
+                        "description": "LearningApplicationMonitoringReport primary key",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success delete"
+                                        },
+                                        "data": {
+                                            "description": "The deleted LearningApplicationMonitoringReport",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "event_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "control_no": {
+                                                    "type": "string",
+                                                    "example": "2021-00123"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Learning Application Monitoring Report Form not found, or cannot delete an already approved report",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Cannot delete an already approved Learning application monitoring."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/erms/learning-application-plan/store": {
+            "post": {
+                "tags": [
+                    "Learning Application Plan Form"
+                ],
+                "summary": "Submit a Learning Application Plan form",
+                "description": "Creates a Learning Application Plan and its related competency/strategy/resource sub-records for an employee event. Fails if the employee (control_no) already submitted this form for the given event.",
+                "operationId": "storeLearningApplicationPlan",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "event_id",
+                                    "control_no"
+                                ],
+                                "properties": {
+                                    "event_id": {
+                                        "description": "Must exist in events table",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "control_no": {
+                                        "type": "string",
+                                        "example": "2021-00123"
+                                    },
+                                    "office": {
+                                        "type": "string",
+                                        "example": "HRMO"
+                                    },
+                                    "learner": {
+                                        "type": "string",
+                                        "example": "Juan Dela Cruz"
+                                    },
+                                    "title_of_intervention": {
+                                        "type": "string",
+                                        "example": "Basic Supervisory Training"
+                                    },
+                                    "date_conducted": {
+                                        "type": "string",
+                                        "example": "2026-01-15"
+                                    },
+                                    "venue": {
+                                        "type": "string",
+                                        "example": "City Hall Function Room"
+                                    },
+                                    "foundation": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "techinal": {
+                                        "description": "Sic: matches DB column spelling",
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "supervisory": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "managerial": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "significant_learning_insight": {
+                                        "type": "string",
+                                        "example": "Improved report turnaround time."
+                                    },
+                                    "delivering_service_excellence": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "exemplifying_integrity": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "interpersonal_skills": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "planning_organizing": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "monitoring_evaluation": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "records_management": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "partnering_networking": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "process_management": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "attention_detail": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "managing_performance_coaching_results": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "building_collaborative_inclusive_working_relationships": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "thinking_strategically_creatively": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "problem_solving_decision_making": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "supervisory_managing_performance_coaching_results": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "supervisory_building_collaborative_inclusive_working_relationships": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "immediate_application_skills": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "knowledge_sharing": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "peer_coaching_collaboration": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "develop_office_policies_guidelines": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "create_pilot_project": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "include_ipcr": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "strategic_functions": {
+                                        "description": "Also feeds beneficiaries/resources sub-records, see class NOTE",
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "core_functions": {
+                                        "description": "Also feeds beneficiaries/resources sub-records, see class NOTE",
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "support_functions": {
+                                        "description": "Also feeds beneficiaries/resources sub-records, see class NOTE",
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "employees_staff": {
+                                        "description": "Accepted by validation, currently unused by the service",
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "office_department": {
+                                        "description": "Accepted by validation, currently unused by the service",
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "city_government_organization": {
+                                        "description": "Accepted by validation, currently unused by the service",
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "clients_stakeholders_general_public": {
+                                        "description": "Accepted by validation, currently unused by the service",
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "digital_technologies": {
+                                        "description": "Accepted by validation, currently unused by the service",
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "physical_printed_resources": {
+                                        "description": "Accepted by validation, currently unused by the service",
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "human_resources_organizational_support": {
+                                        "description": "Accepted by validation, currently unused by the service",
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "financial_logistical_support": {
+                                        "description": "Accepted by validation, currently unused by the service",
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "policy_process_resources": {
+                                        "description": "Accepted by validation, currently unused by the service",
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "within_2_weeks_after_training": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "within_1_month_after_training": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "within_2_months_after_training": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "within_3_months_after_training": {
+                                        "type": "boolean",
+                                        "example": false
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success create"
+                                        },
+                                        "data": {
+                                            "description": "Ordered list: [plan, foundation, technical, managerial, supervisory, learningStrategies, performanceIndicator, beneficiaries, resources, targetCompletion, formSubmission]",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "400": {
+                        "description": "Employee already submitted this form for the event (see class NOTE re: unhandled 500)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "You already submitted this form. You can edit or delete it instead."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/erms/learning-application-plan/{eventId}/{formName}/{controlNo}": {
+            "get": {
+                "tags": [
+                    "Learning Application Plan Form"
+                ],
+                "summary": "Get a Learning Application Plan Form by event, form name, and control no",
+                "description": "Returns a single Learning Application Plan Form with its related foundation, technical, managerial, supervisory, learningStrategies, performanceIndicator, beneficiaries, resources, and targetCompletion records.",
+                "operationId": "showLearningApplicationPlan",
+                "parameters": [
+                    {
+                        "name": "eventId",
+                        "in": "path",
+                        "description": "Event ID the form was submitted for",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "formName",
+                        "in": "path",
+                        "description": "Form name (URL-encode if it contains spaces)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "Learning Application Plan"
+                        }
+                    },
+                    {
+                        "name": "controlNo",
+                        "in": "path",
+                        "description": "Employee control number (URL-encode if it contains spaces)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "2021-00123"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success fetch"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "event_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "form_name": {
+                                                    "type": "string",
+                                                    "example": "Learning Application Plan"
+                                                },
+                                                "control_no": {
+                                                    "type": "string",
+                                                    "example": "2021-00123"
+                                                },
+                                                "office": {
+                                                    "type": "string",
+                                                    "example": "HRMO"
+                                                },
+                                                "learner": {
+                                                    "type": "string",
+                                                    "example": "Juan Dela Cruz"
+                                                },
+                                                "title_of_intervention": {
+                                                    "type": "string",
+                                                    "example": "Basic Supervisory Training"
+                                                },
+                                                "date_conducted": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "2026-01-15"
+                                                },
+                                                "venue": {
+                                                    "type": "string",
+                                                    "example": "City Hall Function Room"
+                                                },
+                                                "techinal": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "significant_learning_insight": {
+                                                    "type": "string",
+                                                    "example": "Improved report turnaround time."
+                                                },
+                                                "foundation": {
+                                                    "description": "FoundationCompetencie relation. Column/relation name collision: the plan's own boolean 'foundation' column is overwritten by this relation in toArray() and is not visible in the response. See class NOTE.",
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "learning_application_plan_form_id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "delivering_service_excellence": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "exemplifying_integrity": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "interpersonal_skills": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "technical": {
+                                                    "description": "TechnicalCompetencie relation",
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "learning_application_plan_form_id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "planning_organizing": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "monitoring_evaluation": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        },
+                                                        "records_management": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "partnering_networking": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        },
+                                                        "process_management": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "attention_detail": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "managerial": {
+                                                    "description": "ManagerialCompetencie relation. Column/relation name collision: the plan's own boolean 'managerial' column is overwritten by this relation in toArray() and is not visible in the response. See class NOTE.",
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "learning_application_plan_form_id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "managing_performance_coaching_results": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "building_collaborative_inclusive_working_relationships": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        },
+                                                        "thinking_strategically_creatively": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "problem_solving_decision_making": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "supervisory": {
+                                                    "description": "SupervisoryCompetencie relation. Column/relation name collision: the plan's own boolean 'supervisory' column is overwritten by this relation in toArray() and is not visible in the response. See class NOTE.",
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "learning_application_plan_form_id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "supervisory_managing_performance_coaching_results": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "supervisory_building_collaborative_inclusive_working_relationships": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "learningStrategies": {
+                                                    "description": "LearningStrategiesImplemented relation",
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "learning_application_plan_form_id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "immediate_application_skills": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "knowledge_sharing": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "peer_coaching_collaboration": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        },
+                                                        "develop_office_policies_guidelines": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        },
+                                                        "create_pilot_project": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        },
+                                                        "include_ipcr": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "performanceIndicator": {
+                                                    "description": "PerformanceIndicator relation",
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "learning_application_plan_form_id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "strategic_functions": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "core_functions": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        },
+                                                        "support_functions": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "beneficiaries": {
+                                                    "description": "BeneficiariesStrategieApplied relation - values sourced from strategic/core/support_functions, see class NOTE",
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "learning_application_plan_form_id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "employees_staff": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "office_department": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        },
+                                                        "city_government_organization": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "clients_stakeholders_general_public": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "resources": {
+                                                    "description": "ResourcesUtilized relation - values sourced from strategic/core/support_functions, see class NOTE",
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "learning_application_plan_form_id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "digital_technologies": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "physical_printed_resources": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        },
+                                                        "human_resources_organizational_support": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "financial_logistical_support": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "policy_process_resources": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "targetCompletion": {
+                                                    "description": "TargetDateCompletion relation",
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "learning_application_plan_form_id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "within_2_weeks_after_training": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "within_1_month_after_training": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        },
+                                                        "within_2_months_after_training": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        },
+                                                        "financial_logistical_support": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "within_3_months_after_training": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Learning Application Plan not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Learning application plan id not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/erms/learning-application-plan/update/{learningApplicationPlanId}": {
+            "put": {
+                "tags": [
+                    "Learning Application Plan Form"
+                ],
+                "summary": "Update a Learning Application Plan Form",
+                "description": "Updates the Learning Application Plan and upserts (updateOrCreate) all its related sub-records. Resets the linked EmployeeFormSubmission status back to Pending.",
+                "operationId": "updateLearningApplicationPlan",
+                "parameters": [
+                    {
+                        "name": "learningApplicationPlanId",
+                        "in": "path",
+                        "description": "Learning Application Plan record ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Same shape as POST /erms/learning-application-plan/store",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "event_id",
+                                    "control_no"
+                                ],
+                                "properties": {
+                                    "event_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "control_no": {
+                                        "type": "string",
+                                        "example": "2021-00123"
+                                    },
+                                    "office": {
+                                        "type": "string",
+                                        "example": "HRMO"
+                                    },
+                                    "learner": {
+                                        "type": "string",
+                                        "example": "Juan Dela Cruz"
+                                    },
+                                    "title_of_intervention": {
+                                        "type": "string",
+                                        "example": "Basic Supervisory Training"
+                                    },
+                                    "date_conducted": {
+                                        "type": "string",
+                                        "example": "2026-01-15"
+                                    },
+                                    "venue": {
+                                        "type": "string",
+                                        "example": "City Hall Function Room"
+                                    },
+                                    "foundation": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "techinal": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "supervisory": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "managerial": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "significant_learning_insight": {
+                                        "type": "string",
+                                        "example": "Improved report turnaround time."
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "example": {
+                                "note": "Full field set matches POST /store - see that operation for all boolean competency/strategy/resource fields."
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success update"
+                                        },
+                                        "data": {
+                                            "description": "Ordered list: [plan, foundation, technical, managerial, supervisory, learningStrategies, performanceIndicator, beneficiaries, resources, targetCompletion, formSubmission]",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "400": {
+                        "description": "Learning Application Plan ID not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Learner progrees report id not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/erms/learning-application-plan/delete/{learningApplicationPlanId}": {
+            "delete": {
+                "tags": [
+                    "Learning Application Plan Form"
+                ],
+                "summary": "Delete a Learning Application Plan Form",
+                "description": "Deletes the Learning Application Plan and its linked EmployeeFormSubmission. Blocked if the linked submission status is Approved. See class NOTE re: form_name/forms_name mismatch affecting the submission lookup.",
+                "operationId": "destroyLearningApplicationPlan",
+                "parameters": [
+                    {
+                        "name": "learningApplicationPlanId",
+                        "in": "path",
+                        "description": "Learning Application Plan record ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success delete"
+                                        },
+                                        "data": {
+                                            "description": "The deleted Learning Application Plan record",
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Not found, or already approved and cannot be deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Cannot delete an already approved Learning application plan."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/erms/learner-implementation/{eventId}/{formName}/{controlNo}": {
+            "get": {
+                "tags": [
+                    "Learning Implementation Report Form"
+                ],
+                "summary": "Get a Learning Implementation Report Form by event, form name, and control no",
+                "description": "Returns a single Learning Implementation Report Form with its related core, leadership, and technical implementation records.",
+                "operationId": "showLearningImplementationReport",
+                "parameters": [
+                    {
+                        "name": "eventId",
+                        "in": "path",
+                        "description": "Event ID the form was submitted for",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "formName",
+                        "in": "path",
+                        "description": "Form name (URL-encode if it contains spaces)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "Learning Implementation Report"
+                        }
+                    },
+                    {
+                        "name": "controlNo",
+                        "in": "path",
+                        "description": "Employee control number (URL-encode if it contains spaces)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "2021-00123"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success fetch"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "event_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "form_name": {
+                                                    "type": "string",
+                                                    "example": "Learning Implementation Report"
+                                                },
+                                                "control_no": {
+                                                    "type": "string",
+                                                    "example": "2021-00123"
+                                                },
+                                                "learner": {
+                                                    "type": "string",
+                                                    "example": "Juan Dela Cruz"
+                                                },
+                                                "lnd_attended": {
+                                                    "type": "string",
+                                                    "example": "Basic Supervisory Course"
+                                                },
+                                                "date_of_attendance": {
+                                                    "type": "string",
+                                                    "example": "2026-01-15"
+                                                },
+                                                "competency_developed_acquired": {
+                                                    "type": "string",
+                                                    "example": "Improved coaching techniques"
+                                                },
+                                                "learning_strategies_applied": {
+                                                    "type": "string",
+                                                    "example": "Applied active listening during 1:1s"
+                                                },
+                                                "resources_used": {
+                                                    "type": "string",
+                                                    "example": "LnD handouts, online modules"
+                                                },
+                                                "beneficiaries_strategies_applied": {
+                                                    "type": "string",
+                                                    "example": "Team members, direct reports"
+                                                },
+                                                "performance_indicators_behavior_toward_work": {
+                                                    "type": "string",
+                                                    "example": "Increased team engagement scores"
+                                                },
+                                                "financial_aid_training_attended": {
+                                                    "type": "string",
+                                                    "example": "None"
+                                                },
+                                                "return_financial_aid": {
+                                                    "type": "string",
+                                                    "example": "N/A"
+                                                },
+                                                "core_implementation": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "learning_implementation_report_id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "delivering_service_excellence": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "exemplifying_integrity": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "interpersonal_skills": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "learder_ship_implementation": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "learning_implementation_report_id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "managing_performance_coaching_results": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "building_collaborative_inclusive_working_relationships": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        },
+                                                        "thinking_strategically_creatively": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "problem_solving_decision_making": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "technical_implementation": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "learning_implementation_report_id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "planning_organizing": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "monitoring_evaluation": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        },
+                                                        "records_management": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "partnering_networking": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        },
+                                                        "process_management": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Learning Implementation Report Form not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Learning implementation id not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/erms/learner-implementation/store": {
+            "post": {
+                "tags": [
+                    "Learning Implementation Report Form"
+                ],
+                "summary": "Submit a new Learning Implementation Report Form",
+                "description": "Creates a Learning Implementation Report along with its related core, leadership, and technical implementation records, and creates a pending EmployeeFormSubmission entry. Fails if a submission already exists for the same event_id + form_name + control_no.",
+                "operationId": "storeLearningImplementationReport",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "event_id",
+                                    "control_no"
+                                ],
+                                "properties": {
+                                    "event_id": {
+                                        "description": "Must exist in the events table",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "control_no": {
+                                        "type": "string",
+                                        "example": "2021-00123"
+                                    },
+                                    "learner": {
+                                        "type": "string",
+                                        "example": "Juan Dela Cruz",
+                                        "nullable": true
+                                    },
+                                    "lnd_attended": {
+                                        "type": "string",
+                                        "example": "Basic Supervisory Course",
+                                        "nullable": true
+                                    },
+                                    "date_of_attendance": {
+                                        "type": "string",
+                                        "example": "2026-01-15",
+                                        "nullable": true
+                                    },
+                                    "competency_developed_acquired": {
+                                        "type": "string",
+                                        "example": "Improved coaching techniques",
+                                        "nullable": true
+                                    },
+                                    "learning_strategies_applied": {
+                                        "type": "string",
+                                        "example": "Applied active listening during 1:1s",
+                                        "nullable": true
+                                    },
+                                    "resources_used": {
+                                        "type": "string",
+                                        "example": "LnD handouts, online modules",
+                                        "nullable": true
+                                    },
+                                    "beneficiaries_strategies_applied": {
+                                        "type": "string",
+                                        "example": "Team members, direct reports",
+                                        "nullable": true
+                                    },
+                                    "performance_indicators_behavior_toward_work": {
+                                        "type": "string",
+                                        "example": "Increased team engagement scores",
+                                        "nullable": true
+                                    },
+                                    "financial_aid_training_attended": {
+                                        "type": "string",
+                                        "example": "None",
+                                        "nullable": true
+                                    },
+                                    "return_financial_aid": {
+                                        "type": "string",
+                                        "example": "N/A",
+                                        "nullable": true
+                                    },
+                                    "delivering_service_excellence": {
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "exemplifying_integrity": {
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "interpersonal_skills": {
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "managing_performance_coaching_results": {
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "building_collaborative_inclusive_working_relationships": {
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "thinking_strategically_creatively": {
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "problem_solving_decision_making": {
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "planning_organizing": {
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "monitoring_evaluation": {
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "records_management": {
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "partnering_networking": {
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "process_management": {
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success create"
+                                        },
+                                        "data": {
+                                            "description": "Tuple of [learning_implementation, core_implementation, leadership_implementation, technical_implementation, form_submit]",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error or duplicate submission",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "You already submitted this form. You can edit or delete it instead."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/erms/learner-implementation/update/{learningImplementationId}": {
+            "put": {
+                "tags": [
+                    "Learning Implementation Report Form"
+                ],
+                "summary": "Update an existing Learning Implementation Report Form",
+                "description": "Updates the Learning Implementation Report and its related core, leadership, and technical implementation records (created via updateOrCreate). Resets the linked EmployeeFormSubmission status back to 'Pending' if one exists.",
+                "operationId": "updateLearningImplementationReport",
+                "parameters": [
+                    {
+                        "name": "learningImplementationId",
+                        "in": "path",
+                        "description": "Learning Implementation Report ID to update",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "event_id",
+                                    "control_no"
+                                ],
+                                "properties": {
+                                    "event_id": {
+                                        "description": "Must exist in the events table",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "control_no": {
+                                        "type": "string",
+                                        "example": "2021-00123"
+                                    },
+                                    "learner": {
+                                        "type": "string",
+                                        "example": "Juan Dela Cruz",
+                                        "nullable": true
+                                    },
+                                    "lnd_attended": {
+                                        "type": "string",
+                                        "example": "Basic Supervisory Course",
+                                        "nullable": true
+                                    },
+                                    "date_of_attendance": {
+                                        "type": "string",
+                                        "example": "2026-01-15",
+                                        "nullable": true
+                                    },
+                                    "competency_developed_acquired": {
+                                        "type": "string",
+                                        "example": "Improved coaching techniques",
+                                        "nullable": true
+                                    },
+                                    "learning_strategies_applied": {
+                                        "type": "string",
+                                        "example": "Applied active listening during 1:1s",
+                                        "nullable": true
+                                    },
+                                    "resources_used": {
+                                        "type": "string",
+                                        "example": "LnD handouts, online modules",
+                                        "nullable": true
+                                    },
+                                    "beneficiaries_strategies_applied": {
+                                        "type": "string",
+                                        "example": "Team members, direct reports",
+                                        "nullable": true
+                                    },
+                                    "performance_indicators_behavior_toward_work": {
+                                        "type": "string",
+                                        "example": "Increased team engagement scores",
+                                        "nullable": true
+                                    },
+                                    "financial_aid_training_attended": {
+                                        "type": "string",
+                                        "example": "None",
+                                        "nullable": true
+                                    },
+                                    "return_financial_aid": {
+                                        "type": "string",
+                                        "example": "N/A",
+                                        "nullable": true
+                                    },
+                                    "delivering_service_excellence": {
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "exemplifying_integrity": {
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "interpersonal_skills": {
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "managing_performance_coaching_results": {
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "building_collaborative_inclusive_working_relationships": {
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "thinking_strategically_creatively": {
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "problem_solving_decision_making": {
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "planning_organizing": {
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "monitoring_evaluation": {
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "records_management": {
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "partnering_networking": {
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "process_management": {
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success update"
+                                        },
+                                        "data": {
+                                            "description": "Tuple of [learning_implementation, core_implementation, leadership_implementation, technical_implementation, form_submit]",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Not found or validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Learner progrees report id not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/erms/learner-implementation/delete/{learningImplementationId}": {
+            "delete": {
+                "tags": [
+                    "Learning Implementation Report Form"
+                ],
+                "summary": "Delete a Learning Implementation Report Form",
+                "description": "Deletes the Learning Implementation Report and its linked EmployeeFormSubmission. Fails if the linked submission status is already 'Approved'.",
+                "operationId": "destroyLearningImplementationReport",
+                "parameters": [
+                    {
+                        "name": "learningImplementationId",
+                        "in": "path",
+                        "description": "Learning Implementation Report ID to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success delete"
+                                        },
+                                        "data": {
+                                            "description": "The deleted Learning Implementation Report",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "event_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "form_name": {
+                                                    "type": "string",
+                                                    "example": "Learning Implementation Report"
+                                                },
+                                                "control_no": {
+                                                    "type": "string",
+                                                    "example": "2021-00123"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Not found, or attempted delete of an already approved submission",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Cannot delete an already approved Learning implementation."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/employee/store": {
             "post": {
                 "tags": [
@@ -4428,6 +7816,22 @@
             "description": "Event Venue (optional)"
         },
         {
+            "name": "Learner Progress Report Form",
+            "description": "Learner Progress Report Form"
+        },
+        {
+            "name": "Learning Application Monitoring Report Form",
+            "description": "Learning Application Monitoring Report Form"
+        },
+        {
+            "name": "Learning Application Plan Form",
+            "description": "Learning Application Plan Form"
+        },
+        {
+            "name": "Learning Implementation Report Form",
+            "description": "Learning Implementation Report Form"
+        },
+        {
             "name": "Office Employee Nomination",
             "description": "Office Employee Nomination"
         },
@@ -4442,6 +7846,21 @@
         {
             "name": "Roles",
             "description": "Roles"
+        }
+    ],
+    "x-tagGroups": [
+        {
+            "name": "Form",
+            "tags": [
+                "Learner Progress Report",
+                "Learning Application Monitoring Report"
+            ]
+        },
+        {
+            "name": "Event",
+            "tags": [
+                "Event"
+            ]
         }
     ]
 }

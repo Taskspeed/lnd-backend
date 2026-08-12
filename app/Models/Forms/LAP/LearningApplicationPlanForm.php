@@ -4,7 +4,7 @@ namespace App\Models\Forms\LAP;
 
 use Illuminate\Database\Eloquent\Model;
 
-class LearningApplicationPlan extends Model
+class LearningApplicationPlanForm extends Model
 {
     //
 

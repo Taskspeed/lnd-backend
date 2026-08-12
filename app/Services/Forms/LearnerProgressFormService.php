@@ -6,13 +6,13 @@ use App\Models\Employee\NominatedEmployee;
 use App\Models\Event\EmployeeFormSubmission;
 use App\Models\Forms\LPR\CoreProgress;
 use App\Models\Forms\LPR\LeadershipProgress;
-use App\Models\Forms\LPR\LearnerProgressReport;
+use App\Models\Forms\LPR\LearnerProgressForm;
 use App\Models\Forms\LPR\TechnicalProgress;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 
-class LearnerProgressReportService
+class LearnerProgressFormService
 {
     private function formName()
     {
@@ -24,7 +24,7 @@ class LearnerProgressReportService
         return DB::transaction(function () use ($validated) {
 
             // check first if employee are already submit
-            $employee_submit = LearnerProgressReport::where('event_id', $validated['event_id'])
+            $employee_submit = LearnerProgressForm::where('event_id', $validated['event_id'])
                 ->where('forms_name', $this->formName()) // match sa ginagamit mo sa create()
                 ->where('control_no', $validated['control_no'])
                 ->first();
@@ -34,7 +34,7 @@ class LearnerProgressReportService
             }
 
 
-            $learnerForm = LearnerProgressReport::create([
+            $learnerForm = LearnerProgressForm::create([
 
                 'event_id' => $validated['event_id'] ?? null,
 
@@ -108,11 +108,11 @@ class LearnerProgressReportService
         });
     }
 
-    public function edit(int $learnerProgressReportId, ?array $validated)
+    public function edit(int $LearnerProgressFormId, ?array $validated)
     {
-        return DB::transaction(function () use ($learnerProgressReportId, $validated) {
+        return DB::transaction(function () use ($LearnerProgressFormId, $validated) {
 
-            $learnerForm = LearnerProgressReport::find($learnerProgressReportId);
+            $learnerForm = LearnerProgressForm::find($LearnerProgressFormId);
 
             if (!$learnerForm) {
                 throw new ModelNotFoundException('Learner progrees report id not found');
@@ -192,11 +192,11 @@ class LearnerProgressReportService
         });
     }
 
-    public function delete(int $learnerProgressReportId)
+    public function delete(int $LearnerProgressFormId)
     {
-        return DB::transaction(function () use ($learnerProgressReportId) {
+        return DB::transaction(function () use ($LearnerProgressFormId) {
 
-            $learnerForm = LearnerProgressReport::find($learnerProgressReportId);
+            $learnerForm = LearnerProgressForm::find($LearnerProgressFormId);
 
             if (!$learnerForm) {
                 throw new ModelNotFoundException('Learner progrees report id not found');

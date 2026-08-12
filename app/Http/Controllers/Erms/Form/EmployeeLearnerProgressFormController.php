@@ -3,22 +3,22 @@
 namespace App\Http\Controllers\Erms\Form;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Form\LearnerProgressReportRequest;
-use App\Models\Forms\LPR\LearnerProgressReport;
-use App\Services\Forms\LearnerProgressReportService;
+use App\Http\Requests\Form\LearnerProgressFormRequest;
+use App\Models\Forms\LPR\LearnerProgressForm;
+use App\Services\Forms\LearnerProgressFormService;
 use App\Traits\ApiResponseTrait;
 
 
-class EmployeeLearnerProgressReportController extends Controller
+class EmployeeLearnerProgressFormController extends Controller
 {
 
     use ApiResponseTrait;
 
-    protected LearnerProgressReportService $learnProgressReportService;
+    protected LearnerProgressFormService $learnProgressFormService;
 
-    public function __construct(LearnerProgressReportService $learnProgressReportService)
+    public function __construct(LearnerProgressFormService $learnProgressFormService)
     {
-        $this->learnProgressReportService = $learnProgressReportService;
+        $this->learnProgressFormService = $learnProgressFormService;
     }
 
 
@@ -33,12 +33,12 @@ class EmployeeLearnerProgressReportController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(LearnerProgressReportRequest $request)
+    public function store(LearnerProgressFormRequest $request)
     {
         $validated = $request->validated();
 
         try {
-            $result = $this->learnProgressReportService->create($validated);
+            $result = $this->learnProgressFormService->create($validated);
 
             return $this->successMessage($result, 'success created', 201);
         } catch (\Exception $e) {
@@ -53,27 +53,27 @@ class EmployeeLearnerProgressReportController extends Controller
     public function show(int $eventId, string $formName, string $controlNo)
     {
 
-        $learnerProgressReport = LearnerProgressReport::with(['coreProgress', 'leaderShipProgress', 'technicalProgress'])
+        $LearnerProgressForm = LearnerProgressForm::with(['coreProgress', 'leaderShipProgress', 'technicalProgress'])
             ->where('event_id', $eventId)
             ->where('form_name', $formName)
             ->where('control_no', $controlNo)->first();
 
-        if (!$learnerProgressReport) {
+        if (!$LearnerProgressForm) {
             return $this->errorMessage('Learner progrees report id not found', 400);
         }
 
-        return $this->successMessage($learnerProgressReport, 'success fetch');
+        return $this->successMessage($LearnerProgressForm, 'success fetch');
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(LearnerProgressReportRequest $request, int $learnerProgressReportId)
+    public function update(LearnerProgressFormRequest $request, int $LearnerProgressFormId)
     {
         $validated = $request->validated();
 
         try {
-            $result =  $this->learnProgressReportService->edit($learnerProgressReportId, $validated);
+            $result =  $this->learnProgressFormService->edit($LearnerProgressFormId, $validated);
 
             return $this->successMessage($result, 'success update', 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
@@ -86,10 +86,10 @@ class EmployeeLearnerProgressReportController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(int $learnerProgressReportId)
+    public function destroy(int $LearnerProgressFormId)
     {
         try {
-            $result = $this->learnProgressReportService->delete($learnerProgressReportId);
+            $result = $this->learnProgressFormService->delete($LearnerProgressFormId);
             return $this->successMessage($result, 'success delete', 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return $this->errorMessage($e->getMessage(), 404);

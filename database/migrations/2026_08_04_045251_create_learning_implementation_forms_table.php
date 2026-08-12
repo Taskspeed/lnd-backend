@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('learning_application_monitoring_reports', function (Blueprint $table) {
+        Schema::create('learning_implementation_forms', function (Blueprint $table) {
             $table->id();
             $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
             $table->string('form_name')->nullable();
@@ -20,29 +20,27 @@ return new class extends Migration
             $table->string('lnd_attended')->nullable();
             $table->string('date_of_attendance')->nullable();
             $table->string('competency_developed_acquired')->nullable();
-            $table->text('goals')->nullable();
-            $table->text('performance_indicator')->nullable();
             $table->text('learning_strategies_applied')->nullable();
-            $table->text('required_resources')->nullable();
-            $table->text('target_date_completion')->nullable();
-            $table->text('status_as_of_v1')->nullable();
-            $table->text('status_as_of_v2')->nullable();
-            $table->text('remarks')->nullable();
+            $table->text('resources_used')->nullable();
+            $table->text('beneficiaries_strategies_applied')->nullable();
+            $table->text('performance_indicators_behavior_toward_work')->nullable();
+            $table->text('financial_aid_training_attended')->nullable();
+            $table->text('return_financial_aid')->nullable();
             $table->timestamps();
         });
 
-        Schema::create('core_monitoring', function (Blueprint $table) {
+         Schema::create('core_implementation', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('learning_application_monitoring_report_id')->constrained('learning_application_monitoring_reports')->onDelete('cascade');
+            $table->foreignId('learning_implementation_form_id')->constrained('learning_implementation_forms')->onDelete('cascade');
             $table->boolean('delivering_service_excellence')->default(false);
             $table->boolean('exemplifying_integrity')->default(false);
             $table->boolean('interpersonal_skills')->default(false);
             $table->timestamps();
         });
 
-        Schema::create('technical_monitoring', function (Blueprint $table) {
+           Schema::create('technical_implementation', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('learning_application_monitoring_report_id')->constrained('learning_application_monitoring_reports')->onDelete('cascade');
+            $table->foreignId('learning_implementation_form_id')->constrained('learning_implementation_forms')->onDelete('cascade');
             $table->boolean('planning_organizing')->default(false);
             $table->boolean('monitoring_evaluation')->default(false);
             $table->boolean('records_management')->default(false);
@@ -51,15 +49,19 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('leadership_monitoring', function (Blueprint $table) {
+            Schema::create('leadership_implementation', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('learning_application_monitoring_report_id')->constrained('learning_application_monitoring_reports')->onDelete('cascade');
+            $table->foreignId('learning_implementation_form_id')->constrained('learning_implementation_forms')->onDelete('cascade');
             $table->boolean('managing_performance_coaching_results')->default(false);
             $table->boolean('building_collaborative_inclusive_working_relationships')->default(false);
             $table->boolean('thinking_strategically_creatively')->default(false);
             $table->boolean('problem_solving_decision_making')->default(false);
             $table->timestamps();
         });
+
+
+
+
     }
 
     /**
@@ -68,9 +70,10 @@ return new class extends Migration
     public function down(): void
     {
        
-        Schema::dropIfExists('core_monitoring');
-        Schema::dropIfExists('technical_monitoring');
-        Schema::dropIfExists('leadership_monitoring');
-        Schema::dropIfExists('learning_application_monitoring_reports');
+        Schema::dropIfExists('core_implementation');
+        Schema::dropIfExists('technical_implementation');
+        Schema::dropIfExists('leadership_implementation');
+        Schema::dropIfExists('learning_implementation_forms');
+
     }
 };

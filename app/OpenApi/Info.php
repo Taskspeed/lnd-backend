@@ -21,6 +21,25 @@ use OpenApi\Attributes as OA;
     bearerFormat: "Sanctum",
     description: "Enter your Sanctum token"
 )]
+#[OA\OpenApi(
+    x: [
+        "tagGroups" => [
+            [
+                "name" => "Form",
+                "tags" => [
+                    "Learner Progress Report",
+                    "Learning Application Monitoring Report",
+                ],
+            ],
+            [
+                "name" => "Event",
+                "tags" => [
+                    "Event",
+                ],
+            ],
+        ],
+    ]
+)]
 class Info
 {
     // Walang laman — annotation class lang ito

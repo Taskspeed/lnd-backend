@@ -3,22 +3,22 @@
 namespace App\Http\Controllers\Erms\Form;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Form\LearningApplicationPlanRequest;
-use App\Models\Forms\LAP\LearningApplicationPlan;
-use App\Services\Forms\LearningApplicationPlanService;
+use App\Http\Requests\Form\LearningApplicationPlanFormRequest;
+use App\Models\Forms\LAP\LearningApplicationPlanForm;
+use App\Services\Forms\LearningApplicationPlanFormService;
 use App\Traits\ApiResponseTrait;
-use Illuminate\Http\Request;
 
-class EmployeeLearningApplicationPlanController extends Controller
+
+class EmployeeLearningApplicationPlanFormController extends Controller
 {
 
     use ApiResponseTrait;
 
-    protected LearningApplicationPlanService $learningApplicationPlanService;
+    protected LearningApplicationPlanFormService $LearningApplicationPlanFormService;
 
-    public function __construct(LearningApplicationPlanService $learningApplicationPlanService)
+    public function __construct(LearningApplicationPlanFormService $LearningApplicationPlanFormService)
     {
-        $this->learningApplicationPlanService = $learningApplicationPlanService;
+        $this->LearningApplicationPlanFormService = $LearningApplicationPlanFormService;
     }
 
     /**
@@ -32,12 +32,12 @@ class EmployeeLearningApplicationPlanController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(LearningApplicationPlanRequest $request)
+    public function store(LearningApplicationPlanFormRequest $request)
     {
         //
         $validated = $request->validated();
 
-        $result = $this->learningApplicationPlanService->create($validated);
+        $result = $this->LearningApplicationPlanFormService->create($validated);
 
         return $this->successMessage($result, 'success create', 201);
     }
@@ -47,7 +47,7 @@ class EmployeeLearningApplicationPlanController extends Controller
      */
     public function show(int $eventId, string $formName, string $controlNo)
     {
-        $learning_application_plan = LearningApplicationPlan::with([
+        $learning_application_plan = LearningApplicationPlanForm::with([
             'foundation',
             'technical',
             'managerial',
@@ -72,13 +72,13 @@ class EmployeeLearningApplicationPlanController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(LearningApplicationPlanRequest $request, int $learningApplicationPlanId)
+    public function update(LearningApplicationPlanFormRequest $request, int $learningApplicationPlanId)
     {
         //
         $validated = $request->validated();
 
         try {
-            $result =  $this->learningApplicationPlanService->edit($learningApplicationPlanId, $validated);
+            $result =  $this->LearningApplicationPlanFormService->edit($learningApplicationPlanId, $validated);
 
             return $this->successMessage($result, 'success update', 200);
         } catch (\Exception $e) {
@@ -94,7 +94,7 @@ class EmployeeLearningApplicationPlanController extends Controller
 
         try {
 
-            $result = $this->learningApplicationPlanService->delete($learningApplicationPlanId);
+            $result = $this->LearningApplicationPlanFormService->delete($learningApplicationPlanId);
             return $this->successMessage($result, 'success delete', 200);
         } catch (\Exception $e) {
             return $this->errorMessage($e->getMessage(), 400);

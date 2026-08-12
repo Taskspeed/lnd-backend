@@ -5,7 +5,7 @@ namespace App\Http\Requests\Form;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class LearningApplicationPlanRequest extends FormRequest
+class LearningApplicationPlanFormRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

@@ -3,22 +3,22 @@
 namespace App\Http\Controllers\Erms\Form;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Form\LearningApplicationMonitoringRequest;
-use App\Models\Forms\LAMR\LearningApplicationMonitoringReport;
-use App\Services\Forms\LearningApplicationMonitoringService;
+use App\Http\Requests\Form\LearningApplicationMonitoringFormRequest;
+use App\Models\Forms\LAMR\LearningApplicationMonitoringForm;
+use App\Services\Forms\LearningApplicationMonitoringFormService;
 use App\Traits\ApiResponseTrait;
-use Illuminate\Http\Request;
 
-class EmployeeLearningApplicationMonitoringReportController extends Controller
+
+class EmployeeLearningApplicationMonitoringFormController extends Controller
 {
 
     use ApiResponseTrait;
 
-    protected LearningApplicationMonitoringService $learningApplicationMonitoringService;
+    protected LearningApplicationMonitoringFormService $learningApplicationMonitoringFormService;
 
-    public function __construct(LearningApplicationMonitoringService $learningApplicationMonitoringService)
+    public function __construct(LearningApplicationMonitoringFormService $learningApplicationMonitoringFormService)
     {
-        $this->learningApplicationMonitoringService = $learningApplicationMonitoringService;
+        $this->learningApplicationMonitoringFormService = $learningApplicationMonitoringFormService;
     }
 
     /**
@@ -32,13 +32,13 @@ class EmployeeLearningApplicationMonitoringReportController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(LearningApplicationMonitoringRequest $request)
+    public function store(LearningApplicationMonitoringFormRequest $request)
     {
         //
 
         $validated = $request->validated();
         try {
-            $result = $this->learningApplicationMonitoringService->create($validated);
+            $result = $this->learningApplicationMonitoringFormService->create($validated);
 
             return $this->successMessage($result, 'success create', 201);
         } catch (\Exception $e) {
@@ -52,7 +52,7 @@ class EmployeeLearningApplicationMonitoringReportController extends Controller
      public function show(int $eventId, string $formName, string $controlNo)
     {
 
-        $learnera_application_monitoring = LearningApplicationMonitoringReport::with(['coreMonitoring', 'leaderShipMonitoring', 'technicalMonitoring'])
+        $learnera_application_monitoring = LearningApplicationMonitoringForm::with(['coreMonitoring', 'leaderShipMonitoring', 'technicalMonitoring'])
             ->where('event_id', $eventId)
             ->where('form_name', $formName)
             ->where('control_no', $controlNo)->first();
@@ -67,12 +67,12 @@ class EmployeeLearningApplicationMonitoringReportController extends Controller
     /**
      * Update the specified resource in storage.
      */
-     public function update(LearningApplicationMonitoringRequest $request, int $learningApplicationMonitoringId)
+     public function update(LearningApplicationMonitoringFormRequest $request, int $learningApplicationMonitoringFormId)
     {
         $validated = $request->validated();
 
         try {
-            $result =  $this->learningApplicationMonitoringService->edit($learningApplicationMonitoringId, $validated);
+            $result =  $this->learningApplicationMonitoringFormService->edit($learningApplicationMonitoringFormId, $validated);
 
             return $this->successMessage($result, 'success update', 200);
         } catch (\Exception $e) {
@@ -83,12 +83,12 @@ class EmployeeLearningApplicationMonitoringReportController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(int $learningApplicationMonitoringId)
+    public function destroy(int $learningApplicationMonitoringFormId)
     {
 
         try {
             
-            $result = $this->learningApplicationMonitoringService->delete($learningApplicationMonitoringId);
+            $result = $this->learningApplicationMonitoringFormService->delete($learningApplicationMonitoringFormId);
             return $this->successMessage($result,'success delete',200);
         
         } catch (\Exception $e) {

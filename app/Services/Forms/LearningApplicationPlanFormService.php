@@ -5,7 +5,7 @@ namespace App\Services\Forms;
 use App\Models\Event\EmployeeFormSubmission;
 use App\Models\Forms\LAP\BeneficiariesStrategieApplied;
 use App\Models\Forms\LAP\FoundationCompetencie;
-use App\Models\Forms\LAP\LearningApplicationPlan;
+use App\Models\Forms\LAP\LearningApplicationPlanForm;
 use App\Models\Forms\LAP\LearningStrategiesImplemented;
 use App\Models\Forms\LAP\ManagerialCompetencie;
 use App\Models\Forms\LAP\PerformanceIndicator;
@@ -15,7 +15,7 @@ use App\Models\Forms\LAP\TargetDateCompletion;
 use App\Models\Forms\LAP\TechnicalCompetencie;
 use Illuminate\Support\Facades\DB;
 
-class LearningApplicationPlanService
+class LearningApplicationPlanFormService
 {
 
     private function formName()
@@ -27,7 +27,7 @@ class LearningApplicationPlanService
     {
 
         // check first if employee are already submit
-        $employee_submit = LearningApplicationPlan::where('event_id', $validated['event_id'])
+        $employee_submit = LearningApplicationPlanForm::where('event_id', $validated['event_id'])
             ->where('forms_name', $this->formName()) // match sa ginagamit mo sa create()
             ->where('control_no', $validated['control_no'])
             ->first();
@@ -37,7 +37,7 @@ class LearningApplicationPlanService
         }
         return DB::transaction(function () use ($validated) {
 
-            $learning_application_plan = LearningApplicationPlan::create([
+            $learning_application_plan = LearningApplicationPlanForm::create([
                 'event_id' => $validated['event_id'],
                 'form_name' => $this->formName(),
                 'control_no' => $validated['control_no'],
@@ -167,11 +167,11 @@ class LearningApplicationPlanService
     }
 
 
-    public function edit(int $learningApplicationPlanId, ?array $validated)
+    public function edit(int $LearningApplicationPlanFormId, ?array $validated)
     {
-        return DB::transaction(function () use ($learningApplicationPlanId, $validated) {
+        return DB::transaction(function () use ($LearningApplicationPlanFormId, $validated) {
 
-            $learning_application_plan = LearningApplicationPlan::find($learningApplicationPlanId);
+            $learning_application_plan = LearningApplicationPlanForm::find($LearningApplicationPlanFormId);
 
             if (!$learning_application_plan) {
                 throw new \Exception('Learner progrees report id not found');
@@ -324,11 +324,11 @@ class LearningApplicationPlanService
         });
     }
 
-    public function delete(int $learningApplicationPlanId)
+    public function delete(int $LearningApplicationPlanFormId)
     {
-        return DB::transaction(function () use ($learningApplicationPlanId) {
+        return DB::transaction(function () use ($LearningApplicationPlanFormId) {
 
-            $learner_application_plan= LearningApplicationPlan::find($learningApplicationPlanId);
+            $learner_application_plan= LearningApplicationPlanForm::find($LearningApplicationPlanFormId);
 
             if (!$learner_application_plan) {
                 throw new \Exception('Learning application plan id not found');

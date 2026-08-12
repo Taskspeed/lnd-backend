@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('learner_progress_reports', function (Blueprint $table) {
+        Schema::create('learner_progress_forms', function (Blueprint $table) {
             $table->id();
             $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
             $table->string('form_name')->nullable();
@@ -38,7 +38,7 @@ return new class extends Migration
 
            Schema::create('core_progress', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('learner_progress_report_id')->constrained('learner_progress_reports')->onDelete('cascade');
+            $table->foreignId('learner_progress_form_id')->constrained('learner_progress_forms')->onDelete('cascade');
             $table->boolean('delivering_service_excellence')->default(false);
             $table->boolean('exemplifying_integrity')->default(false);
             $table->boolean('interpersonal_skills')->default(false);
@@ -47,7 +47,7 @@ return new class extends Migration
 
            Schema::create('technical_progress', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('learner_progress_report_id')->constrained('learner_progress_reports')->onDelete('cascade');
+            $table->foreignId('learner_progress_form_id')->constrained('learner_progress_forms')->onDelete('cascade');
             $table->boolean('planning_organizing')->default(false);
             $table->boolean('monitoring_evaluation')->default(false);
             $table->boolean('records_management')->default(false);
@@ -58,7 +58,7 @@ return new class extends Migration
 
             Schema::create('leadership_progress', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('learner_progress_report_id')->constrained('learner_progress_reports')->onDelete('cascade');
+            $table->foreignId('learner_progress_form_id')->constrained('learner_progress_forms')->onDelete('cascade');
             $table->boolean('managing_performance_coaching_results')->default(false);
             $table->boolean('building_collaborative_inclusive_working_relationships')->default(false);
             $table->boolean('thinking_strategically_creatively')->default(false);
@@ -76,6 +76,6 @@ return new class extends Migration
     Schema::dropIfExists('leadership_progress');
     Schema::dropIfExists('technical_progress');
     Schema::dropIfExists('core_progress');
-    Schema::dropIfExists('learner_progress_reports');   
+    Schema::dropIfExists('learner_progress_forms');   
      }
 };

@@ -4,11 +4,11 @@ namespace App\Models\Forms\LAMR;
 
 use Illuminate\Database\Eloquent\Model;
 
-class LearningApplicationMonitoringReport extends Model
+class LearningApplicationMonitoringForm extends Model
 {
     //
 
-    protected $table = 'learning_application_monitoring_reports';
+    protected $table = 'learning_application_monitoring_forms';
 
     protected $fillable = [
         'event_id',
