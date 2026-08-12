@@ -26,6 +26,18 @@ class LearningImplementationForm extends Model
         'financial_aid_training_attended',
         'return_financial_aid'
     ];
+  protected $appends = ['learning_implementation_form_id'];
+    protected $hidden = ['id', 'created_at', 'updated_at'];
+
+    protected $casts = [
+  
+        'event_id' => 'integer'
+    ];
+
+    public function getLearningImplementationFormIdAttribute()
+    {
+        return $this->id;
+    }
 
     public function coreImplementation(){
         return $this->hasOne(CoreImplementation::class);

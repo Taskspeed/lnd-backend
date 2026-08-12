@@ -28,7 +28,7 @@ class LearningApplicationMonitoringForm extends Model
         'remarks'
     ];
 
-    protected $appends = ['learning_application_monitoring_id'];
+    protected $appends = ['learning_application_monitoring_form_id'];
     protected $hidden = ['id', 'created_at', 'updated_at'];
 
     protected $casts = [
@@ -36,7 +36,7 @@ class LearningApplicationMonitoringForm extends Model
         'event_id' => 'integer'
     ];
 
-    public function getLearningApplicationMonitoringIdAttribute()
+    public function getLearningApplicationMonitoringFormIdAttribute()
     {
         return $this->id;
     }

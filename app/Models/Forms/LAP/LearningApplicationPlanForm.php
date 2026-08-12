@@ -26,6 +26,19 @@ class LearningApplicationPlanForm extends Model
         'significant_learning_insight'
     ];
 
+     protected $appends = ['learning_application_plan_form_id'];
+    protected $hidden = ['id', 'created_at', 'updated_at'];
+
+    protected $casts = [
+  
+        'event_id' => 'integer'
+    ];
+
+    public function getLearningApplicationPlanFormIdAttribute()
+    {
+        return $this->id;
+    }
+
     public function foundation()
     {
         return $this->hasOne(FoundationCompetencie::class);
