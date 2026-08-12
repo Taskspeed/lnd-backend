@@ -16,8 +16,13 @@ class Event extends Model
         'venue_name',
         'type_name',
         'source_name',
-        'speaker_name',
-        'status'
+        // 'speaker_name',
+        'status',
+
+        'qualifications',
+        'hours',
+        'fee'
+
     ];
 
     protected $hidden = ['id'];

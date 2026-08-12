@@ -28,7 +28,9 @@ class EventCreateRequest extends FormRequest
             'venue_name'=> 'required|string',
             'type_name'=> 'required|string',
             'source_name'=> 'required|string',
-            'speaker_name'=> 'nullable|string',
+            'qualifications'=> 'nullable|string',
+            'fee'=> 'nullable|string',
+            'hours'=> 'nullable|integer',
             // 'status'
 
             // form for event

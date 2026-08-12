@@ -36,6 +36,9 @@ class EventService
                 'venue_name'   => $validated['venue_name'],
                 'type_name'    => $validated['type_name'],
                 'source_name'  => $validated['source_name'],
+                'qualifications'  => $validated['qualifications'],
+                'hours'  => $validated['hours'],
+                'fee'  => $validated['fee'],
                 'created_by' => $user->name ?? null,
                 'status'       => 'Pending',
             ]);
