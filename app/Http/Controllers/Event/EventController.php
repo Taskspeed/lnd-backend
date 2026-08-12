@@ -84,4 +84,18 @@ class EventController extends Controller
             return $this->errorMessage($e->getMessage(), 500);
         }
     }
+
+
+     public function edit(EventCreateRequest $request, int $eventId)
+    {
+        $validated = $request->validated();
+
+        try {
+            $result = $this->eventService->editEvent($validated, $eventId);
+
+            return $this->successMessage($result, 'success update', 200,);
+        } catch (\Exception $e) {
+            return $this->errorMessage($e->getMessage(), 500);
+        }
+    }
 }

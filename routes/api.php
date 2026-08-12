@@ -70,8 +70,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('event')->group(function () {
         Route::get('/index', [EventController::class, 'index']);
         Route::post('/store', [EventController::class, 'store']);
-        // Route::put('/update/{event}', [EventController::class, 'update']);
-        Route::get('view/{eventId}', [EventController::class, 'view']);
+        Route::put('/edit/{event}', [EventController::class, 'edit']);
+        Route::put('/status/{eventId}', [EventController::class, 'update']);
+        Route::get('/view/{eventId}', [EventController::class, 'view']);
         Route::delete('/delete/{eventId}', [EventController::class, 'destory']);
     });
 
@@ -115,8 +116,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('learning-application-monitoring')->group(function () {
             Route::get('/{eventId}/{formName}/{controlNo}', [EmployeeLearningApplicationMonitoringFormController::class, 'show'])->withoutMiddleware(['auth:sanctum']);
             Route::post('/store', [EmployeeLearningApplicationMonitoringFormController::class, 'store'])->withoutMiddleware(['auth:sanctum']);
-            Route::put('/update/{learningApplicationMonitoringFormId}', [EmployeeLearningApplicationMonitoringFormController::class, 'update'])->withoutMiddleware(['auth:sanctum']);
-            Route::delete('/delete/{learningApplicationMonitoringFormId}', [EmployeeLearningApplicationMonitoringFormController::class, 'destroy'])->withoutMiddleware(['auth:sanctum']);
+            Route::put('/update/{learningMonitoringFormId}', [EmployeeLearningApplicationMonitoringFormController::class, 'update'])->withoutMiddleware(['auth:sanctum']);
+            Route::delete('/delete/{learningMonitoringFormId}', [EmployeeLearningApplicationMonitoringFormController::class, 'destroy'])->withoutMiddleware(['auth:sanctum']);
         });
 
         Route::prefix('learning-application-plan')->group(function () {

@@ -25,13 +25,13 @@ class EventCreateRequest extends FormRequest
         return [
             //
             'title_name' => 'required|string',
-            'venue_name'=> 'required|string',
-            'type_name'=> 'required|string',
-            'source_name'=> 'required|string',
+            'venue_name'=> 'nullable|string',
+            'type_name'=> 'nullable|string',
+            'source_name'=> 'nullable|string',
             'qualifications'=> 'nullable|string',
             'fee'=> 'nullable|string',
             'hours'=> 'nullable|integer',
-            // 'status'
+       
 
             // form for event
             'form' => 'nullable|array',
