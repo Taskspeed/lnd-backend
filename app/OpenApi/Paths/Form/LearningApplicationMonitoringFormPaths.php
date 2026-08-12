@@ -230,14 +230,14 @@ class LearningApplicationMonitoringFormPaths
     public function store() {}
 
     #[OA\Put(
-        path: "/api/erms/learning-application-monitoring/update/{learningApplicationMonitoringId}",
+        path: "/api/erms/learning-application-monitoring/update/{learningApplicationMonitoringFormId}",
         summary: "Update an existing Learning Application Monitoring Report Form",
         description: "Updates the LearningApplicationMonitoringReport record and upserts (updateOrCreate) its Core, Leadership, and Technical monitoring child records. If a matching EmployeeFormSubmission exists for the event/control_no, its status is reset back to 'Pending'.",
         operationId: "updateLearningApplicationMonitoringReport",
         tags: ["Learning Application Monitoring Report Form"],
         parameters: [
             new OA\Parameter(
-                name: "learningApplicationMonitoringId",
+                name: "learningApplicationMonitoringFormId",
                 description: "LearningApplicationMonitoringReport primary key",
                 in: "path",
                 required: true,
@@ -324,14 +324,14 @@ class LearningApplicationMonitoringFormPaths
     public function update() {}
 
     #[OA\Delete(
-        path: "/api/erms/learning-application-monitoring/delete/{learningApplicationMonitoringId}",
+        path: "/api/erms/learning-application-monitoring/delete/{learningApplicationMonitoringFormId}",
         summary: "Delete a Learning Application Monitoring Report Form",
         description: "Deletes the LearningApplicationMonitoringReport and its associated EmployeeFormSubmission. Blocked if the associated EmployeeFormSubmission status is already 'Approved'.",
         operationId: "destroyLearningApplicationMonitoringReport",
         tags: ["Learning Application Monitoring Report Form"],
         parameters: [
             new OA\Parameter(
-                name: "learningApplicationMonitoringId",
+                name: "learningApplicationMonitoringFormId",
                 description: "LearningApplicationMonitoringReport primary key",
                 in: "path",
                 required: true,

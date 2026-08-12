@@ -10,8 +10,8 @@ use OpenApi\Attributes as OA;
  *
  *   GET    /erms/learning-application-plan/{eventId}/{formName}/{controlNo}         -> show()
  *   POST   /erms/learning-application-plan/store                                    -> store()
- *   PUT    /erms/learning-application-plan/update/{learningApplicationPlanId}        -> update()
- *   DELETE /erms/learning-application-plan/delete/{learningApplicationPlanId}        -> destroy()
+ *   PUT    /erms/learning-application-plan/update/{learningApplicationPlanFormId}        -> update()
+ *   DELETE /erms/learning-application-plan/delete/{learningApplicationPlanFormId}        -> destroy()
  *
  * NOTE: Route paths above follow the same store/update/{id}/delete/{id} convention
  * used by LearnerProgressReportPaths. Adjust to match the actual routes/api.php
@@ -361,14 +361,14 @@ class LearningApplicationPlanFormPaths
     }
 
     #[OA\Put(
-        path: "/api/erms/learning-application-plan/update/{learningApplicationPlanId}",
+        path: "/api/erms/learning-application-plan/update/{learningApplicationPlanFormId}",
         summary: "Update a Learning Application Plan Form",
         description: "Updates the Learning Application Plan and upserts (updateOrCreate) all its related sub-records. Resets the linked EmployeeFormSubmission status back to Pending.",
         operationId: "updateLearningApplicationPlan",
         tags: ["Learning Application Plan Form"],
         parameters: [
             new OA\Parameter(
-                name: "learningApplicationPlanId",
+                name: "learningApplicationPlanFormId",
                 description: "Learning Application Plan record ID",
                 in: "path",
                 required: true,
@@ -437,14 +437,14 @@ class LearningApplicationPlanFormPaths
     }
 
     #[OA\Delete(
-        path: "/api/erms/learning-application-plan/delete/{learningApplicationPlanId}",
+        path: "/api/erms/learning-application-plan/delete/{learningApplicationPlanFormId}",
         summary: "Delete a Learning Application Plan Form",
         description: "Deletes the Learning Application Plan and its linked EmployeeFormSubmission. Blocked if the linked submission status is Approved. See class NOTE re: form_name/forms_name mismatch affecting the submission lookup.",
         operationId: "destroyLearningApplicationPlan",
         tags: ["Learning Application Plan Form"],
         parameters: [
             new OA\Parameter(
-                name: "learningApplicationPlanId",
+                name: "learningApplicationPlanFormId",
                 description: "Learning Application Plan record ID",
                 in: "path",
                 required: true,

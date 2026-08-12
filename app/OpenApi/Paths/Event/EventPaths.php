@@ -202,6 +202,9 @@ class EventPaths
                     new OA\Property(property: "venue_name", type: "string", example: "City Hall Conference Room"),
                     new OA\Property(property: "type_name", type: "string", example: "Seminar"),
                     new OA\Property(property: "source_name", type: "string", example: "Internal"),
+                    new OA\Property(property: "qualifications", type: "string", example: "supervisory"),
+                    new OA\Property(property: "fee", type: "string", example: "Php 1000"),
+                    new OA\Property(property: "hours", type: "integer", example: "4"),
                     new OA\Property(
                         property: "form",
                         type: "array",

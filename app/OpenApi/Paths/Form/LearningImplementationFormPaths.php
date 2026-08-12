@@ -10,8 +10,8 @@ use OpenApi\Attributes as OA;
  *
  *   GET    /erms/learner-implementation/{eventId}/{formName}/{controlNo}          -> show()
  *   POST   /erms/learner-implementation/store                                     -> store()
- *   PUT    /erms/learner-implementation/update/{learningImplementationId}         -> update()
- *   DELETE /erms/learner-implementation/delete/{learningImplementationId}         -> destroy()
+ *   PUT    /erms/learner-implementation/update/{learningImplementationFormId}         -> update()
+ *   DELETE /erms/learner-implementation/delete/{learningImplementationFormId}         -> destroy()
  *
  * NOTE: All routes are registered ->withoutMiddleware(['auth:sanctum']), so no
  * `security` block is added below (public/unauthenticated endpoints).
@@ -222,14 +222,14 @@ class LearningImplementationFormPaths
         ]
     )]
     #[OA\Put(
-        path: "/api/erms/learner-implementation/update/{learningImplementationId}",
+        path: "/api/erms/learner-implementation/update/{learningImplementationFormId}",
         summary: "Update an existing Learning Implementation Report Form",
         description: "Updates the Learning Implementation Report and its related core, leadership, and technical implementation records (created via updateOrCreate). Resets the linked EmployeeFormSubmission status back to 'Pending' if one exists.",
         operationId: "updateLearningImplementationReport",
         tags: ["Learning Implementation Report Form"],
         parameters: [
             new OA\Parameter(
-                name: "learningImplementationId",
+                name: "learningImplementationFormId",
                 description: "Learning Implementation Report ID to update",
                 in: "path",
                 required: true,
@@ -301,14 +301,14 @@ class LearningImplementationFormPaths
         ]
     )]
     #[OA\Delete(
-        path: "/api/erms/learner-implementation/delete/{learningImplementationId}",
+        path: "/api/erms/learner-implementation/delete/{learningImplementationFormId}",
         summary: "Delete a Learning Implementation Report Form",
         description: "Deletes the Learning Implementation Report and its linked EmployeeFormSubmission. Fails if the linked submission status is already 'Approved'.",
         operationId: "destroyLearningImplementationReport",
         tags: ["Learning Implementation Report Form"],
         parameters: [
             new OA\Parameter(
-                name: "learningImplementationId",
+                name: "learningImplementationFormId",
                 description: "Learning Implementation Report ID to delete",
                 in: "path",
                 required: true,
