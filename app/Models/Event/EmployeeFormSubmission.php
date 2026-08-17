@@ -18,4 +18,16 @@ class EmployeeFormSubmission extends Model
         'submitted_at',
         'remarks'
     ];
+
+    protected $hidden = ['id','created_at','updated_at'];
+    protected $appends = ['employee_form_submission_id'];
+    protected $casts = [
+        'event_id' => 'integer',
+        'submitted_at' => 'date:F d, Y',
+    ];
+
+    public function getEmployeeFormSubmissionIdAttribute()
+    {
+        return $this->id;
+    }
 }
