@@ -4,6 +4,7 @@ namespace App\Services\Forms;
 
 use App\Models\Employee\NominatedEmployee;
 use App\Models\Event\EmployeeFormSubmission;
+use App\Models\Event\Event;
 use App\Models\Forms\LPR\CoreProgress;
 use App\Models\Forms\LPR\LeadershipProgress;
 use App\Models\Forms\LPR\LearnerProgressForm;
@@ -18,6 +19,7 @@ class LearnerProgressFormService
     {
         return 'Leaner Progress Report';
     }
+
     public function create(?array $validated)
     {
 
@@ -33,6 +35,15 @@ class LearnerProgressFormService
                 throw new \Exception('You already submitted this form. You can edit or delete it instead.');
             }
 
+            $event = Event::select('id')->where('id', $validated['event_id'])->first();
+
+            if (!$event) {
+                throw new \Exception('Event not found.');
+            }
+
+            if (!in_array($event->status, ['Verify', 'Approved'])) {
+                throw new \Exception('You cannot submit this form yet. The event must be verified or approved first.');
+            }
 
             $learnerForm = LearnerProgressForm::create([
 

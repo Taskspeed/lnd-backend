@@ -33,6 +33,17 @@ class LearningApplicationMonitoringFormService
                 throw new \Exception('You already submitted this form. You can edit or delete it instead.');
             }
 
+            
+            $event = LearningApplicationMonitoringForm::select('id')->where('id', $validated['event_id'])->first();
+
+            if (!$event) {
+                throw new \Exception('Event not found.');
+            }
+
+            if (!in_array($event->status, ['Verify', 'Approved'])) {
+                throw new \Exception('You cannot submit this form yet. The event must be verified or approved first.');
+            }
+
 
             $learning_application_form = LearningApplicationMonitoringForm::create([
                 'event_id' => $validated['event_id'],

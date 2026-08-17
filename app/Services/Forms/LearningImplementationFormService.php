@@ -33,9 +33,19 @@ class LearningImplementationFormService
                 throw new \Exception('You already submitted this form. You can edit or delete it instead.');
             }
 
+            $event = LearningImplementationForm::select('id')->where('id', $validated['event_id'])->first();
+
+            if (!$event) {
+                throw new \Exception('Event not found.');
+            }
+
+            if (!in_array($event->status, ['Verify', 'Approved'])) {
+                throw new \Exception('You cannot submit this form yet. The event must be verified or approved first.');
+            }
+
             $learning_implementation = LearningImplementationForm::create([
 
-            
+
                 'event_id' => $validated['event_id'],
                 'form_name' => $this->formName(),
                 'control_no' => $validated['control_no'],
@@ -115,7 +125,7 @@ class LearningImplementationFormService
             $learning_implementation->update([
 
                 'event_id' => $validated['event_id'],
-                 'form_name' => $this->formName(),
+                'form_name' => $this->formName(),
                 'control_no' => $validated['control_no'],
                 'learner' => $validated['learner'] ?? null,
                 'lnd_attended' => $validated['lnd_attended'] ?? null,
@@ -143,7 +153,7 @@ class LearningImplementationFormService
 
             $leadership_implementation = LeadershipImplementation::updateOrCreate(['learning_implementation_report_id' =>  $learning_implementation->id], [
 
-             
+
                 'managing_performance_coaching_results' => $validated['managing_performance_coaching_results'] ?? null,
                 'building_collaborative_inclusive_working_relationships' => $validated['building_collaborative_inclusive_working_relationships'] ?? null,
                 'thinking_strategically_creatively' => $validated['thinking_strategically_creatively'] ?? null,
@@ -153,7 +163,7 @@ class LearningImplementationFormService
 
             $technical_implementation  = TechinicalImplementation::updateOrCreate(['learning_implementation_report_id' =>  $learning_implementation->id], [
 
-       
+
                 'planning_organizing' => $validated['planning_organizing'] ?? null,
                 'monitoring_evaluation' => $validated['monitoring_evaluation'] ?? null,
                 'records_management' => $validated['records_management'] ?? null,
@@ -183,11 +193,11 @@ class LearningImplementationFormService
         });
     }
 
-     public function delete(int $learningImplementationFormId)
+    public function delete(int $learningImplementationFormId)
     {
         return DB::transaction(function () use ($learningImplementationFormId) {
 
-            $learning_implementation= LearningImplementationForm::find($learningImplementationFormId);
+            $learning_implementation = LearningImplementationForm::find($learningImplementationFormId);
 
             if (!$learning_implementation) {
                 throw new \Exception('Learning implementation id not found');

@@ -26,16 +26,29 @@ class LearningApplicationPlanFormService
     public function create(?array $validated)
     {
 
-        // check first if employee are already submit
-        $employee_submit = LearningApplicationPlanForm::where('event_id', $validated['event_id'])
-            ->where('forms_name', $this->formName()) // match sa ginagamit mo sa create()
-            ->where('control_no', $validated['control_no'])
-            ->first();
 
-        if ($employee_submit) {
-            throw new \Exception('You already submitted this form. You can edit or delete it instead.');
-        }
         return DB::transaction(function () use ($validated) {
+
+            // check first if employee are already submit
+            $employee_submit = LearningApplicationPlanForm::where('event_id', $validated['event_id'])
+                ->where('forms_name', $this->formName()) // match sa ginagamit mo sa create()
+                ->where('control_no', $validated['control_no'])
+                ->first();
+
+            if ($employee_submit) {
+                throw new \Exception('You already submitted this form. You can edit or delete it instead.');
+            }
+
+            $event = LearningApplicationPlanForm::select('id')->where('id', $validated['event_id'])->first();
+
+            if (!$event) {
+                throw new \Exception('Event not found.');
+            }
+
+            if (!in_array($event->status, ['Verify', 'Approved'])) {
+                throw new \Exception('You cannot submit this form yet. The event must be verified or approved first.');
+            }
+
 
             $learning_application_plan = LearningApplicationPlanForm::create([
                 'event_id' => $validated['event_id'],
@@ -328,7 +341,7 @@ class LearningApplicationPlanFormService
     {
         return DB::transaction(function () use ($LearningApplicationPlanFormId) {
 
-            $learner_application_plan= LearningApplicationPlanForm::find($LearningApplicationPlanFormId);
+            $learner_application_plan = LearningApplicationPlanForm::find($LearningApplicationPlanFormId);
 
             if (!$learner_application_plan) {
                 throw new \Exception('Learning application plan id not found');
