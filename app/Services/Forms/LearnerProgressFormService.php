@@ -53,7 +53,6 @@ class LearnerProgressFormService
                 'learner' => $validated['learner'] ?? null,
                 'lnd_attended' => $validated['lnd_attended'] ?? null,
                 'date_of_attendance' =>  $validated['date_of_attendance'] ?? null,
-
                 // competency ratings — 1 to 5 scale
                 'delivering_service_excellence_competency' => $validated['delivering_service_excellence_competency'] ?? null,
                 'exemplifying_integrity_competency' => $validated['exemplifying_integrity_competency'] ?? null,
@@ -104,6 +103,7 @@ class LearnerProgressFormService
                 'form_name' => $this->formName(),
                 'control_no' => $validated['control_no'] ?? null,
                 'status' => 'Pending',
+                'submitted_at' => now(),
 
 
             ]);

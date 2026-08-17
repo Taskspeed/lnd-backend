@@ -101,6 +101,7 @@ class LearningApplicationMonitoringFormService
                 'form_name' => $this->formName(),
                 'control_no' => $validated['control_no'] ?? null,
                 'status' => 'Pending',
+                'submitted_at' => now(),
 
             ]);
 
@@ -207,7 +208,7 @@ class LearningApplicationMonitoringFormService
             }
 
             $employee_submit_form = EmployeeFormSubmission::where('event_id', $learner_application_monitoring->event_id)
-                ->where('form_name', $learner_application_monitoring->forms_name)
+                ->where('form_name', $learner_application_monitoring->form_name)
                 ->where('control_no', $learner_application_monitoring->control_no)
                 ->first();
 

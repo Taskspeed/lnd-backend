@@ -31,7 +31,7 @@ class LearningApplicationPlanFormService
 
             // check first if employee are already submit
             $employee_submit = LearningApplicationPlanForm::where('event_id', $validated['event_id'])
-                ->where('forms_name', $this->formName()) // match sa ginagamit mo sa create()
+                ->where('form_name', $this->formName()) // match sa ginagamit mo sa create()
                 ->where('control_no', $validated['control_no'])
                 ->first();
 
@@ -160,6 +160,7 @@ class LearningApplicationPlanFormService
                 'form_name' => $this->formName(),
                 'control_no' => $validated['control_no'] ?? null,
                 'status' => 'Pending',
+                'submitted_at' => now(),
 
             ]);
 
@@ -348,7 +349,7 @@ class LearningApplicationPlanFormService
             }
 
             $employee_submit_form = EmployeeFormSubmission::where('event_id', $learner_application_plan->event_id)
-                ->where('form_name', $learner_application_plan->forms_name)
+                ->where('form_name', $learner_application_plan->form_name)
                 ->where('control_no', $learner_application_plan->control_no)
                 ->first();
 

@@ -96,6 +96,7 @@ class LearningImplementationFormService
                 'form_name' => $this->formName(),
                 'control_no' => $validated['control_no'] ?? null,
                 'status' => 'Pending',
+                'submitted_at' => now(),
 
             ]);
 
