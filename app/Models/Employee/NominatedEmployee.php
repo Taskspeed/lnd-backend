@@ -13,8 +13,31 @@ class NominatedEmployee extends Model
     protected $fillable = [
         'event_id',
         'control_no',
-        'office'
+        'office',
+        'full_name',
+        'designation',
+        'status',
+        'sg',
+        'level'
     ];
+
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'id'
+    ];
+
+
+    protected $appends = ['nominated_employee_id'];
+    protected $casts = [
+        'event_id' => 'integer',
+    ];
+
+    public function getNominatedEmployeeIdAttribute()
+    {
+        return $this->id;
+    }
+
 
     public function event()
     {
