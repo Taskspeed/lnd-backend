@@ -24,9 +24,9 @@ use OpenApi\Attributes as OA;
  * NOTE: index() in the controller is empty (not implemented), so it is
  * intentionally not documented here.
  *
- * NOTE: delete() reads `$learner_application_plan->forms_name` to look up the
+ * NOTE: delete() reads `$learner_application_plan->form_name` to look up the
  * linked EmployeeFormSubmission, but create()/edit() persist the column as
- * `form_name` (no "s"). If the model has no `forms_name` attribute, that
+ * `form_name` (no "s"). If the model has no `form_name` attribute, that
  * where() clause receives null and the submission lookup/delete may silently
  * fail to match. Verify the actual column name before relying on this docs'
  * "Cannot delete an approved plan" guard behaving as described.
@@ -439,7 +439,7 @@ class LearningApplicationPlanFormPaths
     #[OA\Delete(
         path: "/api/erms/learning-application-plan/delete/{learningApplicationPlanFormId}",
         summary: "Delete a Learning Application Plan Form",
-        description: "Deletes the Learning Application Plan and its linked EmployeeFormSubmission. Blocked if the linked submission status is Approved. See class NOTE re: form_name/forms_name mismatch affecting the submission lookup.",
+        description: "Deletes the Learning Application Plan and its linked EmployeeFormSubmission. Blocked if the linked submission status is Approved. See class NOTE re: form_name/form_name mismatch affecting the submission lookup.",
         operationId: "destroyLearningApplicationPlan",
         tags: ["Learning Application Plan Form"],
         parameters: [

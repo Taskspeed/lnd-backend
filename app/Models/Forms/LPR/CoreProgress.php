@@ -11,7 +11,7 @@ class CoreProgress extends Model
     protected $table = 'core_progress';
 
     protected $fillable = [
-        'learner_progress_report_id',
+        'learner_progress_form_id',
         'delivering_service_excellence',
         'exemplifying_integrity',
         'interpersonal_skills'
@@ -27,7 +27,7 @@ class CoreProgress extends Model
 
 
     protected $casts = [
-        'learner_progress_report_id' => 'integer',
+        'learner_progress_form_id' => 'integer',
         'delivering_service_excellence' => 'boolean',
         'exemplifying_integrity' => 'boolean',
         'interpersonal_skills' => 'boolean',

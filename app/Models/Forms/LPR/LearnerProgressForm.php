@@ -11,7 +11,7 @@ class LearnerProgressForm extends Model
 
     protected $fillable = [
         'event_id',
-        'forms_name',
+        'form_name',
         'control_no',
         'learner',
         'lnd_attended',
@@ -33,7 +33,7 @@ class LearnerProgressForm extends Model
     protected $appends = ['learner_progress_form_id'];
     protected $hidden = ['id','created_at','updated_at'];
 
-    public function getLearnerProgressFormsIdAttribute()
+    public function getLearnerProgressFormIdAttribute()
     {
         return $this->id;
     }

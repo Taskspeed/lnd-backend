@@ -20,9 +20,9 @@ use OpenApi\Attributes as OA;
  * NOTE: index() in the controller is currently empty (not implemented), so it is
  * intentionally not documented here.
  *
- * NOTE: delete() reads `$learner_application_monitoring->forms_name` (extra "s") to
+ * NOTE: delete() reads `$learner_application_monitoring->form_name` (extra "s") to
  * look up the EmployeeFormSubmission, but create()/edit() persist and query the column
- * as `form_name` (no "s") everywhere else. As written, `forms_name` is likely a
+ * as `form_name` (no "s") everywhere else. As written, `form_name` is likely a
  * non-existent attribute (will just resolve to null), so the EmployeeFormSubmission
  * lookup in delete() may silently fail to match. Worth double-checking against the
  * actual `learning_application_monitoring_reports` table schema.

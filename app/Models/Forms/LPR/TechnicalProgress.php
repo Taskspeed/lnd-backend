@@ -11,7 +11,7 @@ class TechnicalProgress extends Model
     protected $table = 'technical_progress';
 
     protected $fillable = [
-        'learner_progress_report_id',
+        'learner_progress_form_id',
         'planning_organizing',
         'monitoring_evaluation',
         'records_management',
@@ -29,7 +29,7 @@ class TechnicalProgress extends Model
 
     protected $casts = [
         
-       'learner_progress_report_id' => 'integer',
+       'learner_progress_form_id' => 'integer',
         'planning_organizing'=> 'boolean',
         'monitoring_evaluation'=> 'boolean',
         'records_management'=> 'boolean',

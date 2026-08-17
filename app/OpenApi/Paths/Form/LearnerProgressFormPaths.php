@@ -20,8 +20,8 @@ use OpenApi\Attributes as OA;
  * intentionally not documented here.
  *
  * NOTE: show() filters by `form_name`, but LearnerProgressFormService::create()
- * persists the value under `forms_name` (note the extra "s"). Verify which column
- * actually exists on the table — if it's `forms_name`, the show() query and/or this
+ * persists the value under `form_name` (note the extra "s"). Verify which column
+ * actually exists on the table — if it's `form_name`, the show() query and/or this
  * doc's path param will need to match. Documented here as `formName` per the route
  * signature.
  *
@@ -74,7 +74,7 @@ class LearnerProgressFormPaths
                             properties: [
                                 new OA\Property(property: "id", type: "integer", example: 1),
                                 new OA\Property(property: "event_id", type: "integer", example: 1),
-                                new OA\Property(property: "forms_name", type: "string", example: "Leaner Progress Report"),
+                                new OA\Property(property: "form_name", type: "string", example: "Leaner Progress Report"),
                                 new OA\Property(property: "control_no", type: "string", example: "2021-00123"),
                                 new OA\Property(property: "learner", type: "string", example: "Juan Dela Cruz"),
                                 new OA\Property(property: "lnd_attended", type: "string", example: "Basic Supervisory Course"),

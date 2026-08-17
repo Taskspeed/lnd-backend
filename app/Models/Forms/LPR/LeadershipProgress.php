@@ -11,7 +11,7 @@ class LeadershipProgress extends Model
     protected $table = 'leadership_progress';
 
     protected $fillable = [
-        'learner_progress_report_id',
+        'learner_progress_form_id',
         'managing_performance_coaching_results',
         'building_collaborative_inclusive_working_relationships',
         'thinking_strategically_creatively',
@@ -28,7 +28,7 @@ class LeadershipProgress extends Model
     }
 
     protected $casts = [
-        'learner_progress_report_id' => 'integer',
+        'learner_progress_form_id' => 'integer',
         'managing_performance_coaching_results' => 'boolean',
         'building_collaborative_inclusive_working_relationships' => 'boolean',
         'thinking_strategically_creatively' => 'boolean',

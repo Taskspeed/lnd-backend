@@ -27,7 +27,7 @@ class LearnerProgressFormService
 
             // check first if employee are already submit
             $employee_submit = LearnerProgressForm::where('event_id', $validated['event_id'])
-                ->where('forms_name', $this->formName()) // match sa ginagamit mo sa create()
+                ->where('form_name', $this->formName()) // match sa ginagamit mo sa create()
                 ->where('control_no', $validated['control_no'])
                 ->first();
 
@@ -41,15 +41,14 @@ class LearnerProgressFormService
                 throw new \Exception('Event not found.');
             }
 
-            if (!in_array($event->status, ['Verify', 'Approved'])) {
+            if ($event->status =='Verify') {
                 throw new \Exception('You cannot submit this form yet. The event must be verified or approved first.');
             }
 
             $learnerForm = LearnerProgressForm::create([
 
                 'event_id' => $validated['event_id'] ?? null,
-
-                'forms_name' => $this->formName(),
+                'form_name' => $this->formName(),
                 'control_no' => $validated['control_no'] ?? null,
                 'learner' => $validated['learner'] ?? null,
                 'lnd_attended' => $validated['lnd_attended'] ?? null,
@@ -73,7 +72,7 @@ class LearnerProgressFormService
 
             $core_progress = CoreProgress::create([
 
-                'learner_progress_report_id' =>  $learnerForm->id ?? null,
+                'learner_progress_form_id' =>  $learnerForm->id ?? null,
                 'delivering_service_excellence' => $validated['delivering_service_excellence'] ?? null,
                 'exemplifying_integrity' => $validated['exemplifying_integrity'] ?? null,
                 'interpersonal_skills' => $validated['interpersonal_skills'] ?? null,
@@ -81,7 +80,7 @@ class LearnerProgressFormService
 
             $leadership_progress = LeadershipProgress::create([
 
-                'learner_progress_report_id' =>  $learnerForm->id ?? null,
+                'learner_progress_form_id' =>  $learnerForm->id ?? null,
                 'managing_performance_coaching_results' => $validated['managing_performance_coaching_results'] ?? null,
                 'building_collaborative_inclusive_working_relationships' => $validated['building_collaborative_inclusive_working_relationships'] ?? null,
                 'thinking_strategically_creatively' => $validated['thinking_strategically_creatively'] ?? null,
@@ -91,7 +90,7 @@ class LearnerProgressFormService
 
             $technical_progress = TechnicalProgress::create([
 
-                'learner_progress_report_id' =>  $learnerForm->id ?? null,
+                'learner_progress_form_id' =>  $learnerForm->id ?? null,
                 'planning_organizing' => $validated['planning_organizing'] ?? null,
                 'monitoring_evaluation' => $validated['monitoring_evaluation'] ?? null,
                 'records_management' => $validated['records_management'] ?? null,
@@ -154,7 +153,7 @@ class LearnerProgressFormService
             ]);
 
             $core_progress = CoreProgress::updateOrCreate(
-                ['learner_progress_report_id' => $learnerForm->id],
+                ['learner_progress_form_id' => $learnerForm->id],
                 [
                     'delivering_service_excellence' => $validated['delivering_service_excellence'] ?? null,
                     'exemplifying_integrity' => $validated['exemplifying_integrity'] ?? null,
@@ -163,7 +162,7 @@ class LearnerProgressFormService
             );
 
             $leadership_progress = LeadershipProgress::updateOrCreate(
-                ['learner_progress_report_id' => $learnerForm->id],
+                ['learner_progress_form_id' => $learnerForm->id],
                 [
                     'managing_performance_coaching_results' => $validated['managing_performance_coaching_results'] ?? null,
                     'building_collaborative_inclusive_working_relationships' => $validated['building_collaborative_inclusive_working_relationships'] ?? null,
@@ -173,7 +172,7 @@ class LearnerProgressFormService
             );
 
             $technical_progress = TechnicalProgress::updateOrCreate(
-                ['learner_progress_report_id' => $learnerForm->id],
+                ['learner_progress_form_id' => $learnerForm->id],
                 [
                     'planning_organizing' => $validated['planning_organizing'] ?? null,
                     'monitoring_evaluation' => $validated['monitoring_evaluation'] ?? null,
