@@ -39,7 +39,7 @@ class AuthPaths
                                     property: "user",
                                     type: "object",
                                     properties: [
-                                        new OA\Property(property: "id", type: "integer", example: 4),
+                                        new OA\Property(property: "userId", type: "integer", example: 4),
                                         new OA\Property(property: "name", type: "string", example: "Juan Dela Cruz"),
                                         new OA\Property(property: "username", type: "string", example: "jdelacruz"),
                                         new OA\Property(property: "office", type: "string", nullable: true, example: "OFFICE OF THE CITY INFORMATION AND COMMUNICATIONS TECHNOLOGY MANAGEMENT OFFICER"),

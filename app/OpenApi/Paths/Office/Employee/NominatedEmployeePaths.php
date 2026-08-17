@@ -26,7 +26,7 @@ use OpenApi\Attributes as OA;
 class NominatedEmployeePaths
 {
     #[OA\Post(
-        path: "/api/employee/store",
+        path: "/api/office/employee/store",
         summary: "Nominate employees for an event",
         description: "Bulk-creates nominated employee records. Rejects duplicate (event_id, control_no) pairs both within the submitted payload and against existing records. Each created record is stamped with the authenticated user's office. Runs inside a DB transaction.",
         operationId: "storeNominatedEmployee",
@@ -110,7 +110,7 @@ class NominatedEmployeePaths
     public function store() {}
 
     #[OA\Delete(
-        path: "/api/employee/delete{nominatedId}",
+        path: "/api/office/employee/delete{nominatedId}",
         summary: "Remove a nominated employee",
         description: "Deletes a nominated employee record by ID. Note: the route parameter is concatenated directly onto 'delete' with no separating slash (e.g. /api/employee/delete5).",
         operationId: "destroyNominatedEmployee",
