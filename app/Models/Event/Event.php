@@ -2,6 +2,7 @@
 
 namespace App\Models\Event;
 
+use App\Models\Employee\NominatedEmployee;
 use App\Models\Event\EventForm;
 use Illuminate\Database\Eloquent\Model;
 
@@ -30,7 +31,7 @@ class Event extends Model
     ];
 
     protected $hidden = ['id'];
-    protected $appends = ['eventId'];
+    protected $appends = ['event_id'];
 
     public function getEventIdAttribute()
     {
@@ -54,5 +55,9 @@ class Event extends Model
      public function schedule()
     {
         return  $this->hasMany(EventSchedule::class);
+    }
+
+    public function nominatedEmployee(){
+        return $this->hasMany(NominatedEmployee::class);
     }
 }
