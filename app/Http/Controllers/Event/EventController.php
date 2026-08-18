@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Event;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Event\EventAddScheduleRequest;
 use App\Http\Requests\Event\EventCreateRequest;
 use App\Models\Event\Event;
+use App\Models\Event\EventSchedule;
 use App\Services\Event\EventService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
@@ -40,7 +42,7 @@ class EventController extends Controller
             $result = $this->eventService->show($eventId);
 
             return $this->successMessage($result, 'success fetch', 200,);
-        } catch (\Throwable $e) {
+        } catch (\Exception $e) {
             return $this->errorMessage($e->getMessage(), 500);
         }
     }
@@ -98,4 +100,32 @@ class EventController extends Controller
             return $this->errorMessage($e->getMessage(), 500);
         }
     }
+
+     public function show(int $eventId,int $eventScheduleId)
+    {
+
+        try {
+            $result = $this->eventService->nominatedEmployee($eventId,$eventScheduleId);
+
+            return $this->successMessage($result, 'success fetch', 200,);
+        } catch (\Exception $e) {
+            return $this->errorMessage($e->getMessage(), 500);
+        }
+    }
+
+
+    public function add(EventAddScheduleRequest $request)
+    {
+        $validated = $request->validated();
+
+        try {
+            $result = $this->eventService->addSchedule($validated);
+
+            return $this->successMessage($result, 'success created', 200,);
+        } catch (\Throwable $e) {
+            return $this->errorMessage($e->getMessage(), 500);
+        }
+    }
+
+
 }

@@ -3,6 +3,9 @@
 namespace App\Services\Office;
 
 use App\Models\Employee\NominatedEmployee;
+use App\Models\Event\Event;
+use App\Models\Event\EventSchedule;
+use App\Models\RSP\vwEmployee;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
 
@@ -11,6 +14,16 @@ class EmployeeService
     public function create(array $validated, Authenticatable $user)
     {
         $employees = $validated['employee'];
+
+        // $eventIds = array_unique(array_column($employees, 'event_id'));
+
+        // $invalidEvents = Event::whereIn('id', $eventIds)
+        //     ->whereIn('status', ['Cancel', 'Complete'])
+        //     ->pluck('id');
+
+        // if ($invalidEvents->isNotEmpty()) {
+        //     throw new \Exception('Cannot nominate employee because the event is already cancelled or completed.');
+        // }
 
         // 1. Check for duplicates within the submitted request itself
         $seen = [];
@@ -45,57 +58,88 @@ class EmployeeService
 
         // 3. Insert inside a transaction
         return DB::transaction(function () use ($employees, $user) {
+            $controlNos = array_column($employees, 'control_no');
+
+            $employeeData = vwEmployee::whereIn('ControlNo', $controlNos)
+                ->get()
+                ->keyBy('ControlNo');
+
+
             $nominees = [];
             foreach ($employees as $entry) {
+                $data = $employeeData->get($entry['control_no']);
+
+                if (!$data) {
+                    throw new \Exception("Employee with control_no {$entry['control_no']} not found.", 404);
+                }
+
+                
                 $nominees[] = NominatedEmployee::create([
-                    'event_id'   => $entry['event_id'],
-                    'control_no' => $entry['control_no'],
-                    'office'     => $user->office,
+                    'event_id'    => $entry['event_id'],
+                    'control_no'  => $entry['control_no'],
+                    'designation' => $data->position ?? null,
+                    'status'      => $data->status ?? null,
+                    'full_name'   => $data->name ?? null,
+                    'sg'          => $data->sg ?? null,
+                    'level'       => $data->level ?? null,
+                    'office'      => $user->office ?? null,
+                    'event_schedule_id'      => $entry['event_schedule_id'],
                 ]);
             }
+
             return $nominees;
         });
     }
 
-    // public function update(int $nominatedId, array $validated, Authenticatable $user)
-    // {
-    //     $nominee = NominatedEmployee::findOrFail($nominatedId);
 
-    //     // Check kung may ibang record (maliban dito) na may parehong event_id + control_no
-    //     $exists = NominatedEmployee::where('event_id', $validated['event_id'])
-    //         ->where('control_no', $validated['control_no'])
-    //         ->where('id', '!=', $nominatedId)
-    //         ->exists();
-
-    //     if ($exists) {
-    //         throw new \Exception(
-    //             "Employee with control_no {$validated['control_no']} is already nominated for this event.",
-    //             422
-    //         );
-    //     }
-
-    //     return DB::transaction(function () use ($nominee, $validated) {
-    //         $nominee->update([
-    //             'event_id'   => $validated['event_id'],
-    //             'control_no' => $validated['control_no'],
-    //         ]);
-
-    //         return $nominee;
-    //     });
-    // }
-
-    public function delete(int $nominatedId)
+    //pending 
+    public function update(int $nominatedId, array $validated, Authenticatable $user)
     {
+        $nominee = NominatedEmployee::findOrFail($nominatedId);
 
-        $employee = NominatedEmployee::find($nominatedId);
+        // Check kung may ibang record (maliban dito) na may parehong event_id + control_no
+        $exists = NominatedEmployee::where('event_id', $validated['event_id'])
+            ->where('control_no', $validated['control_no'])
+            ->where('id', '!=', $nominatedId)
+            ->exists();
+
+        if ($exists) {
+            throw new \Exception(
+                "Employee with control_no {$validated['control_no']} is already nominated for this event.",
+                422
+            );
+        }
+
+        return DB::transaction(function () use ($nominee, $validated) {
+            $nominee->update([
+                'event_id'   => $validated['event_id'],
+                'control_no' => $validated['control_no'],
+            ]);
+
+            return $nominee;
+        });
+    }
+
+    public function delete(int $nominatedEmployeeId)
+    {
+        $employee = NominatedEmployee::find($nominatedEmployeeId);
 
         if (!$employee) {
-            throw new \Exception('nominate employee not found');
+            throw new \Exception('Nominated employee not found.');
+        }
+
+        $event = Event::select('id', 'status')->where('id', $employee->event_id)->first();
+
+        if (!$event) {
+            throw new \Exception('Event not found.');
+        }
+
+        if (in_array($event->status, ['Cancel', 'Complete'])) {
+            throw new \Exception('You cannot delete nominated employee because the event is already cancelled or completed.');
         }
 
         $employee->delete();
 
         return $employee;
     }
-
 }

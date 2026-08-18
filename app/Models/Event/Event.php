@@ -15,11 +15,7 @@ class Event extends Model
     protected $fillable = [
         'title_name',
         'venue_name',
-        'type_name',
         'source_name',
-        // 'speaker_name',
-        'status',
-
         'qualifications',
         'hours',
         'fee'
@@ -42,22 +38,11 @@ class Event extends Model
     {
         return  $this->hasMany(EventForm::class);
     }
-    public function office()
-    {
-        return  $this->hasMany(EventDepartment::class);
-    }
-
-     public function speaker()
-    {
-        return  $this->hasMany(EventSpeaker::class);
-    }
-
+ 
      public function schedule()
     {
         return  $this->hasMany(EventSchedule::class);
     }
 
-    public function nominatedEmployee(){
-        return $this->hasMany(NominatedEmployee::class);
-    }
+    
 }
