@@ -13,7 +13,7 @@ use App\Http\Controllers\Event\Library\EventSourceController;
 use App\Http\Controllers\Event\Library\EventTitleController;
 use App\Http\Controllers\Event\Library\EventTypeController;
 use App\Http\Controllers\Event\Library\EventVenueController;
-
+use App\Http\Controllers\HR\OfficeEmployeeController;
 use App\Http\Controllers\Office\EmployeeController;
 use App\Http\Controllers\Office\EventController as OfficeEventController;
 use App\Http\Controllers\Office\OfficeController;;
@@ -34,6 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/update/{userId}', [AuthController::class, 'update']);
         Route::put('/edit/{userId}', [UserController::class, 'edit']);
         Route::delete('/delete/{userId}', [UserController::class, 'destroy']);
+        Route::post('/logout', [AuthController::class, 'logout']);
     });
 
     Route::prefix('type')->group(function () {
@@ -75,9 +76,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('event')->group(function () {
         Route::get('/index', [EventController::class, 'index']);
         Route::post('/store', [EventController::class, 'store']);
+        Route::post('/add-schedule', [EventController::class, 'add']);
         Route::put('/edit/{event}', [EventController::class, 'edit']);
-        Route::put('/status/{eventId}', [EventController::class, 'update']);
+        Route::put('/status/{eventScheduleId}', [EventController::class, 'update']);
         Route::get('/view/{eventId}', [EventController::class, 'view']);
+        Route::get('/nominated-employee/{eventId}/{eventScheduleId}', [EventController::class, 'show']);
         Route::delete('/delete/{eventId}', [EventController::class, 'destory']);
     });
 
@@ -144,5 +147,11 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::put('/update/{learningImplementationFormId}', [EmployeeLearningImplementationFormController::class, 'update'])->withoutMiddleware(['auth:sanctum']);
             Route::delete('/delete/{learningImplementationFormId}', [EmployeeLearningImplementationFormController::class, 'destroy'])->withoutMiddleware(['auth:sanctum']);
         });
+    });
+
+
+    Route::prefix('employee')->group(function () {
+        Route::get('/show/{office}', [OfficeEmployeeController::class, 'show']);
+
     });
 });

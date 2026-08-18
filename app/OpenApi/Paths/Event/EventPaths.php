@@ -558,8 +558,8 @@ class EventPaths
 
     #[OA\Put(
         path: "/api/event/edit/{event}",
-        summary: "Edit an event and replace its schedule, form, office, speakers, and DateTimes",
-        description: "Updates the event's core fields, then deletes and recreates its form, schedule, office, speaker, and DateTime records inside a DB transaction (full replace, not a partial merge). Uses the same request shape as store().",
+        summary: "Edit an event and update its schedule, replacing form, office, speakers, and DateTimes",
+        description: "Updates the event's core fields. The schedule is updated IN PLACE (not deleted and recreated) so its id stays stable — this preserves any NominatedEmployee records already attached to it (they are never touched by this endpoint). Only office, speaker, and DateTime records under that schedule are deleted and recreated (full replace for those three). form is deleted and recreated directly under the event. Note: the schedule's 'status' field is not touched by this endpoint — it retains whatever value it had before the edit (only set on initial creation via store()).",
         operationId: "editEvent",
         tags: ["Event"],
         security: [["sanctum" => []]],
@@ -629,7 +629,7 @@ class EventPaths
         responses: [
             new OA\Response(
                 response: 200,
-                description: "Updated successfully. 'data' is the event with form and schedule (with office and speaker nested inside) relations loaded.",
+                description: "Updated successfully. 'data' is the event with form and schedule (with office and speaker nested inside) relations loaded. Any nominatedEmployee records under the schedule are preserved but not included in this response's eager-loaded relations.",
                 content: new OA\JsonContent(
                     properties: [
                         new OA\Property(property: "success", type: "boolean", example: true),
@@ -670,6 +670,7 @@ class EventPaths
         ]
     )]
     public function edit() {}
+    
     #[OA\Put(
         path: "/api/event/status/{eventScheduleId}",
         summary: "Update an event schedule's status",

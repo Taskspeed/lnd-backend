@@ -10,7 +10,7 @@ class LearnerProgressForm extends Model
     protected $table = 'learner_progress_forms';
 
     protected $fillable = [
-        'event_id',
+        'employee_form_submission_id',
         'form_name',
         'control_no',
         'learner',
@@ -40,7 +40,7 @@ class LearnerProgressForm extends Model
 
     protected $casts = [
         'delivering_service_excellence_competency' => 'integer',
-         'exemplifying_integrity_competency'=> 'integer',
+        'exemplifying_integrity_competency'=> 'integer',
         'interpersonal_skills_competency'=> 'integer',
         'planning_organizing_competency'=> 'integer',
         'records_management_competency'=> 'integer',
@@ -51,6 +51,7 @@ class LearnerProgressForm extends Model
         'thinking_strategically_creatively_competency'=> 'integer',
         'problem_solving_decision_making_competency'=> 'integer',
         'date_of_attendance' => 'date:F d, Y',
+        'employee_form_submission_id' => 'integer'
     ];
 
     public function coreProgress(){

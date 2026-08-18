@@ -158,81 +158,86 @@ class EventService
     }
 
 
-    public function editEvent(?array $validated, int $eventId)
-    {
-        return DB::transaction(function () use ($validated, $eventId) {
+   public function editEvent(?array $validated, int $eventId)
+{
+    return DB::transaction(function () use ($validated, $eventId) {
 
-            $event = Event::find($eventId);
+        $event = Event::find($eventId);
 
-            if (!$event) {
-                throw new \Exception('Event not found');
-            }
+        if (!$event) {
+            throw new \Exception('Event not found');
+        }
 
-            $event->update([
-                'title_name'      => $validated['title_name'] ?? null,
-                'source_name'     => $validated['source_name'] ?? null,
-                'qualifications'  => $validated['qualifications'] ?? null,
-                'hours'           => $validated['hours'] ?? null,
-                'fee'             => $validated['fee'] ?? null,
+        $event->update([
+            'title_name'      => $validated['title_name'] ?? null,
+            'source_name'     => $validated['source_name'] ?? null,
+            'qualifications'  => $validated['qualifications'] ?? null,
+            'hours'           => $validated['hours'] ?? null,
+            'fee'             => $validated['fee'] ?? null,
+        ]);
+
+        // Update the existing schedule IN PLACE instead of delete+recreate,
+        // so its id stays the same and NominatedEmployee rows stay valid/intact.
+        $schedule = $event->schedule()->first();
+
+        if ($schedule) {
+            $schedule->update([
+                'venue_name' => $validated['venue_name'] ?? null,
+                'type_name'  => $validated['type_name'] ?? null,
             ]);
-
-            // office/speaker/datetime are children of schedule, not event directly —
-            // must delete them via the OLD schedule's id(s) before the schedule itself is gone
-            $oldScheduleIds = $event->schedule()->pluck('id');
-
-            EventDepartment::whereIn('event_schedule_id', $oldScheduleIds)->delete();
-            EventSpeaker::whereIn('event_schedule_id', $oldScheduleIds)->delete();
-            EventScheduleDateTime::whereIn('event_schedule_id', $oldScheduleIds)->delete();
-
-            // form connects directly to event
-            $event->form()->delete();
-
-            // schedule connects directly to event
-            $event->schedule()->delete();
-
-            // recreate schedule ONCE
+        } else {
             $schedule = EventSchedule::create([
                 'event_id'   => $event->id,
                 'venue_name' => $validated['venue_name'] ?? null,
                 'type_name'  => $validated['type_name'] ?? null,
-                'status'     => 'Created',
+                // 'status'     => 'Created',
             ]);
+        }
 
-            foreach ($validated['form'] ?? [] as $form) {
-                EventForm::create([
-                    'event_id'  => $event->id,
-                    'form_name' => $form['form_name'],
-                ]);
-            }
+        // Only replace office/speaker/datetime — NominatedEmployee is untouched
+        // since it stays attached to the same $schedule->id.
+        EventDepartment::where('event_schedule_id', $schedule->id)->delete();
+        EventSpeaker::where('event_schedule_id', $schedule->id)->delete();
+        EventScheduleDateTime::where('event_schedule_id', $schedule->id)->delete();
 
-            foreach ($validated['office'] ?? [] as $office) {
-                EventDepartment::create([
-                    'event_schedule_id' => $schedule->id,
-                    'office_name'       => $office['office_name'],
-                ]);
-            }
+        // form connects directly to event
+        $event->form()->delete();
 
-            foreach ($validated['speaker'] ?? [] as $speaker) {
-                EventSpeaker::create([
-                    'event_schedule_id' => $schedule->id,
-                    'speaker_name'      => $speaker['speaker_name'],
-                ]);
-            }
+        foreach ($validated['form'] ?? [] as $form) {
+            EventForm::create([
+                'event_id'  => $event->id,
+                'form_name' => $form['form_name'],
+            ]);
+        }
 
-            foreach ($validated['DateTime'] ?? [] as $dateTime) {
-                EventScheduleDateTime::create([
-                    'event_schedule_id' => $schedule->id,
-                    'schedule_date'     => $dateTime['schedule_date'] ?? null,
-                    'morning_in'        => $dateTime['morning_in'] ?? null,
-                    'morning_out'       => $dateTime['morning_out'] ?? null,
-                    'afternoon_in'      => $dateTime['afternoon_in'] ?? null,
-                    'afternoon_out'     => $dateTime['afternoon_out'] ?? null,
-                ]);
-            }
+        foreach ($validated['office'] ?? [] as $office) {
+            EventDepartment::create([
+                'event_schedule_id' => $schedule->id,
+                'office_name'       => $office['office_name'],
+            ]);
+        }
 
-            return $event->load(['form', 'schedule.office', 'schedule.speaker']);
-        });
-    }
+        foreach ($validated['speaker'] ?? [] as $speaker) {
+            EventSpeaker::create([
+                'event_schedule_id' => $schedule->id,
+                'speaker_name'      => $speaker['speaker_name'],
+            ]);
+        }
+
+        foreach ($validated['DateTime'] ?? [] as $dateTime) {
+            EventScheduleDateTime::create([
+                'event_schedule_id' => $schedule->id,
+                'schedule_date'     => $dateTime['schedule_date'] ?? null,
+                'morning_in'        => $dateTime['morning_in'] ?? null,
+                'morning_out'       => $dateTime['morning_out'] ?? null,
+                'afternoon_in'      => $dateTime['afternoon_in'] ?? null,
+                'afternoon_out'     => $dateTime['afternoon_out'] ?? null,
+            ]);
+        }
+
+        return $event->load(['form', 'schedule.office', 'schedule.speaker',]);
+    });
+}
 
     public function addSchedule(?array $validated)
     {

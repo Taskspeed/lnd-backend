@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Erms\Form;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Form\LearnerProgressFormRequest;
+use App\Models\Event\EmployeeFormSubmission;
 use App\Models\Forms\LPR\LearnerProgressForm;
 use App\Services\Forms\LearnerProgressFormService;
 use App\Traits\ApiResponseTrait;
@@ -50,19 +51,27 @@ class EmployeeLearnerProgressFormController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(int $eventId, string $formName, string $controlNo)
+        public function show(int $eventId, string $formName, string $controlNo)
     {
-
-        $LearnerProgressForm = LearnerProgressForm::with(['coreProgress', 'leaderShipProgress', 'technicalProgress'])
+        $learnerProgressForm = LearnerProgressForm::with(['coreProgress', 'leaderShipProgress', 'technicalProgress'])
             ->where('event_id', $eventId)
             ->where('form_name', $formName)
-            ->where('control_no', $controlNo)->first();
+            ->where('control_no', $controlNo)
+            ->first();
 
-        if (!$LearnerProgressForm) {
-            return $this->errorMessage('Learner progrees report id not found', 400);
+        if (!$learnerProgressForm) {
+            return $this->errorMessage('Learner progress report not found', 400);
         }
 
-        return $this->successMessage($LearnerProgressForm, 'success fetch');
+        $status = EmployeeFormSubmission::where('event_id', $eventId)
+            ->where('form_name', $formName)
+            ->where('control_no', $controlNo)
+            ->first();
+
+        return $this->successMessage([
+            'form' => $learnerProgressForm,
+            'status' => $status,
+        ], 'Success fetch', 200);
     }
 
     /**

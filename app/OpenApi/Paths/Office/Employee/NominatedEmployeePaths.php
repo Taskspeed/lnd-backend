@@ -25,10 +25,10 @@ use OpenApi\Attributes as OA;
  */
 class NominatedEmployeePaths
 {
-    #[OA\Post(
+      #[OA\Post(
         path: "/api/office/employee/store",
-        summary: "Nominate employees for an event",
-        description: "Bulk-creates nominated employee records. Rejects duplicate (event_id, control_no) pairs both within the submitted payload and against existing records. Each created record is stamped with the authenticated user's office. Runs inside a DB transaction.",
+        summary: "Nominate employees for an event schedule",
+        description: "Bulk-creates nominated employee records. Rejects duplicate (event_schedule_id, control_no) pairs both within the submitted payload and against existing records — an employee cannot be nominated twice for the same schedule. Each created record is stamped with the authenticated user's office and enriched with data pulled from the vwEmployee view. Runs inside a DB transaction.",
         operationId: "storeNominatedEmployee",
         tags: ["Office Employee Nomination"],
         security: [["sanctum" => []]],
@@ -41,10 +41,11 @@ class NominatedEmployeePaths
                         property: "employee",
                         type: "array",
                         items: new OA\Items(
-                            required: ["event_id", "control_no"],
+                            required: ["event_id", "control_no", "event_schedule_id"],
                             properties: [
-                                new OA\Property(property: "event_id", type: "integer", example: 4),
+                                new OA\Property(property: "event_id", type: "integer", description: "Must exist in the events table.", example: 4),
                                 new OA\Property(property: "control_no", type: "string", example: "022485"),
+                                new OA\Property(property: "event_schedule_id", type: "integer", description: "Must exist in the event_schedules table. Duplicate nomination for the same schedule is rejected.", example: 2),
                             ]
                         )
                     ),
@@ -67,7 +68,13 @@ class NominatedEmployeePaths
                                     new OA\Property(property: "id", type: "integer", example: 10),
                                     new OA\Property(property: "event_id", type: "integer", example: 4),
                                     new OA\Property(property: "control_no", type: "string", example: "022485"),
+                                    new OA\Property(property: "designation", type: "string", nullable: true, example: "Administrative Officer"),
+                                    new OA\Property(property: "status", type: "string", nullable: true, example: "Active"),
+                                    new OA\Property(property: "full_name", type: "string", nullable: true, example: "Juan Dela Cruz"),
+                                    new OA\Property(property: "sg", type: "string", nullable: true, example: "15"),
+                                    new OA\Property(property: "level", type: "string", nullable: true, example: "Supervisory"),
                                     new OA\Property(property: "office", type: "string", example: "OFFICE OF THE CITY INFORMATION AND COMMUNICATIONS TECHNOLOGY MANAGEMENT OFFICER"),
+                                    new OA\Property(property: "event_schedule_id", type: "integer", example: 2),
                                 ]
                             )
                         ),
@@ -85,11 +92,11 @@ class NominatedEmployeePaths
             ),
             new OA\Response(
                 response: 422,
-                description: "Validation error (NominatedEmployeeRequest)",
+                description: "Validation error (NominatedEmployeeRequest) — missing/invalid employee array, non-existent event_id/event_schedule_id, or a duplicate (event_schedule_id, control_no) pair within the submitted request payload.",
                 content: new OA\JsonContent(
                     properties: [
                         new OA\Property(property: "message", type: "string", example: "The employee field is required."),
-                        new OA\Property(property: "errors", type: "object", example: [
+                        new OA\Property(property: "errors", type: "object", nullable: true, example: [
                             "employee" => ["The employee field is required."],
                         ]),
                     ]
@@ -97,11 +104,11 @@ class NominatedEmployeePaths
             ),
             new OA\Response(
                 response: 500,
-                description: "Server error, including duplicate control_no within the request or against existing records (currently returned as 500, not 422 — see EmployeeService::create).",
+                description: "Server error, including a duplicate (event_schedule_id, control_no) pair already existing in the database, or an employee with a control_no not found in vwEmployee. Both are thrown with code 422/404 respectively, but caught by the controller's generic \\Throwable handler and returned as a 500 (see EmployeeService::create).",
                 content: new OA\JsonContent(
                     properties: [
                         new OA\Property(property: "success", type: "boolean", example: false),
-                        new OA\Property(property: "message", type: "string", example: "Employee with control_no 2026-00123 is already nominated for this event."),
+                        new OA\Property(property: "message", type: "string", example: "Employee with control_no 022485 is already nominated for this schedule."),
                     ]
                 )
             ),

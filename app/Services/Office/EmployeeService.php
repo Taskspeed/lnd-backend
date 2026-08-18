@@ -15,23 +15,13 @@ class EmployeeService
     {
         $employees = $validated['employee'];
 
-        // $eventIds = array_unique(array_column($employees, 'event_id'));
-
-        // $invalidEvents = Event::whereIn('id', $eventIds)
-        //     ->whereIn('status', ['Cancel', 'Complete'])
-        //     ->pluck('id');
-
-        // if ($invalidEvents->isNotEmpty()) {
-        //     throw new \Exception('Cannot nominate employee because the event is already cancelled or completed.');
-        // }
-
         // 1. Check for duplicates within the submitted request itself
         $seen = [];
         foreach ($employees as $entry) {
-            $key = $entry['event_id'] . '-' . $entry['control_no'];
+            $key = $entry['event_schedule_id'] . '-' . $entry['control_no'];
             if (isset($seen[$key])) {
                 throw new \Exception(
-                    "Duplicate entry in request: control_no {$entry['control_no']} for event_id {$entry['event_id']} was submitted more than once.",
+                    "Duplicate entry in request: control_no {$entry['control_no']} for event_schedule_id {$entry['event_schedule_id']} was submitted more than once.",
                     422
                 );
             }
@@ -42,16 +32,16 @@ class EmployeeService
         $existing = NominatedEmployee::where(function ($query) use ($employees) {
             foreach ($employees as $entry) {
                 $query->orWhere(function ($q) use ($entry) {
-                    $q->where('event_id', $entry['event_id'])
+                    $q->where('event_schedule_id', $entry['event_schedule_id'])
                         ->where('control_no', $entry['control_no']);
                 });
             }
-        })->get(['event_id', 'control_no']);
+        })->get(['event_schedule_id', 'control_no']);
 
         if ($existing->isNotEmpty()) {
             $first = $existing->first();
             throw new \Exception(
-                "Employee with control_no {$first->control_no} is already nominated for this event.",
+                "Employee with control_no {$first->control_no} is already nominated for this schedule.",
                 422
             );
         }
@@ -64,7 +54,6 @@ class EmployeeService
                 ->get()
                 ->keyBy('ControlNo');
 
-
             $nominees = [];
             foreach ($employees as $entry) {
                 $data = $employeeData->get($entry['control_no']);
@@ -73,17 +62,16 @@ class EmployeeService
                     throw new \Exception("Employee with control_no {$entry['control_no']} not found.", 404);
                 }
 
-                
                 $nominees[] = NominatedEmployee::create([
-                    'event_id'    => $entry['event_id'],
-                    'control_no'  => $entry['control_no'],
-                    'designation' => $data->position ?? null,
-                    'status'      => $data->status ?? null,
-                    'full_name'   => $data->name ?? null,
-                    'sg'          => $data->sg ?? null,
-                    'level'       => $data->level ?? null,
-                    'office'      => $user->office ?? null,
-                    'event_schedule_id'      => $entry['event_schedule_id'],
+                    'event_id'          => $entry['event_id'],
+                    'control_no'        => $entry['control_no'],
+                    'designation'       => $data->position ?? null,
+                    'status'            => $data->status ?? null,
+                    'full_name'         => $data->name ?? null,
+                    'sg'                => $data->sg ?? null,
+                    'level'             => $data->level ?? null,
+                    'office'            => $user->office ?? null,
+                    'event_schedule_id' => $entry['event_schedule_id'],
                 ]);
             }
 
