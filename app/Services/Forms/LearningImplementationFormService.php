@@ -22,6 +22,15 @@ class LearningImplementationFormService
     {
 
         return DB::transaction(function () use ($validated) {
+            $form_submit = EmployeeFormSubmission::create([
+
+                'event_id' => $validated['event_id'] ?? null,
+                'form_name' => $this->formName(),
+                'control_no' => $validated['control_no'] ?? null,
+                'status' => 'Pending',
+                'submitted_at' => now(),
+
+            ]);
 
             // check first if employee are already submit
             $employee_submit = LearningImplementationForm::where('event_id', $validated['event_id'])
@@ -45,8 +54,7 @@ class LearningImplementationFormService
 
             $learning_implementation = LearningImplementationForm::create([
 
-
-                'event_id' => $validated['event_id'],
+                'employee_form_submission_id' => $form_submit->id,
                 'form_name' => $this->formName(),
                 'control_no' => $validated['control_no'],
                 'learner' => $validated['learner'] ?? null,
@@ -90,15 +98,7 @@ class LearningImplementationFormService
                 'process_management' => $validated['process_management'] ?? null,
             ]);
 
-            $form_submit = EmployeeFormSubmission::create([
 
-                'event_id' => $validated['event_id'] ?? null,
-                'form_name' => $this->formName(),
-                'control_no' => $validated['control_no'] ?? null,
-                'status' => 'Pending',
-                'submitted_at' => now(),
-
-            ]);
 
             return [
                 $learning_implementation,

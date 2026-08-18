@@ -49,9 +49,19 @@ class LearningApplicationPlanFormService
                 throw new \Exception('You cannot submit this form yet. The event must be verified or approved first.');
             }
 
+            
+            $form_submit = EmployeeFormSubmission::create([
+
+                'event_id' => $validated['event_id'] ?? null,
+                'form_name' => $this->formName(),
+                'control_no' => $validated['control_no'] ?? null,
+                'status' => 'Pending',
+                'submitted_at' => now(),
+
+            ]);
 
             $learning_application_plan = LearningApplicationPlanForm::create([
-                'event_id' => $validated['event_id'],
+             'employee_form_submission_id' => $form_submit->id,
                 'form_name' => $this->formName(),
                 'control_no' => $validated['control_no'],
                 'office' => $validated['office'] ?? null,
@@ -154,15 +164,6 @@ class LearningApplicationPlanFormService
 
             ]);
 
-            $form_submit = EmployeeFormSubmission::create([
-
-                'event_id' => $validated['event_id'] ?? null,
-                'form_name' => $this->formName(),
-                'control_no' => $validated['control_no'] ?? null,
-                'status' => 'Pending',
-                'submitted_at' => now(),
-
-            ]);
 
             return [
                 $learning_application_plan,

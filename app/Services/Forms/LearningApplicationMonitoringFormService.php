@@ -22,6 +22,15 @@ class LearningApplicationMonitoringFormService
 
         return DB::transaction(function () use ($validated) {
 
+            $form_submit = EmployeeFormSubmission::create([
+
+                'event_id' => $validated['event_id'] ?? null,
+                'form_name' => $this->formName(),
+                'control_no' => $validated['control_no'] ?? null,
+                'status' => 'Pending',
+                'submitted_at' => now(),
+
+            ]);
 
             // check first if employee are already submit
             $employee_submit = LearningApplicationMonitoringForm::where('event_id', $validated['event_id'])
@@ -46,7 +55,7 @@ class LearningApplicationMonitoringFormService
 
 
             $learning_application_form = LearningApplicationMonitoringForm::create([
-                'event_id' => $validated['event_id'],
+                'employee_form_submission_id' => $form_submit->id,
                 'form_name' => $this->formName(),
                 'control_no' => $validated['control_no'],
 
@@ -95,15 +104,6 @@ class LearningApplicationMonitoringFormService
             ]);
 
 
-            $form_submit = EmployeeFormSubmission::create([
-
-                'event_id' => $validated['event_id'] ?? null,
-                'form_name' => $this->formName(),
-                'control_no' => $validated['control_no'] ?? null,
-                'status' => 'Pending',
-                'submitted_at' => now(),
-
-            ]);
 
             return [
                 $learning_application_form,

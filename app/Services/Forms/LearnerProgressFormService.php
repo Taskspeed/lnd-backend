@@ -25,6 +25,15 @@ class LearnerProgressFormService
 
         return DB::transaction(function () use ($validated) {
 
+            $form_submit = EmployeeFormSubmission::create([
+
+                'event_id' => $validated['event_id'] ?? null,
+                'form_name' => $this->formName(),
+                'control_no' => $validated['control_no'] ?? null,
+                'status' => 'Pending',
+                'submitted_at' => now(),
+            ]);
+
             // check first if employee are already submit
             $employee_submit = LearnerProgressForm::where('event_id', $validated['event_id'])
                 ->where('form_name', $this->formName()) // match sa ginagamit mo sa create()
@@ -47,7 +56,7 @@ class LearnerProgressFormService
 
             $learnerForm = LearnerProgressForm::create([
 
-                'event_id' => $validated['event_id'] ?? null,
+           'employee_form_submission_id' => $form_submit->id,
                 'form_name' => $this->formName(),
                 'control_no' => $validated['control_no'] ?? null,
                 'learner' => $validated['learner'] ?? null,
@@ -97,16 +106,7 @@ class LearnerProgressFormService
                 'process_management' => $validated['process_management'] ?? null,
             ]);
 
-            $form_submit = EmployeeFormSubmission::create([
-
-                'event_id' => $validated['event_id'] ?? null,
-                'form_name' => $this->formName(),
-                'control_no' => $validated['control_no'] ?? null,
-                'status' => 'Pending',
-                'submitted_at' => now(),
-
-
-            ]);
+        
 
             return [
                 $learnerForm,
@@ -129,7 +129,7 @@ class LearnerProgressFormService
             }
 
             $learnerForm->update([
-                'event_id' => $validated['event_id'],
+                // 'event_id' => $validated['event_id'],
                 'control_no' => $validated['control_no'],
                 'form_name' => $this->formName(),
                 'learner' => $validated['learner'] ?? null,
