@@ -12,7 +12,7 @@ class LearningImplementationForm extends Model
 
     protected $fillable = [
 
-        'event_id',
+        'employee_form_submission_id',
         'form_name',
         'control_no',
         'learner',
@@ -31,7 +31,7 @@ class LearningImplementationForm extends Model
 
     protected $casts = [
   
-        'event_id' => 'integer'
+        'employee_form_submission_id' => 'integer'
     ];
 
     public function getLearningImplementationFormIdAttribute()

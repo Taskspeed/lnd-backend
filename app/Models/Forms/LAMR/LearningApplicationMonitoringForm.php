@@ -11,7 +11,7 @@ class LearningApplicationMonitoringForm extends Model
     protected $table = 'learning_application_monitoring_forms';
 
     protected $fillable = [
-        'event_id',
+        'employee_form_submission_id',
         'form_name',
         'control_no',
         'learner',

@@ -11,7 +11,7 @@ class LearningApplicationPlanForm extends Model
     protected $table = 'learning_application_plan_forms';
 
     protected $fillable = [
-        'event_id',
+        'employee_form_submission_id',
         'form_name',
         'control_no',
         'office',
@@ -31,7 +31,7 @@ class LearningApplicationPlanForm extends Model
 
     protected $casts = [
   
-        'event_id' => 'integer'
+        'employee_form_submission_id' => 'integer'
     ];
 
     public function getLearningApplicationPlanFormIdAttribute()

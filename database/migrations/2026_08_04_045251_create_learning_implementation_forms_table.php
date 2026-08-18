@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('learning_implementation_forms', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
+            $table->foreignId('employee_form_submission_id')->constrained('employee_form_submissions')->onDelete('cascade');
             $table->string('form_name')->nullable();
             $table->string('control_no')->nullable();
             $table->string('learner')->nullable();
