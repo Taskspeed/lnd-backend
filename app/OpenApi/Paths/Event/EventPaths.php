@@ -185,11 +185,10 @@ class EventPaths
         ]
     )]
     public function view() {}
-
     #[OA\Get(
-        path: "/api/event/nominated-employee/{eventId}/{eventSchedule}",
-        summary: "View nominated employees for an event's schedule",
-        description: "Returns the event with form and schedule (including office, speaker, and nominatedEmployee) relations. Note: the {eventSchedule} path parameter is currently accepted by the route/controller but NOT passed through to the underlying query — EventService::nominatedEmployee() only filters by event_id, so results are not scoped to a specific schedule despite the parameter's name. Please confirm this is intended.",
+        path: "/api/event/nominated-employee/{eventId}/{eventScheduleId}",
+        summary: "View nominated employees for a specific event schedule",
+        description: "Returns the event with form and schedule relations, where the schedule is filtered to the one matching both event_id and the given eventScheduleId (including its office, speaker, and nominatedEmployee relations).",
         operationId: "nominatedEmployeeEvent",
         tags: ["Event"],
         security: [["sanctum" => []]],
@@ -202,8 +201,8 @@ class EventPaths
                 schema: new OA\Schema(type: "integer", example: 1)
             ),
             new OA\Parameter(
-                name: "eventSchedule",
-                description: "ID of the event schedule. Currently NOT used to filter results server-side — see description above.",
+                name: "eventScheduleId",
+                description: "ID of the specific event schedule to filter by",
                 in: "path",
                 required: true,
                 schema: new OA\Schema(type: "integer", example: 1)
@@ -231,6 +230,7 @@ class EventPaths
                                 new OA\Property(
                                     property: "schedule",
                                     type: "array",
+                                    description: "Filtered to only the schedule matching eventScheduleId. Will be an empty array if no schedule matches both event_id and id.",
                                     items: new OA\Items(
                                         properties: [
                                             new OA\Property(property: "id", type: "integer", example: 1),
@@ -670,18 +670,17 @@ class EventPaths
         ]
     )]
     public function edit() {}
-
     #[OA\Put(
-        path: "/api/event/status/{eventId}",
-        summary: "Update an event's status",
-        description: "Updates only the status field of an event. Allowed values: Pending, Complete, Cancel.",
+        path: "/api/event/status/{eventScheduleId}",
+        summary: "Update an event schedule's status",
+        description: "Updates only the status field of an EventSchedule record (not the parent Event). Allowed values: Pending, Complete, Cancel.",
         operationId: "updateEventStatus",
         tags: ["Event"],
         security: [["sanctum" => []]],
         parameters: [
             new OA\Parameter(
-                name: "eventId",
-                description: "ID of the event to update",
+                name: "eventScheduleId",
+                description: "ID of the event schedule to update",
                 in: "path",
                 required: true,
                 schema: new OA\Schema(type: "integer", example: 1)
@@ -709,7 +708,9 @@ class EventPaths
                             type: "object",
                             properties: [
                                 new OA\Property(property: "id", type: "integer", example: 1),
-                                new OA\Property(property: "title_name", type: "string", example: "Annual HR Summit"),
+                                new OA\Property(property: "event_id", type: "integer", example: 1),
+                                new OA\Property(property: "venue_name", type: "string", example: "City Hall Conference Room"),
+                                new OA\Property(property: "type_name", type: "string", example: "Seminar"),
                                 new OA\Property(property: "status", type: "string", example: "Complete"),
                             ]
                         ),
@@ -737,7 +738,7 @@ class EventPaths
             ),
             new OA\Response(
                 response: 500,
-                description: "Server error, including 'Event id not found' (thrown as a generic \\Exception and caught as a 500, not a 404).",
+                description: "Server error, including 'Event id not found' (thrown when no EventSchedule matches the given ID; caught as a generic 500, not a 404).",
                 content: new OA\JsonContent(
                     properties: [
                         new OA\Property(property: "success", type: "boolean", example: false),

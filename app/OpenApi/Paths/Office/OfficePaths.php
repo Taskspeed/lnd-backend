@@ -135,10 +135,10 @@ class OfficePaths
      * ApiResponseTrait's implementation; documented as 404 below, please
      * confirm against the trait.
      */
-    #[OA\Get(
+      #[OA\Get(
         path: "/api/office/event/list-of-event",
         summary: "List events for the authenticated user's office",
-        description: "Returns events whose office matches the authenticated user's office (via the office relation's office_name). Returns HTTP 200 with the event list, or HTTP 200 with an info message and no data if there are no events for the office.",
+        description: "Returns events that have at least one schedule matching the authenticated user's office. Each event's 'schedule' array is itself filtered to include only schedules whose office matches the user's office — schedules with no matching office are excluded entirely, not just their office data. Returns HTTP 200 with the event list, or HTTP 200 with an info message and no data if there are no matching events.",
         operationId: "listEvent",
         tags: ["Office"],
         security: [["sanctum" => []]],
@@ -162,26 +162,52 @@ class OfficePaths
                             description: "Omitted or empty when there are no events for the office.",
                             items: new OA\Items(
                                 properties: [
-                                    new OA\Property(property: "title_name", type: "string", example: "Annual HR Summit"),
-                                    new OA\Property(property: "venue_name", type: "string", example: "City Hall Conference Room"),
-                                    new OA\Property(property: "type_name", type: "string", example: "Seminar"),
+                                    new OA\Property(property: "title_name", type: "string", example: "Basic Leadership Training"),
                                     new OA\Property(property: "source_name", type: "string", example: "Internal"),
                                     new OA\Property(property: "hours", type: "string", example: "4"),
-                                    new OA\Property(property: "qualifications", type: "string", example: "supervisory"),
+                                    new OA\Property(property: "qualifications", type: "string", example: "Supervisory"),
                                     new OA\Property(property: "fee", type: "string", example: "Php 1000"),
-                                    new OA\Property(property: "status", type: "string", example: "Verify"),
-                                    new OA\Property(property: "created_by", type: "string", nullable: true, example: null),
-                                    new OA\Property(property: "created_at", type: "string", example: " August 12, 2026"),
-                                    new OA\Property(property: "updated_at", type: "string", example: " August 12, 2026"),
-                                    new OA\Property(property: "event_id", type: "integer", example: 1),
+                                    new OA\Property(property: "created_at", type: "string", example: " August 18, 2026"),
+                                    new OA\Property(property: "updated_at", type: "string", example: " August 18, 2026"),
+                                    new OA\Property(property: "event_id", type: "integer", example: 2),
                                     new OA\Property(
-                                        property: "office",
+                                        property: "schedule",
                                         type: "array",
+                                        description: "Filtered to only schedules with an office matching the authenticated user's office. Schedules with no matching office are excluded entirely.",
                                         items: new OA\Items(
                                             properties: [
-                                                new OA\Property(property: "event_id", type: "integer", example: 1),
-                                                new OA\Property(property: "office_name", type: "string", example: "OFFICE OF THE CITY INFORMATION AND COMMUNICATIONS TECHNOLOGY MANAGEMENT OFFICER"),
-                                                new OA\Property(property: "departmentId", type: "integer", example: 3),
+                                                new OA\Property(property: "event_id", type: "integer", example: 2),
+                                                new OA\Property(property: "venue_name", type: "string", example: "City Hall Conference Room"),
+                                                new OA\Property(property: "type_name", type: "string", example: "Seminar"),
+                                                new OA\Property(property: "status", type: "string", example: "Created"),
+                                                new OA\Property(property: "scheduleId", type: "integer", example: 2),
+                                                new OA\Property(
+                                                    property: "schedule_date_time",
+                                                    type: "array",
+                                                    items: new OA\Items(
+                                                        properties: [
+                                                            new OA\Property(property: "id", type: "integer", example: 3),
+                                                            new OA\Property(property: "event_schedule_id", type: "integer", example: 2),
+                                                            new OA\Property(property: "schedule_date", type: "string", example: " August 20, 2026"),
+                                                            new OA\Property(property: "morning_in", type: "string", example: "08:00 AM"),
+                                                            new OA\Property(property: "morning_out", type: "string", example: "12:00 PM"),
+                                                            new OA\Property(property: "afternoon_in", type: "string", example: "01:00 PM"),
+                                                            new OA\Property(property: "afternoon_out", type: "string", example: "05:00 PM"),
+                                                        ]
+                                                    )
+                                                ),
+                                                new OA\Property(
+                                                    property: "office",
+                                                    type: "array",
+                                                    description: "Filtered to the single office matching the authenticated user's office.",
+                                                    items: new OA\Items(
+                                                        properties: [
+                                                            new OA\Property(property: "event_schedule_id", type: "integer", example: 2),
+                                                            new OA\Property(property: "office_name", type: "string", example: "OFFICE OF THE CITY INFORMATION AND COMMUNICATIONS TECHNOLOGY MANAGEMENT OFFICER"),
+                                                            new OA\Property(property: "departmentId", type: "integer", example: 3),
+                                                        ]
+                                                    )
+                                                ),
                                             ]
                                         )
                                     ),
