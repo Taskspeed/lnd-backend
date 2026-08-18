@@ -11,14 +11,14 @@ class EventSpeaker extends Model
     protected $table = 'event_speakers';
 
     protected $fillable = [
-        'event_id',
+        'event_schedule_id',
         'speaker_name'
     ];
 
-     protected $appends = ['speakerId'];
+    protected $appends = ['speakerId'];
     protected $hidden = ['id' ,'created_at','updated_at'];
-       protected $casts = [ 
-           'event_id' => 'integer',
+    protected $casts = [ 
+           'event_schedule_id' => 'integer',
     ];
 
     public function getSpeakerIdAttribute()
