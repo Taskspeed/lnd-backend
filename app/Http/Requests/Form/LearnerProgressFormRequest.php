@@ -26,6 +26,7 @@ class LearnerProgressFormRequest extends FormRequest
             //
 
             'event_id' => 'required|exists:events,id',
+            'event_schedule_id' => 'required|exists:event_schedules,id',
             // 'form_name' => 'required|string',
             'control_no' => 'required|string',
             'office' => 'nullable|string',

@@ -30,7 +30,7 @@ class LearningApplicationPlanFormService
         return DB::transaction(function () use ($validated) {
 
             // check first if employee are already submit
-            $employee_submit = LearningApplicationPlanForm::where('event_id', $validated['event_id'])
+            $employee_submit = LearningApplicationPlanForm::where('event_schedule_id', $validated['event_schedule_id'])
                 ->where('form_name', $this->formName()) // match sa ginagamit mo sa create()
                 ->where('control_no', $validated['control_no'])
                 ->first();
@@ -39,20 +39,12 @@ class LearningApplicationPlanFormService
                 throw new \Exception('You already submitted this form. You can edit or delete it instead.');
             }
 
-            $event = LearningApplicationPlanForm::select('id')->where('id', $validated['event_id'])->first();
-
-            if (!$event) {
-                throw new \Exception('Event not found.');
-            }
-
-            if (!in_array($event->status, ['Verify', 'Approved'])) {
-                throw new \Exception('You cannot submit this form yet. The event must be verified or approved first.');
-            }
 
             
             $form_submit = EmployeeFormSubmission::create([
 
                 'event_id' => $validated['event_id'] ?? null,
+                'event_schedule_id' => $validated['event_schedule_id'] ?? null,
                 'form_name' => $this->formName(),
                 'control_no' => $validated['control_no'] ?? null,
                 'status' => 'Pending',

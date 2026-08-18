@@ -16,7 +16,8 @@ class EmployeeFormSubmission extends Model
         'control_no',
         'status',
         'submitted_at',
-        'remarks'
+        'remarks',
+        'event_schedule_id'
     ];
 
     protected $hidden = ['id','created_at','updated_at'];

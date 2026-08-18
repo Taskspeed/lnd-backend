@@ -22,18 +22,9 @@ class LearningImplementationFormService
     {
 
         return DB::transaction(function () use ($validated) {
-            $form_submit = EmployeeFormSubmission::create([
-
-                'event_id' => $validated['event_id'] ?? null,
-                'form_name' => $this->formName(),
-                'control_no' => $validated['control_no'] ?? null,
-                'status' => 'Pending',
-                'submitted_at' => now(),
-
-            ]);
-
+     
             // check first if employee are already submit
-            $employee_submit = LearningImplementationForm::where('event_id', $validated['event_id'])
+            $employee_submit = LearningImplementationForm::where('event_schedule_id', $validated['event_schedule_id'])
                 ->where('form_name', $this->formName()) // match sa ginagamit mo sa create()
                 ->where('control_no', $validated['control_no'])
                 ->first();
@@ -42,19 +33,22 @@ class LearningImplementationFormService
                 throw new \Exception('You already submitted this form. You can edit or delete it instead.');
             }
 
-            $event = LearningImplementationForm::select('id')->where('id', $validated['event_id'])->first();
+                   $form_submit = EmployeeFormSubmission::create([
 
-            if (!$event) {
-                throw new \Exception('Event not found.');
-            }
+                'event_id' => $validated['event_id'] ?? null,
+                'event_schedule_id' => $validated['event_schedule_id'] ?? null,
+                'form_name' => $this->formName(),
+                'control_no' => $validated['control_no'] ?? null,
+                'status' => 'Pending',
+                'submitted_at' => now(),
 
-            if (!in_array($event->status, ['Verify', 'Approved'])) {
-                throw new \Exception('You cannot submit this form yet. The event must be verified or approved first.');
-            }
+            ]);
 
+        
             $learning_implementation = LearningImplementationForm::create([
 
                 'employee_form_submission_id' => $form_submit->id,
+                
                 'form_name' => $this->formName(),
                 'control_no' => $validated['control_no'],
                 'learner' => $validated['learner'] ?? null,

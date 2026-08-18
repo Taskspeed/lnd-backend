@@ -25,6 +25,7 @@ class LearningApplicationPlanFormRequest extends FormRequest
         return [
             // learning applicant plan
             'event_id' => 'required|exists:events,id',
+                'event_schedule_id' => 'required|exists:event_schedules,id',
             'control_no' => 'required|string',
             'office' =>'nullable|string',
             'learner' =>'nullable|string',

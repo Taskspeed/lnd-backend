@@ -25,17 +25,9 @@ class LearnerProgressFormService
 
         return DB::transaction(function () use ($validated) {
 
-            $form_submit = EmployeeFormSubmission::create([
-
-                'event_id' => $validated['event_id'] ?? null,
-                'form_name' => $this->formName(),
-                'control_no' => $validated['control_no'] ?? null,
-                'status' => 'Pending',
-                'submitted_at' => now(),
-            ]);
 
             // check first if employee are already submit
-            $employee_submit = LearnerProgressForm::where('event_id', $validated['event_id'])
+            $employee_submit = EmployeeFormSubmission::where('event_schedule_id', $validated['event_schedule_id'])
                 ->where('form_name', $this->formName()) // match sa ginagamit mo sa create()
                 ->where('control_no', $validated['control_no'])
                 ->first();
@@ -44,15 +36,18 @@ class LearnerProgressFormService
                 throw new \Exception('You already submitted this form. You can edit or delete it instead.');
             }
 
-            $event = Event::select('id')->where('id', $validated['event_id'])->first();
+         
+            $form_submit = EmployeeFormSubmission::create([
 
-            if (!$event) {
-                throw new \Exception('Event not found.');
-            }
+                'event_id' => $validated['event_id'] ?? null,
+                'event_schedule_id' => $validated['event_schedule_id'] ?? null,
+                'form_name' => $this->formName(),
+                'control_no' => $validated['control_no'] ?? null,
+                'status' => 'Pending',
+                'submitted_at' => now(),
+            ]);
 
-            if ($event->status =='Verify') {
-                throw new \Exception('You cannot submit this form yet. The event must be verified or approved first.');
-            }
+        
 
             $learnerForm = LearnerProgressForm::create([
 

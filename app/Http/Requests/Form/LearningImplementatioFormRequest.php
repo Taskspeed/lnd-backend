@@ -26,6 +26,7 @@ class LearningImplementationFormRequest extends FormRequest
             //
 
             'event_id' => 'required|exists:events,id',
+                'event_schedule_id' => 'required|exists:event_schedules,id',
             'control_no' => 'required|string',
             'learner' => 'nullable|string',
             'lnd_attended' => 'nullable|string',

@@ -22,18 +22,9 @@ class LearningApplicationMonitoringFormService
 
         return DB::transaction(function () use ($validated) {
 
-            $form_submit = EmployeeFormSubmission::create([
 
-                'event_id' => $validated['event_id'] ?? null,
-                'form_name' => $this->formName(),
-                'control_no' => $validated['control_no'] ?? null,
-                'status' => 'Pending',
-                'submitted_at' => now(),
-
-            ]);
-
-            // check first if employee are already submit
-            $employee_submit = LearningApplicationMonitoringForm::where('event_id', $validated['event_id'])
+             // check first if employee are already submit
+            $employee_submit = LearningApplicationMonitoringForm::where('event_schedule_id', $validated['event_schedule_id'])
                 ->where('form_name', $this->formName()) // match sa ginagamit mo sa create()
                 ->where('control_no', $validated['control_no'])
                 ->first();
@@ -41,18 +32,21 @@ class LearningApplicationMonitoringFormService
             if ($employee_submit) {
                 throw new \Exception('You already submitted this form. You can edit or delete it instead.');
             }
+            $form_submit = EmployeeFormSubmission::create([
+
+                'event_id' => $validated['event_id'] ?? null,
+                'event_schedule_id' => $validated['event_schedule_id'] ?? null,
+                'form_name' => $this->formName(),
+                'control_no' => $validated['control_no'] ?? null,
+                'status' => 'Pending',
+                'submitted_at' => now(),
+
+            ]);
+
+       
 
             
-            $event = LearningApplicationMonitoringForm::select('id')->where('id', $validated['event_id'])->first();
-
-            if (!$event) {
-                throw new \Exception('Event not found.');
-            }
-
-            if (!in_array($event->status, ['Verify', 'Approved'])) {
-                throw new \Exception('You cannot submit this form yet. The event must be verified or approved first.');
-            }
-
+           
 
             $learning_application_form = LearningApplicationMonitoringForm::create([
                 'employee_form_submission_id' => $form_submit->id,
