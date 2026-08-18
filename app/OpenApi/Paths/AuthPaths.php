@@ -187,17 +187,17 @@ class AuthPaths
         ]
     )]
     public function register() {}
-    #[OA\Post(
+     #[OA\Post(
         path: "/api/user/logout",
-        summary: "Log out the current user",
-        description: "Revokes only the Sanctum token used to authenticate the current request (other active sessions/tokens are untouched).",
-        operationId: "logoutUser",
+        summary: "Log out the authenticated user",
+        description: "Revokes only the Sanctum access token used for the current request (not all of the user's tokens/devices).",
+        operationId: "logout",
         tags: ["Authentication"],
         security: [["sanctum" => []]],
         responses: [
             new OA\Response(
                 response: 200,
-                description: "Logged out successfully",
+                description: "Success",
                 content: new OA\JsonContent(
                     properties: [
                         new OA\Property(property: "success", type: "boolean", example: true),
@@ -215,7 +215,99 @@ class AuthPaths
                     ]
                 )
             ),
+            new OA\Response(
+                response: 500,
+                description: "Unhandled server error (uncaught exception — no custom error envelope for this endpoint).",
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: "message", type: "string", example: "Server Error"),
+                    ]
+                )
+            ),
         ]
     )]
     public function logout() {}
+      #[OA\Put(
+        path: "/api/user/update/{userId}",
+        summary: "Update a user's account and role/permissions",
+        description: "Updates the user's profile fields, replaces their role via syncRoles(), and optionally replaces direct permissions via syncPermissions() if the 'permissions' key is present in the request (even if empty).",
+        operationId: "updateUser",
+        tags: ["Authentication"],
+        security: [["sanctum" => []]],
+        parameters: [
+            new OA\Parameter(
+                name: "userId",
+                description: "ID of the user to update",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "integer", example: 1)
+            ),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["name", "username", "office", "control_no", "role"],
+                properties: [
+                    new OA\Property(property: "name", type: "string", example: "Juan Dela Cruz"),
+                    new OA\Property(property: "username", type: "string", example: "jdelacruz"),
+                    new OA\Property(property: "password", type: "string", format: "password", nullable: true, minLength: 5, description: "Optional. Only updated if provided.", example: "newSecret123"),
+                    new OA\Property(property: "office", type: "string", example: "Records Office"),
+                    new OA\Property(property: "control_no", type: "string", example: "022485"),
+                    new OA\Property(property: "role", type: "string", example: "admin"),
+                    new OA\Property(
+                        property: "permissions",
+                        type: "array",
+                        nullable: true,
+                        items: new OA\Items(type: "string", example: "event.create")
+                    ),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Success",
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: "User updated successfully."),
+                        new OA\Property(
+                            property: "data",
+                            type: "object",
+                            properties: [
+                                new OA\Property(property: "id", type: "integer", example: 1),
+                                new OA\Property(property: "name", type: "string", example: "Juan Dela Cruz"),
+                                new OA\Property(property: "username", type: "string", example: "jdelacruz"),
+                                new OA\Property(property: "office", type: "string", example: "Records Office"),
+                                new OA\Property(property: "control_no", type: "string", example: "022485"),
+                                new OA\Property(property: "roles", type: "array", items: new OA\Items(type: "object")),
+                                new OA\Property(property: "permissions", type: "array", items: new OA\Items(type: "object")),
+                            ]
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 422,
+                description: "Validation error (e.g. duplicate username, role/permission not found)",
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: "message", type: "string", example: "The username has already been taken."),
+                        new OA\Property(property: "errors", type: "object"),
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 500,
+                description: "Server error, including 'User not found' (thrown as a generic \\Exception and caught as a 500, not a 404).",
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: false),
+                        new OA\Property(property: "message", type: "string", example: "User not found"),
+                    ]
+                )
+            ),
+        ]
+    )]
+    public function update() {}
 }
