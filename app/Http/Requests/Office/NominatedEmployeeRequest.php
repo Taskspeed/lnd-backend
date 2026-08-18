@@ -26,6 +26,8 @@ class NominatedEmployeeRequest extends FormRequest
             'employee' => 'required|array',
             'employee.*.event_id' => 'required|exists:events,id',
             'employee.*.control_no' => 'required|string',
-        ];
+            'employee.*.event_schedule_id' => 'required|exists:event_schedules,id',
+            
+            ];
     }
 }

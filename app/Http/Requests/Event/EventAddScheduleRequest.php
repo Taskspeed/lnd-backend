@@ -5,7 +5,7 @@ namespace App\Http\Requests\Event;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class EventCreateRequest extends FormRequest
+class EventAddScheduleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,23 +23,14 @@ class EventCreateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
-            'title_name' => 'required|string',
+         //
+
+            'event_id' => 'required|exists:events,id',
             'venue_name'=> 'nullable|string',
             'type_name'=> 'nullable|string',
-            'source_name'=> 'nullable|string',
-            'qualifications'=> 'nullable|string',
-            'fee'=> 'nullable|string',
-            'hours'=> 'nullable|integer',
-       
-
-            // form for event
-            'form' => 'nullable|array',
-            'form.*.form_name' => 'nullable|string',
+           
 
              //schedule Date and time 
-
-             
             'DateTime' => 'nullable|array',
             'DateTime.*.schedule_date' => 'nullable|date_format:Y-m-d',
             'DateTime.*.morning_in' => 'nullable|date_format:h:i A',
@@ -47,9 +38,6 @@ class EventCreateRequest extends FormRequest
             'DateTime.*.afternoon_in' => 'nullable|date_format:h:i A',
             'DateTime.*.afternoon_out' => 'nullable|date_format:h:i A',
 
-
-
-        
             // office 
             'office' => 'nullable|array',
             'office.*.office_name' => 'nullable|string',
