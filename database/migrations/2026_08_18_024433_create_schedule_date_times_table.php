@@ -11,11 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('departments', function (Blueprint $table) {
+        Schema::create('schedule_date_times', function (Blueprint $table) {
             $table->id();
-            // $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
             $table->foreignId('event_schedule_id')->constrained('event_schedules')->onDelete('cascade');
-            $table->string('office_name')->nullable();
+            $table->date('schedule_date');
+            $table->time('morning_in')->nullable();
+            $table->time('morning_out')->nullable();
+             $table->time('afternoon_in')->nullable();
+            $table->time('afternoon_out')->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('departments');
+        Schema::dropIfExists('schedule_date_times');
     }
 };

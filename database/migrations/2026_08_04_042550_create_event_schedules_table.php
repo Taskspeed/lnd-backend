@@ -14,11 +14,9 @@ return new class extends Migration
         Schema::create('event_schedules', function (Blueprint $table) {
             $table->id();
             $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
-            $table->date('schedule_date')->nullable();
-            $table->time('morning_in')->nullable();
-            $table->time('morning_out')->nullable();
-            $table->time('afternoon_in')->nullable();
-            $table->time('afternoon_out')->nullable();
+            $table->string('venue_name')->nullable();
+            $table->string('type_name')->nullable();
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }
