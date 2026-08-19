@@ -8,7 +8,7 @@ use OpenApi\Attributes as OA;
  * Documents the EmployeeLearningImplementationReportController endpoints
  * (routes/api.php `erms/learner-implementation` group).
  *
- *   GET    /erms/learner-implementation/{eventId}/{formName}/{controlNo}          -> show()
+ *   GET    /erms/learner-implementation/{learningImplementationFormId}            -> show()
  *   POST   /erms/learner-implementation/store                                     -> store()
  *   PUT    /erms/learner-implementation/update/{learningImplementationFormId}         -> update()
  *   DELETE /erms/learner-implementation/delete/{learningImplementationFormId}         -> destroy()
@@ -44,7 +44,7 @@ use OpenApi\Attributes as OA;
 class LearningImplementationFormPaths
 {
     #[OA\Get(
-        path: "/api/erms/learner-implementation/{eventId}/{formName}/{controlNo}",
+        path: "/api/erms/learner-implementation/{learningImplementationFormId}  ",
         summary: "Get a Learning Implementation Report Form by event, form name, and control no",
         description: "Returns a single Learning Implementation Report Form with its related core, leadership, and technical implementation records.",
         operationId: "showLearningImplementationReport",

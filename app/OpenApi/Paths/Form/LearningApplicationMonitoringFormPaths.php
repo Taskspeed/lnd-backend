@@ -9,10 +9,10 @@ use OpenApi\Attributes as OA;
  *
  * NOTE: Route file for this controller was not provided — paths below assume the
  * same convention as the `erms/learner-progress` group (see LearnerProgressReportPaths):
- *   GET    /erms/learning-application-monitoring/{eventId}/{formName}/{controlNo} -> show()
+ *   GET    /erms/learning-application-monitoring/{learningApplicationMonitoringFormId}     -> show()
  *   POST   /erms/learning-application-monitoring/store                            -> store()
- *   PUT    /erms/learning-application-monitoring/update/{id}                      -> update()
- *   DELETE /erms/learning-application-monitoring/delete/{id}                      -> destroy()
+ *   PUT    /erms/learning-application-monitoring/update/{learningApplicationMonitoringFormId}                   -> update()
+ *   DELETE /erms/learning-application-monitoring/delete/{learningApplicationMonitoringFormId}                 -> destroy()
  * Verify against routes/api.php and adjust the `path:` values / group prefix if different.
  * Assumed ->withoutMiddleware(['auth:sanctum']) as well (same as the sibling LPR routes),
  * so no `security` block is added — update if this group is actually protected.
@@ -34,7 +34,7 @@ use OpenApi\Attributes as OA;
 class LearningApplicationMonitoringFormPaths
 {
     #[OA\Get(
-        path: "/api/erms/learning-application-monitoring/{eventId}/{formName}/{controlNo}",
+        path: "/api/erms/learning-application-monitoring/{learningApplicationMonitoringFormId}",
         summary: "Get a Learning Application Monitoring Report Form by event, form name, and control no",
         description: "Returns a single Learning Application Monitoring Report Form with its related core, leadership, and technical monitoring records.",
         operationId: "showLearningApplicationMonitoringReport",

@@ -8,7 +8,7 @@ use OpenApi\Attributes as OA;
  * Documents the EmployeeLearnerProgressFormController endpoints
  * (routes/api.php `erms/learner-progress` group).
  *
- *   GET    /erms/learner-progress/{eventId}/{formName}/{controlNo} -> show()
+ *   GET    /erms/learner-progress/{LearnerProgressFormId} -> show()
  *   POST   /erms/learner-progress/store                            -> store()
  *   PUT    /erms/learner-progress/update/{LearnerProgressFormId} -> update()
  *   DELETE /erms/learner-progress/delete/{LearnerProgressFormId} -> destroy()
@@ -32,7 +32,7 @@ use OpenApi\Attributes as OA;
 class LearnerProgressFormPaths
 {
     #[OA\Get(
-        path: "/api/erms/learner-progress/{eventId}/{formName}/{controlNo}",
+        path: "/api/erms/learner-progress/{LearnerProgressFormId}",
         summary: "Get a Learner Progress Form by event, form name, and control no",
         description: "Returns a single Learner Progress Form with its related core, leadership, and technical progress records.",
         operationId: "showLearnerProgressForm",

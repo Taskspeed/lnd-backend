@@ -8,7 +8,7 @@ use OpenApi\Attributes as OA;
  * Documents the EmployeeLearningApplicationPlanController endpoints
  * (routes/api.php `erms/learning-application-plan` group).
  *
- *   GET    /erms/learning-application-plan/{eventId}/{formName}/{controlNo}         -> show()
+ *   GET    /erms/learning-application-plan/{learningApplicationPlanFormId}              -> show()
  *   POST   /erms/learning-application-plan/store                                    -> store()
  *   PUT    /erms/learning-application-plan/update/{learningApplicationPlanFormId}        -> update()
  *   DELETE /erms/learning-application-plan/delete/{learningApplicationPlanFormId}        -> destroy()
@@ -169,7 +169,7 @@ class LearningApplicationPlanFormPaths
     }
 
     #[OA\Get(
-        path: "/api/erms/learning-application-plan/{eventId}/{formName}/{controlNo}",
+        path: "/api/erms/learning-application-plan/{learningApplicationPlanFormId}",
         summary: "Get a Learning Application Plan Form by event, form name, and control no",
         description: "Returns a single Learning Application Plan Form with its related foundation, technical, managerial, supervisory, learningStrategies, performanceIndicator, beneficiaries, resources, and targetCompletion records.",
         operationId: "showLearningApplicationPlan",
