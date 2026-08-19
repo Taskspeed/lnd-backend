@@ -15,7 +15,7 @@ class RoleController extends Controller
 
     protected RoleService $roleService;
 
-    protected function __construct(RoleService $roleService)
+    public function __construct(RoleService $roleService)
     {
         $this->roleService = $roleService;
     }

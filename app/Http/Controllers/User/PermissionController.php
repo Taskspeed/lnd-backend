@@ -14,7 +14,7 @@ class PermissionController extends Controller
 
     protected PermissionService $permissionService;
 
-    protected function __construct(PermissionService $permissionService)
+    public function __construct(PermissionService $permissionService)
     {
         $this->permissionService = $permissionService;
     }
