@@ -25,6 +25,7 @@ class EmployeeFormSubmission extends Model
     protected $casts = [
         'event_id' => 'integer',
         'submitted_at' => 'date:F d, Y',
+        'event_schedule_id' => 'integer'
     ];
 
     public function getEmployeeFormSubmissionIdAttribute()

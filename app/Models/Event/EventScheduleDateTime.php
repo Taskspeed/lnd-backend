@@ -31,6 +31,6 @@ class EventScheduleDateTime extends Model
         'afternoon_in' => TimeFormatCast::class,
         'afternoon_out' => TimeFormatCast::class,
         'event_schedule_id' => 'integer',
-        'schedule_date' =>  'date: F d, Y'
+        'schedule_date' =>  'date:F d, Y'
     ];
 }

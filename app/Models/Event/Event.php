@@ -23,8 +23,8 @@ class Event extends Model
 
     ];
     protected $casts = [
-        'created_at' =>'date: F d, Y',
-        'updated_at' =>'date: F d, Y',
+        'created_at' =>'date:F d, Y',
+        'updated_at' =>'date:F d, Y',
     ];
 
     protected $hidden = ['id','updated_at'];

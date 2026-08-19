@@ -21,7 +21,8 @@ class EventSchedule extends Model
     ];
 
     protected $casts = [
-        'event_id' => 'integer'
+        'event_id' => 'integer',
+       
     ];
 
     protected $appends = ['scheduleId'];
