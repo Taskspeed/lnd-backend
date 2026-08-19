@@ -25,6 +25,8 @@ class User extends Authenticatable
         'name',
         'username',
         'password',
+        'office',
+        'control_no'
     ];
 
     /**
