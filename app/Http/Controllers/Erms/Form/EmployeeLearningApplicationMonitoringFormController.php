@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Erms\Form;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Form\LearningApplicationMonitoringFormRequest;
+use App\Models\Event\EmployeeFormSubmission;
 use App\Models\Forms\LAMR\LearningApplicationMonitoringForm;
 use App\Services\Forms\LearningApplicationMonitoringFormService;
 use App\Traits\ApiResponseTrait;
@@ -49,19 +50,23 @@ class EmployeeLearningApplicationMonitoringFormController extends Controller
     /**
      * Display the specified resource.
      */
-     public function show(int $eventId, string $formName, string $controlNo)
+     public function show(int $learningMonitoringFormId)
     {
 
         $learnera_application_monitoring = LearningApplicationMonitoringForm::with(['coreMonitoring', 'leaderShipMonitoring', 'technicalMonitoring'])
-            ->where('event_id', $eventId)
-            ->where('form_name', $formName)
-            ->where('control_no', $controlNo)->first();
+         ->find($learningMonitoringFormId);
 
         if (!$learnera_application_monitoring) {
             return $this->errorMessage('Learning application monitoring report id not found', 400);
         }
 
-        return $this->successMessage($learnera_application_monitoring, 'success fetch');
+         $status = EmployeeFormSubmission::find($learnera_application_monitoring->employee_form_submission_id);
+
+
+            return $this->successMessage([
+            'form' => $learnera_application_monitoring,
+            'status' => $status,
+        ], 'Success fetch', 200);
     }
 
     /**

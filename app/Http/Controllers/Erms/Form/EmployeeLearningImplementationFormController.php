@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Erms\Form;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Form\LearningImplementationFormRequest;
+use App\Models\Event\EmployeeFormSubmission;
 use App\Models\Forms\LAMR\LearningApplicationMonitoringForm;
 use App\Models\Forms\LAP\LearningApplicationPlan;
 use App\Models\Forms\LIR\LearningImplementationReport;
@@ -50,23 +51,26 @@ class EmployeeLearningImplementationFormController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(int $eventId, string $formName, string $controlNo)
+    public function show(int $learningImplementationFormId)
     {
         $learning_implementation = LearningApplicationMonitoringForm::with([
             'coreImplementation',
             'coreImplementation',
             'learderShipImplementation',
             'technicalImplementation'
-        ])
-            ->where('event_id', $eventId)
-            ->where('form_name', $formName)
-            ->where('control_no', $controlNo)->first();
+        ])->find($learningImplementationFormId);
 
         if (!$learning_implementation) {
             return $this->errorMessage('Learning implementation id not found', 400);
         }
 
-        return $this->successMessage($learning_implementation, 'success fetch');
+        $status = EmployeeFormSubmission::find($learning_implementation->employee_form_submission_id);
+
+
+        return $this->successMessage([
+            'form' => $learning_implementation,
+            'status' => $status,
+        ], 'Success fetch', 200);
     }
 
     /**

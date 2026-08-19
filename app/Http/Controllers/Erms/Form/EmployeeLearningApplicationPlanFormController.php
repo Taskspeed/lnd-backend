@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Erms\Form;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Form\LearningApplicationPlanFormRequest;
+use App\Models\Event\EmployeeFormSubmission;
 use App\Models\Forms\LAP\LearningApplicationPlanForm;
 use App\Services\Forms\LearningApplicationPlanFormService;
 use App\Traits\ApiResponseTrait;
@@ -45,7 +46,7 @@ class EmployeeLearningApplicationPlanFormController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(int $eventId, string $formName, string $controlNo)
+    public function show(int $learningApplicationPlanFormId)
     {
         $learning_application_plan = LearningApplicationPlanForm::with([
             'foundation',
@@ -57,16 +58,20 @@ class EmployeeLearningApplicationPlanFormController extends Controller
             'beneficiaries',
             'resources',
             'targetCompletion',
-        ])
-            ->where('event_id', $eventId)
-            ->where('form_name', $formName)
-            ->where('control_no', $controlNo)->first();
+        ])->find($learningApplicationPlanFormId);
 
         if (!$learning_application_plan) {
             return $this->errorMessage('Learning application plan id not found', 400);
         }
 
-        return $this->successMessage($learning_application_plan, 'success fetch');
+         $status = EmployeeFormSubmission::find($learning_application_plan->employee_form_submission_id);
+  
+
+            return $this->successMessage([
+            'form' => $learning_application_plan,
+            'status' => $status,
+        ], 'Success fetch', 200);
+
     }
 
     /**

@@ -51,22 +51,16 @@ class EmployeeLearnerProgressFormController extends Controller
     /**
      * Display the specified resource.
      */
-        public function show(int $eventId, string $formName, string $controlNo)
+        public function show(int $learnerProgressFormId)
     {
         $learnerProgressForm = LearnerProgressForm::with(['coreProgress', 'leaderShipProgress', 'technicalProgress'])
-            ->where('event_id', $eventId)
-            ->where('form_name', $formName)
-            ->where('control_no', $controlNo)
-            ->first();
+            ->find($learnerProgressFormId);                                                                              
 
         if (!$learnerProgressForm) {
-            return $this->errorMessage('Learner progress report not found', 400);
+            return $this->errorMessage('Learner progress report form  not found', 400);
         }
 
-        $status = EmployeeFormSubmission::where('event_id', $eventId)
-            ->where('form_name', $formName)
-            ->where('control_no', $controlNo)
-            ->first();
+        $status = EmployeeFormSubmission::find($learnerProgressForm->employee_form_submission_id);
 
         return $this->successMessage([
             'form' => $learnerProgressForm,
