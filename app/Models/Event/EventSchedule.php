@@ -16,7 +16,7 @@ class EventSchedule extends Model
     protected $fillable = [
         'event_id',
         'venue_name',
-        'type_name',
+        'mode_name',
         'status'
     ];
 

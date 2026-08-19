@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title_name')->nullable();
             $table->string('source_name')->nullable();
+            $table->string('type_name')->nullable();
             $table->integer('hours')->nullable();
             $table->string('qualifications')->nullable();
             $table->string('fee')->nullable();

@@ -27,6 +27,7 @@ class EventCreateRequest extends FormRequest
             'title_name' => 'required|string',
             'venue_name'=> 'nullable|string',
             'type_name'=> 'nullable|string',
+            'mode_name'=> 'nullable|string',
             'source_name'=> 'nullable|string',
             'qualifications'=> 'nullable|string',
             'fee'=> 'nullable|string',

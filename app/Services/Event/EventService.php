@@ -73,6 +73,7 @@ class EventService
             $event = Event::create([
                 'title_name'   => $validated['title_name'] ?? null,
                 'source_name'  => $validated['source_name'] ?? null,
+                'type_name'    => $validated['type_name'] ?? null,
                 'qualifications'  => $validated['qualifications'] ?? null,
                 'hours'  => $validated['hours'] ?? null,
                 'fee'  => $validated['fee'] ?? null,
@@ -87,7 +88,7 @@ class EventService
             $schedule = EventSchedule::create([
                 'event_id' => $event->id,
                 'venue_name'   => $validated['venue_name'] ?? null,
-                'type_name'    => $validated['type_name'] ?? null,
+                'mode_name'    => $validated['mode_name'] ?? null,
                 'status'       => 'Created',
             ]);
 
@@ -174,6 +175,7 @@ class EventService
             'qualifications'  => $validated['qualifications'] ?? null,
             'hours'           => $validated['hours'] ?? null,
             'fee'             => $validated['fee'] ?? null,
+            'type_name'  => $validated['type_name'] ?? null,
         ]);
 
         // Update the existing schedule IN PLACE instead of delete+recreate,
@@ -183,13 +185,13 @@ class EventService
         if ($schedule) {
             $schedule->update([
                 'venue_name' => $validated['venue_name'] ?? null,
-                'type_name'  => $validated['type_name'] ?? null,
+                'mode_name'  => $validated['mode_name'] ?? null,
             ]);
         } else {
             $schedule = EventSchedule::create([
                 'event_id'   => $event->id,
                 'venue_name' => $validated['venue_name'] ?? null,
-                'type_name'  => $validated['type_name'] ?? null,
+                'mode_name'  => $validated['mode_name'] ?? null,
                 // 'status'     => 'Created',
             ]);
         }
@@ -246,7 +248,7 @@ class EventService
             $schedule = EventSchedule::create([
                 'event_id' => $validated['event_id'],
                 'venue_name'   => $validated['venue_name'] ?? null,
-                'type_name'    => $validated['type_name'] ?? null,
+                'mode_name'    => $validated['mode_name'] ?? null,
                 'status'       => 'Created',
             ]);
 
