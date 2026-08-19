@@ -26,6 +26,31 @@ class LearnerProgressFormService
         return DB::transaction(function () use ($validated) {
 
 
+            // check if this form is actually allowed/configured for the event
+            $event = Event::with(['form' => function ($query) {
+                $query->where('form_name', $this->formName());
+            }])
+                ->where('id', $validated['event_id'] ?? null)
+                ->first();
+
+            if (!$event) {
+                throw new \Exception('Event not found.');
+            }
+
+            if ($event->form->isEmpty()) {
+                throw new \Exception('This form is not available for this event.');
+            }
+
+            // check first if employee are already submit
+            $employee_submit = EmployeeFormSubmission::where('event_schedule_id', $validated['event_schedule_id'])
+                ->where('form_name', $this->formName())
+                ->where('control_no', $validated['control_no'])
+                ->first();
+
+            if ($employee_submit) {
+                throw new \Exception('You already submitted this form. You can edit or delete it instead.');
+            }
+
             // check first if employee are already submit
             $employee_submit = EmployeeFormSubmission::where('event_schedule_id', $validated['event_schedule_id'])
                 ->where('form_name', $this->formName()) // match sa ginagamit mo sa create()
@@ -36,7 +61,6 @@ class LearnerProgressFormService
                 throw new \Exception('You already submitted this form. You can edit or delete it instead.');
             }
 
-         
             $form_submit = EmployeeFormSubmission::create([
 
                 'event_id' => $validated['event_id'] ?? null,
@@ -47,11 +71,9 @@ class LearnerProgressFormService
                 'submitted_at' => now(),
             ]);
 
-        
-
             $learnerForm = LearnerProgressForm::create([
 
-           'employee_form_submission_id' => $form_submit->id,
+                'employee_form_submission_id' => $form_submit->id,
                 'form_name' => $this->formName(),
                 'control_no' => $validated['control_no'] ?? null,
                 'learner' => $validated['learner'] ?? null,
@@ -101,7 +123,7 @@ class LearnerProgressFormService
                 'process_management' => $validated['process_management'] ?? null,
             ]);
 
-        
+
 
             return [
                 $learnerForm,

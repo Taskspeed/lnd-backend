@@ -3,6 +3,7 @@
 namespace App\Services\Forms;
 
 use App\Models\Event\EmployeeFormSubmission;
+use App\Models\Event\Event;
 use App\Models\Forms\LIR\CoreImplementation;
 use App\Models\Forms\LIR\LeadershipImplementation;
 use App\Models\Forms\LIR\LearningImplementationForm;
@@ -22,7 +23,21 @@ class LearningImplementationFormService
     {
 
         return DB::transaction(function () use ($validated) {
-     
+
+            // check if this form is actually allowed/configured for the event
+            $event = Event::with(['form' => function ($query) {
+                $query->where('form_name', $this->formName());
+            }])
+                ->where('id', $validated['event_id'] ?? null)
+                ->first();
+
+            if (!$event) {
+                throw new \Exception('Event not found.');
+            }
+
+            if ($event->form->isEmpty()) {
+                throw new \Exception('This form is not available for this event.');
+            }
             // check first if employee are already submit
             $employee_submit = LearningImplementationForm::where('event_schedule_id', $validated['event_schedule_id'])
                 ->where('form_name', $this->formName()) // match sa ginagamit mo sa create()
@@ -33,7 +48,7 @@ class LearningImplementationFormService
                 throw new \Exception('You already submitted this form. You can edit or delete it instead.');
             }
 
-                   $form_submit = EmployeeFormSubmission::create([
+            $form_submit = EmployeeFormSubmission::create([
 
                 'event_id' => $validated['event_id'] ?? null,
                 'event_schedule_id' => $validated['event_schedule_id'] ?? null,
@@ -44,11 +59,11 @@ class LearningImplementationFormService
 
             ]);
 
-        
+
             $learning_implementation = LearningImplementationForm::create([
 
                 'employee_form_submission_id' => $form_submit->id,
-                
+
                 'form_name' => $this->formName(),
                 'control_no' => $validated['control_no'],
                 'learner' => $validated['learner'] ?? null,

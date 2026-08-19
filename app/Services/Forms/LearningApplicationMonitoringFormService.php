@@ -3,6 +3,7 @@
 namespace App\Services\Forms;
 
 use App\Models\Event\EmployeeFormSubmission;
+use App\Models\Event\Event;
 use App\Models\Forms\LAMR\CoreMonitoring;
 use App\Models\Forms\LAMR\LeadershipMonitoring;
 use App\Models\Forms\LAMR\LearningApplicationMonitoringForm;
@@ -22,8 +23,22 @@ class LearningApplicationMonitoringFormService
 
         return DB::transaction(function () use ($validated) {
 
+            // check if this form is actually allowed/configured for the event
+            $event = Event::with(['form' => function ($query) {
+                $query->where('form_name', $this->formName());
+            }])
+                ->where('id', $validated['event_id'] ?? null)
+                ->first();
 
-             // check first if employee are already submit
+            if (!$event) {
+                throw new \Exception('Event not found.');
+            }
+
+            if ($event->form->isEmpty()) {
+                throw new \Exception('This form is not available for this event.');
+            }
+
+            // check first if employee are already submit
             $employee_submit = LearningApplicationMonitoringForm::where('event_schedule_id', $validated['event_schedule_id'])
                 ->where('form_name', $this->formName()) // match sa ginagamit mo sa create()
                 ->where('control_no', $validated['control_no'])
@@ -43,10 +58,10 @@ class LearningApplicationMonitoringFormService
 
             ]);
 
-       
 
-            
-           
+
+
+
 
             $learning_application_form = LearningApplicationMonitoringForm::create([
                 'employee_form_submission_id' => $form_submit->id,

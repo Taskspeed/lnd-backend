@@ -3,6 +3,7 @@
 namespace App\Services\Forms;
 
 use App\Models\Event\EmployeeFormSubmission;
+use App\Models\Event\Event;
 use App\Models\Forms\LAP\BeneficiariesStrategieApplied;
 use App\Models\Forms\LAP\FoundationCompetencie;
 use App\Models\Forms\LAP\LearningApplicationPlanForm;
@@ -29,6 +30,22 @@ class LearningApplicationPlanFormService
 
         return DB::transaction(function () use ($validated) {
 
+
+
+            // check if this form is actually allowed/configured for the event
+            $event = Event::with(['form' => function ($query) {
+                $query->where('form_name', $this->formName());
+            }])
+                ->where('id', $validated['event_id'] ?? null)
+                ->first();
+
+            if (!$event) {
+                throw new \Exception('Event not found.');
+            }
+
+            if ($event->form->isEmpty()) {
+                throw new \Exception('This form is not available for this event.');
+            }
             // check first if employee are already submit
             $employee_submit = LearningApplicationPlanForm::where('event_schedule_id', $validated['event_schedule_id'])
                 ->where('form_name', $this->formName()) // match sa ginagamit mo sa create()
@@ -40,7 +57,7 @@ class LearningApplicationPlanFormService
             }
 
 
-            
+
             $form_submit = EmployeeFormSubmission::create([
 
                 'event_id' => $validated['event_id'] ?? null,
@@ -53,7 +70,7 @@ class LearningApplicationPlanFormService
             ]);
 
             $learning_application_plan = LearningApplicationPlanForm::create([
-             'employee_form_submission_id' => $form_submit->id,
+                'employee_form_submission_id' => $form_submit->id,
                 'form_name' => $this->formName(),
                 'control_no' => $validated['control_no'],
                 'office' => $validated['office'] ?? null,
