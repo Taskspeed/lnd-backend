@@ -32,9 +32,9 @@ class EventPaths
 {
     #[OA\Get(
         path: "/api/event/index",
-        summary: "List all events",
-        description: "Returns all event records (no relations eager loaded).",
-        operationId: "indexEvent",
+        summary: "List all events with latest schedule",
+        description: "Returns all events with related schedules eager loaded. Each event only shows its single latest schedule (based on the most recent schedule_date_time), with a computed 'latest_schedule' field formatted as a date or date range.",
+        operationId: "listOfEvent",
         tags: ["Event"],
         security: [["sanctum" => []]],
         responses: [
@@ -50,12 +50,28 @@ class EventPaths
                             type: "array",
                             items: new OA\Items(
                                 properties: [
-                                    new OA\Property(property: "id", type: "integer", example: 1),
-                                    new OA\Property(property: "title_name", type: "string", example: "Annual HR Summit"),
+                                    new OA\Property(property: "title_name", type: "string", example: "Basic Leadership Training"),
                                     new OA\Property(property: "source_name", type: "string", example: "Internal"),
-                                    new OA\Property(property: "qualifications", type: "string", example: "supervisory"),
-                                    new OA\Property(property: "hours", type: "integer", example: 4),
+                                    new OA\Property(property: "type_name", type: "string", example: "Seminar"),
+                                    new OA\Property(property: "hours", type: "string", example: "4"),
+                                    new OA\Property(property: "qualifications", type: "string", example: "Supervisory"),
                                     new OA\Property(property: "fee", type: "string", example: "Php 1000"),
+                                    new OA\Property(property: "created_at", type: "string", example: "August 19, 2026"),
+                                    new OA\Property(property: "event_id", type: "integer", example: 1),
+                                    new OA\Property(
+                                        property: "schedule",
+                                        type: "array",
+                                        items: new OA\Items(
+                                            properties: [
+                                                new OA\Property(property: "event_id", type: "integer", example: 1),
+                                                new OA\Property(property: "venue_name", type: "string", example: "City Hall Conference Room"),
+                                                new OA\Property(property: "mode_name", type: "string", nullable: true, example: "face to face"),
+                                                new OA\Property(property: "status", type: "string", example: "Created"),
+                                                new OA\Property(property: "latest_schedule", type: "string", example: "December 20, 2026"),
+                                                new OA\Property(property: "scheduleId", type: "integer", example: 2),
+                                            ]
+                                        )
+                                    ),
                                 ]
                             )
                         ),
@@ -119,6 +135,7 @@ class EventPaths
                                 new OA\Property(property: "qualifications", type: "string", example: "supervisory"),
                                 new OA\Property(property: "hours", type: "integer", example: 4),
                                 new OA\Property(property: "fee", type: "string", example: "Php 1000"),
+                                new OA\Property(property: "type_name", type: "string", example: "Seminar"),
                                 new OA\Property(
                                     property: "form",
                                     type: "array",
@@ -138,7 +155,7 @@ class EventPaths
                                             new OA\Property(property: "id", type: "integer", example: 1),
                                             new OA\Property(property: "event_id", type: "integer", example: 1),
                                             new OA\Property(property: "venue_name", type: "string", example: "City Hall Conference Room"),
-                                            new OA\Property(property: "type_name", type: "string", example: "Seminar"),
+                                            new OA\Property(property: "mode_name", type: "string", example: "face to face"),
                                             new OA\Property(property: "status", type: "string", example: "Created"),
                                             new OA\Property(
                                                 property: "scheduleDateTime",
@@ -321,6 +338,7 @@ class EventPaths
                     new OA\Property(property: "fee", type: "string", nullable: true, example: "Php 1000"),
                     new OA\Property(property: "venue_name", type: "string", nullable: true, example: "City Hall Conference Room"),
                     new OA\Property(property: "type_name", type: "string", nullable: true, example: "Seminar"),
+                    new OA\Property(property: "mode_name", type: "string", nullable: true, example: "face to face"),
                     new OA\Property(
                         property: "form",
                         type: "array",
@@ -411,151 +429,6 @@ class EventPaths
             ),
         ]
     )]
-    public function store() {}
-        #[OA\Post(
-        path: "/api/event/add-schedule",
-        summary: "Add a new schedule to an existing event",
-        description: "Creates a new EventSchedule under an existing event, along with its related office(s), speaker(s), and DateTime entries, inside a DB transaction. Used to add an additional batch/session to an event without creating a duplicate event.",
-        operationId: "addEventSchedule",
-        tags: ["Event"],
-        security: [["sanctum" => []]],
-        requestBody: new OA\RequestBody(
-            required: true,
-            content: new OA\JsonContent(
-                required: ["event_id"],
-                properties: [
-                    new OA\Property(property: "event_id", type: "integer", description: "Must exist in the events table.", example: 1),
-                    new OA\Property(property: "venue_name", type: "string", nullable: true, example: "City Hall Conference Room"),
-                    new OA\Property(property: "type_name", type: "string", nullable: true, example: "Seminar"),
-                    new OA\Property(
-                        property: "office",
-                        type: "array",
-                        nullable: true,
-                        items: new OA\Items(
-                            properties: [
-                                new OA\Property(property: "office_name", type: "string", nullable: true, example: "HRMO"),
-                            ]
-                        )
-                    ),
-                    new OA\Property(
-                        property: "speaker",
-                        type: "array",
-                        nullable: true,
-                        items: new OA\Items(
-                            properties: [
-                                new OA\Property(property: "speaker_name", type: "string", nullable: true, example: "Dr. Jane Santos"),
-                            ]
-                        )
-                    ),
-                    new OA\Property(
-                        property: "DateTime",
-                        type: "array",
-                        nullable: true,
-                        items: new OA\Items(
-                            properties: [
-                                new OA\Property(property: "schedule_date", type: "string", format: "date", nullable: true, example: "2026-08-20"),
-                                new OA\Property(property: "morning_in", type: "string", nullable: true, example: "08:00 AM"),
-                                new OA\Property(property: "morning_out", type: "string", nullable: true, example: "12:00 PM"),
-                                new OA\Property(property: "afternoon_in", type: "string", nullable: true, example: "01:00 PM"),
-                                new OA\Property(property: "afternoon_out", type: "string", nullable: true, example: "05:00 PM"),
-                            ]
-                        )
-                    ),
-                ]
-            )
-        ),
-        responses: [
-            new OA\Response(
-                response: 200,
-                description: "Created successfully. 'data' is the new schedule with office, speaker, and scheduleDateTime relations loaded.",
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(property: "success", type: "boolean", example: true),
-                        new OA\Property(property: "message", type: "string", example: "success created"),
-                        new OA\Property(
-                            property: "data",
-                            type: "object",
-                            properties: [
-                                new OA\Property(property: "id", type: "integer", example: 2),
-                                new OA\Property(property: "event_id", type: "integer", example: 1),
-                                new OA\Property(property: "venue_name", type: "string", example: "City Hall Conference Room"),
-                                new OA\Property(property: "type_name", type: "string", example: "Seminar"),
-                                new OA\Property(property: "status", type: "string", example: "Created"),
-                                new OA\Property(
-                                    property: "office",
-                                    type: "array",
-                                    items: new OA\Items(
-                                        properties: [
-                                            new OA\Property(property: "id", type: "integer", example: 1),
-                                            new OA\Property(property: "event_schedule_id", type: "integer", example: 2),
-                                            new OA\Property(property: "office_name", type: "string", example: "HRMO"),
-                                        ]
-                                    )
-                                ),
-                                new OA\Property(
-                                    property: "speaker",
-                                    type: "array",
-                                    items: new OA\Items(
-                                        properties: [
-                                            new OA\Property(property: "id", type: "integer", example: 1),
-                                            new OA\Property(property: "event_schedule_id", type: "integer", example: 2),
-                                            new OA\Property(property: "speaker_name", type: "string", example: "Dr. Jane Santos"),
-                                        ]
-                                    )
-                                ),
-                                new OA\Property(
-                                    property: "scheduleDateTime",
-                                    type: "array",
-                                    items: new OA\Items(
-                                        properties: [
-                                            new OA\Property(property: "id", type: "integer", example: 1),
-                                            new OA\Property(property: "event_schedule_id", type: "integer", example: 2),
-                                            new OA\Property(property: "schedule_date", type: "string", format: "date", example: "2026-08-20"),
-                                            new OA\Property(property: "morning_in", type: "string", example: "08:00 AM"),
-                                            new OA\Property(property: "morning_out", type: "string", example: "12:00 PM"),
-                                            new OA\Property(property: "afternoon_in", type: "string", example: "01:00 PM"),
-                                            new OA\Property(property: "afternoon_out", type: "string", example: "05:00 PM"),
-                                        ]
-                                    )
-                                ),
-                            ]
-                        ),
-                    ]
-                )
-            ),
-            new OA\Response(
-                response: 401,
-                description: "Unauthenticated",
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(property: "message", type: "string", example: "Unauthenticated."),
-                    ]
-                )
-            ),
-            new OA\Response(
-                response: 422,
-                description: "Validation error (e.g. missing event_id, event_id doesn't exist, or a DateTime field doesn't match the h:i A time format)",
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(property: "message", type: "string", example: "The selected event id is invalid."),
-                        new OA\Property(property: "errors", type: "object"),
-                    ]
-                )
-            ),
-            new OA\Response(
-                response: 500,
-                description: "Unhandled server error (caught by controller's \\Throwable handler)",
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(property: "success", type: "boolean", example: false),
-                        new OA\Property(property: "message", type: "string", example: "Server Error"),
-                    ]
-                )
-            ),
-        ]
-    )]
-    public function add() {}
-
     #[OA\Put(
         path: "/api/event/edit/{event}",
         summary: "Edit an event and update its schedule, replacing form, office, speakers, and DateTimes",
@@ -585,6 +458,8 @@ class EventPaths
                     new OA\Property(property: "fee", type: "string", nullable: true, example: "Php 1000"),
                     new OA\Property(property: "venue_name", type: "string", nullable: true, example: "City Hall Conference Room"),
                     new OA\Property(property: "type_name", type: "string", nullable: true, example: "Seminar"),
+                    new OA\Property(property: "mode_name", type: "string", nullable: true, example: "face to face"),
+
                     new OA\Property(
                         property: "form",
                         type: "array",
@@ -670,86 +545,6 @@ class EventPaths
         ]
     )]
     public function edit() {}
-    
-    #[OA\Put(
-        path: "/api/event/status/{eventScheduleId}",
-        summary: "Update an event schedule's status",
-        description: "Updates only the status field of an EventSchedule record (not the parent Event). Allowed values: Pending, Complete, Cancel.",
-        operationId: "updateEventStatus",
-        tags: ["Event"],
-        security: [["sanctum" => []]],
-        parameters: [
-            new OA\Parameter(
-                name: "eventScheduleId",
-                description: "ID of the event schedule to update",
-                in: "path",
-                required: true,
-                schema: new OA\Schema(type: "integer", example: 1)
-            ),
-        ],
-        requestBody: new OA\RequestBody(
-            required: true,
-            content: new OA\JsonContent(
-                required: ["status"],
-                properties: [
-                    new OA\Property(property: "status", type: "string", enum: ["Pending", "Complete", "Cancel"], example: "Complete"),
-                ]
-            )
-        ),
-        responses: [
-            new OA\Response(
-                response: 200,
-                description: "Updated successfully",
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(property: "success", type: "boolean", example: true),
-                        new OA\Property(property: "message", type: "string", example: "success update"),
-                        new OA\Property(
-                            property: "data",
-                            type: "object",
-                            properties: [
-                                new OA\Property(property: "id", type: "integer", example: 1),
-                                new OA\Property(property: "event_id", type: "integer", example: 1),
-                                new OA\Property(property: "venue_name", type: "string", example: "City Hall Conference Room"),
-                                new OA\Property(property: "type_name", type: "string", example: "Seminar"),
-                                new OA\Property(property: "status", type: "string", example: "Complete"),
-                            ]
-                        ),
-                    ]
-                )
-            ),
-            new OA\Response(
-                response: 401,
-                description: "Unauthenticated",
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(property: "message", type: "string", example: "Unauthenticated."),
-                    ]
-                )
-            ),
-            new OA\Response(
-                response: 422,
-                description: "Validation error (missing or invalid status value)",
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(property: "message", type: "string", example: "The selected status is invalid."),
-                        new OA\Property(property: "errors", type: "object"),
-                    ]
-                )
-            ),
-            new OA\Response(
-                response: 500,
-                description: "Server error, including 'Event id not found' (thrown when no EventSchedule matches the given ID; caught as a generic 500, not a 404).",
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(property: "success", type: "boolean", example: false),
-                        new OA\Property(property: "message", type: "string", example: "Event id not found"),
-                    ]
-                )
-            ),
-        ]
-    )]
-    public function update() {}
 
     #[OA\Delete(
         path: "/api/event/delete/{eventId}",
