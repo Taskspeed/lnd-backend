@@ -169,7 +169,6 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
         Route::get('/index', [EventController::class, 'index']);
         Route::post('/store', [EventController::class, 'store']);
         Route::put('/edit/{eventId}', [EventController::class, 'edit']);
-      
         Route::get('/view/{eventId}', [EventController::class, 'view']);
         Route::get('/nominated-employee/{eventId}/{eventScheduleId}', [EventController::class, 'show']);
         Route::delete('/delete/{eventId}', [EventController::class, 'destory']);
