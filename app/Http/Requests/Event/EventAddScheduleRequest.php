@@ -36,10 +36,8 @@ class EventAddScheduleRequest extends FormRequest
              //schedule Date and time 
             'DateTime' => 'nullable|array',
             'DateTime.*.schedule_date' => 'nullable|date_format:Y-m-d',
-            'DateTime.*.morning_in' => 'nullable|date_format:h:i A',
-            'DateTime.*.morning_out' => 'nullable|date_format:h:i A',
-            'DateTime.*.afternoon_in' => 'nullable|date_format:h:i A',
-            'DateTime.*.afternoon_out' => 'nullable|date_format:h:i A',
+            'DateTime.*.time_in' => 'nullable|date_format:h:i A',
+            'DateTime.*.time_out' => 'nullable|date_format:h:i A',
 
             // office 
             'office' => 'nullable|array',

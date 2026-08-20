@@ -44,10 +44,8 @@ class ScheduleService
                 EventScheduleDateTime::create([
                     'event_schedule_id'  => $schedule->id,
                     'schedule_date' => $dateTime['schedule_date'] ?? null,
-                    'morning_in' => $dateTime['morning_in'] ?? null,
-                    'morning_out' => $dateTime['morning_out'] ?? null,
-                    'afternoon_in' => $dateTime['afternoon_in'] ?? null,
-                    'afternoon_out' => $dateTime['afternoon_out'] ?? null,
+                    'time_in' => $dateTime['time_in'] ?? null,
+                    'time_out' => $dateTime['time_out'] ?? null,
                 ]);
             }
 
@@ -98,10 +96,8 @@ class ScheduleService
                 EventScheduleDateTime::create([
                     'event_schedule_id' => $schedule->id,
                     'schedule_date'     => $dateTime['schedule_date'] ?? null,
-                    'morning_in'        => $dateTime['morning_in'] ?? null,
-                    'morning_out'       => $dateTime['morning_out'] ?? null,
-                    'afternoon_in'      => $dateTime['afternoon_in'] ?? null,
-                    'afternoon_out'     => $dateTime['afternoon_out'] ?? null,
+                    'time_in' => $dateTime['time_in'] ?? null,
+                    'time_out' => $dateTime['time_out'] ?? null,
                 ]);
             }
 

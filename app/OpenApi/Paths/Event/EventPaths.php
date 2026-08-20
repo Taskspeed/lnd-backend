@@ -136,6 +136,7 @@ class EventPaths
                                 new OA\Property(property: "hours", type: "integer", example: 4),
                                 new OA\Property(property: "fee", type: "string", example: "Php 1000"),
                                 new OA\Property(property: "type_name", type: "string", example: "Seminar"),
+                                new OA\Property(property: "category_name", type: "string", nullable: true, example: "Technical"),
                                 new OA\Property(
                                     property: "form",
                                     type: "array",
@@ -165,10 +166,9 @@ class EventPaths
                                                         new OA\Property(property: "id", type: "integer", example: 1),
                                                         new OA\Property(property: "event_schedule_id", type: "integer", example: 1),
                                                         new OA\Property(property: "schedule_date", type: "string", format: "date", example: "2026-08-20"),
-                                                        new OA\Property(property: "morning_in", type: "string", example: "08:00 AM"),
-                                                        new OA\Property(property: "morning_out", type: "string", example: "12:00 PM"),
-                                                        new OA\Property(property: "afternoon_in", type: "string", example: "01:00 PM"),
-                                                        new OA\Property(property: "afternoon_out", type: "string", example: "05:00 PM"),
+                                                        new OA\Property(property: "time_in", type: "string", example: "08:00 AM"),
+                                                        new OA\Property(property: "time_out", type: "string", example: "12:00 PM"),
+                                             
                                                     ]
                                                 )
                                             ),
@@ -339,6 +339,7 @@ class EventPaths
                     new OA\Property(property: "venue_name", type: "string", nullable: true, example: "City Hall Conference Room"),
                     new OA\Property(property: "type_name", type: "string", nullable: true, example: "Seminar"),
                     new OA\Property(property: "mode_name", type: "string", nullable: true, example: "face to face"),
+                    new OA\Property(property: "category_name", type: "string", nullable: true, example: "Technical"),
                     new OA\Property(
                         property: "form",
                         type: "array",
@@ -376,10 +377,8 @@ class EventPaths
                         items: new OA\Items(
                             properties: [
                                 new OA\Property(property: "schedule_date", type: "string", format: "date", nullable: true, example: "2026-08-20"),
-                                new OA\Property(property: "morning_in", type: "string", nullable: true, example: "08:00 AM"),
-                                new OA\Property(property: "morning_out", type: "string", nullable: true, example: "12:00 PM"),
-                                new OA\Property(property: "afternoon_in", type: "string", nullable: true, example: "01:00 PM"),
-                                new OA\Property(property: "afternoon_out", type: "string", nullable: true, example: "05:00 PM"),
+                                new OA\Property(property: "time_in", type: "string", example: "08:00 AM"),
+                                new OA\Property(property: "time_out", type: "string", example: "12:00 PM"),
                             ]
                         )
                     ),
@@ -459,6 +458,7 @@ class EventPaths
                     new OA\Property(property: "venue_name", type: "string", nullable: true, example: "City Hall Conference Room"),
                     new OA\Property(property: "type_name", type: "string", nullable: true, example: "Seminar"),
                     new OA\Property(property: "mode_name", type: "string", nullable: true, example: "face to face"),
+                    new OA\Property(property: "category_name", type: "string", nullable: true, example: "Technical"),
 
                     new OA\Property(
                         property: "form",
@@ -491,10 +491,8 @@ class EventPaths
                         items: new OA\Items(
                             properties: [
                                 new OA\Property(property: "schedule_date", type: "string", format: "date", nullable: true, example: "2026-08-20"),
-                                new OA\Property(property: "morning_in", type: "string", nullable: true, example: "08:00 AM"),
-                                new OA\Property(property: "morning_out", type: "string", nullable: true, example: "12:00 PM"),
-                                new OA\Property(property: "afternoon_in", type: "string", nullable: true, example: "01:00 PM"),
-                                new OA\Property(property: "afternoon_out", type: "string", nullable: true, example: "05:00 PM"),
+                                new OA\Property(property: "time_in", type: "string", example: "08:00 AM"),
+                                new OA\Property(property: "time_out", type: "string", example: "12:00 PM"),
                             ]
                         )
                     ),

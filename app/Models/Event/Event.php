@@ -16,7 +16,7 @@ class Event extends Model
         'title_name',
         'type_name',
         'source_name',
-        
+        'category_name'
 
     ];
     protected $casts = [

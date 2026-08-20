@@ -8,12 +8,14 @@ use App\Models\Event\EventForm;
 use App\Models\Event\EventSchedule;
 use App\Models\Event\EventScheduleDateTime;
 use App\Models\Event\EventSpeaker;
+use App\Traits\FormatsDateRanges;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Validation\Concerns\FormatsMessages;
 
 class EventService
 {
+     use FormatsDateRanges;
 
     public function listOfEvent()
     {
@@ -136,6 +138,7 @@ class EventService
                 'title_name'   => $validated['title_name'] ?? null,
                 'source_name'  => $validated['source_name'] ?? null,
                 'type_name'    => $validated['type_name'] ?? null,
+                'cagetory_name'    => $validated['cagetory_name'] ?? null,
 
             ]);
 
@@ -180,10 +183,8 @@ class EventService
                 EventScheduleDateTime::create([
                     'event_schedule_id'  => $schedule->id,
                     'schedule_date' => $dateTime['schedule_date'] ?? null,
-                    'morning_in' => $dateTime['morning_in'] ?? null,
-                    'morning_out' => $dateTime['morning_out'] ?? null,
-                    'afternoon_in' => $dateTime['afternoon_in'] ?? null,
-                    'afternoon_out' => $dateTime['afternoon_out'] ?? null,
+                    'time_in' => $dateTime['time_in'] ?? null,
+                    'time_out' => $dateTime['time_out'] ?? null,
                 ]);
             }
 
@@ -220,6 +221,7 @@ class EventService
                 'title_name'      => $validated['title_name'] ?? null,
                 'source_name'     => $validated['source_name'] ?? null,
                 'type_name'  => $validated['type_name'] ?? null,
+                'category_name'  => $validated['category_name'] ?? null,
             ]);
 
             return $event;
@@ -227,50 +229,5 @@ class EventService
     }
 
 
-    private function formatDateRanges($scheduleDateTimes)
-    {
-        if ($scheduleDateTimes->isEmpty()) {
-            return null;
-        }
-
-        $sorted = $scheduleDateTimes
-            ->map(fn($item) => Carbon::parse($item->schedule_date)->startOfDay())
-            ->sort()
-            ->values();
-
-        $ranges = [];
-        $rangeStart = $sorted[0];
-        $rangeEnd = $sorted[0];
-
-        foreach ($sorted->slice(1) as $current) {
-            if ($rangeEnd->copy()->addDay()->isSameDay($current)) {
-                // consecutive, extend range
-                $rangeEnd = $current;
-            } else {
-                $ranges[] = $this->formatRange($rangeStart, $rangeEnd);
-                $rangeStart = $current;
-                $rangeEnd = $current;
-            }
-        }
-        $ranges[] = $this->formatRange($rangeStart, $rangeEnd);
-
-        return implode(', ', $ranges);
-    }
-
-    private function formatRange(Carbon $start, Carbon $end)
-    {
-        if ($start->isSameDay($end)) {
-            return $start->format('F j, Y'); // August 25, 2026
-        }
-
-        if ($start->isSameMonth($end)) {
-            return $start->format('F j') . ' - ' . $end->format('j, Y'); // August 25 - 26, 2026
-        }
-
-        if ($start->isSameYear($end)) {
-            return $start->format('F j') . ' - ' . $end->format('F j, Y'); // August 30 - September 2, 2026
-        }
-
-        return $start->format('F j, Y') . ' - ' . $end->format('F j, Y'); // diff year
-    }
+    
 }
