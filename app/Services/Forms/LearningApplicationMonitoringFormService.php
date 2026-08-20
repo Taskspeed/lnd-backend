@@ -4,6 +4,7 @@ namespace App\Services\Forms;
 
 use App\Models\Event\EmployeeFormSubmission;
 use App\Models\Event\Event;
+use App\Models\Event\EventSchedule;
 use App\Models\Forms\LAMR\CoreMonitoring;
 use App\Models\Forms\LAMR\LeadershipMonitoring;
 use App\Models\Forms\LAMR\LearningApplicationMonitoringForm;
@@ -38,6 +39,20 @@ class LearningApplicationMonitoringFormService
                 throw new \Exception('This form is not available for this event.');
             }
 
+            $event_schedule = EventSchedule::where('id', $validated['event_schedule_id'] ?? null)
+                ->where('event_id', $event->id)
+                ->first();
+
+            if (!$event_schedule) {
+                throw new \Exception('Event schedule not found.');
+            }
+
+            
+            if (!in_array($event_schedule->status, ['Approved', 'Complete'])) {
+                throw new \Exception('You cannot submit this form. The event schedule is not yet approved by HR.');
+            }
+
+
             // check first if employee are already submit
             $employee_submit = LearningApplicationMonitoringForm::where('event_schedule_id', $validated['event_schedule_id'])
                 ->where('form_name', $this->formName()) // match sa ginagamit mo sa create()
@@ -57,11 +72,6 @@ class LearningApplicationMonitoringFormService
                 'submitted_at' => now(),
 
             ]);
-
-
-
-
-
 
             $learning_application_form = LearningApplicationMonitoringForm::create([
                 'employee_form_submission_id' => $form_submit->id,
