@@ -75,10 +75,8 @@ class SchedulePaths
                         items: new OA\Items(
                             properties: [
                                 new OA\Property(property: "schedule_date", type: "string", format: "date", nullable: true, example: "2026-08-20"),
-                                new OA\Property(property: "morning_in", type: "string", nullable: true, example: "08:00 AM"),
-                                new OA\Property(property: "morning_out", type: "string", nullable: true, example: "12:00 PM"),
-                                new OA\Property(property: "afternoon_in", type: "string", nullable: true, example: "01:00 PM"),
-                                new OA\Property(property: "afternoon_out", type: "string", nullable: true, example: "05:00 PM"),
+                                new OA\Property(property: "time_in", type: "string", example: "08:00 AM"),
+                                new OA\Property(property: "time_out", type: "string", example: "12:00 PM"),
                             ]
                         )
                     ),
@@ -132,10 +130,8 @@ class SchedulePaths
                                             new OA\Property(property: "id", type: "integer", example: 1),
                                             new OA\Property(property: "event_schedule_id", type: "integer", example: 2),
                                             new OA\Property(property: "schedule_date", type: "string", format: "date", example: "2026-08-20"),
-                                            new OA\Property(property: "morning_in", type: "string", example: "08:00 AM"),
-                                            new OA\Property(property: "morning_out", type: "string", example: "12:00 PM"),
-                                            new OA\Property(property: "afternoon_in", type: "string", example: "01:00 PM"),
-                                            new OA\Property(property: "afternoon_out", type: "string", example: "05:00 PM"),
+                                            new OA\Property(property: "time_in", type: "string", example: "08:00 AM"),
+                                            new OA\Property(property: "time_out", type: "string", example: "12:00 PM"),
                                         ]
                                     )
                                 ),
@@ -209,10 +205,8 @@ class SchedulePaths
                     items: new OA\Items(
                         properties: [
                             new OA\Property(property: "schedule_date", type: "string", format: "date", nullable: true, example: "2026-08-25"),
-                            new OA\Property(property: "morning_in", type: "string", nullable: true, example: "08:00 AM"),
-                            new OA\Property(property: "morning_out", type: "string", nullable: true, example: "12:00 PM"),
-                            new OA\Property(property: "afternoon_in", type: "string", nullable: true, example: "01:00 PM"),
-                            new OA\Property(property: "afternoon_out", type: "string", nullable: true, example: "05:00 PM"),
+                            new OA\Property(property: "time_in", type: "string", example: "08:00 AM"),
+                            new OA\Property(property: "time_out", type: "string", example: "12:00 PM"),
                         ]
                     )
                 ),
@@ -288,10 +282,8 @@ class SchedulePaths
                                         new OA\Property(property: "id", type: "integer", example: 5),
                                         new OA\Property(property: "event_schedule_id", type: "integer", example: 1),
                                         new OA\Property(property: "schedule_date", type: "string", format: "date", example: "2026-08-25"),
-                                        new OA\Property(property: "morning_in", type: "string", example: "08:00 AM"),
-                                        new OA\Property(property: "morning_out", type: "string", example: "12:00 PM"),
-                                        new OA\Property(property: "afternoon_in", type: "string", example: "01:00 PM"),
-                                        new OA\Property(property: "afternoon_out", type: "string", example: "05:00 PM"),
+                                        new OA\Property(property: "time_in", type: "string", example: "08:00 AM"),
+                                        new OA\Property(property: "time_out", type: "string", example: "12:00 PM"),
                                     ]
                                 )
                             ),
