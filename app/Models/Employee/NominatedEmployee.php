@@ -19,7 +19,8 @@ class NominatedEmployee extends Model
         'status',
         'sg',
         'level',
-        'event_schedule_id'
+        'event_schedule_id',
+        'is_attended'
     ];
 
     protected $hidden = [
@@ -32,7 +33,8 @@ class NominatedEmployee extends Model
     protected $appends = ['nominated_employee_id'];
     protected $casts = [
         'event_id' => 'integer',
-        'event_schedule_id'=> 'integer'
+        'event_schedule_id'=> 'integer',
+        'is_attended' => 'boolean',
     ];
 
     public function getNominatedEmployeeIdAttribute()

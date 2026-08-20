@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class ScheduleService
 {
-   public function addSchedule(?array $validated)
+    public function addSchedule(?array $validated)
     {
 
         return DB::transaction(function () use ($validated) {
@@ -123,17 +123,27 @@ class ScheduleService
         return $event;
     }
 
-     public function delete(int $eventScheduleId)
+    public function delete(int $eventScheduleId)
     {
+        return DB::transaction(function () use ($eventScheduleId) {
+            $event = EventSchedule::find($eventScheduleId);
 
-        $event = EventSchedule::find($eventScheduleId);
+            if (!$event) {
+                throw new \Exception('Event Schedule not found');
+            }
 
-        if (!$event) {
-            throw new \Exception('Event Schedule not found');
-        }
+            if (in_array($event->status, ['Approved', 'Complete'])) {
+                throw new \Exception('Cannot delete an approved event schedule');
+            }
 
-        $event->delete();
+            $event->office()->delete();
+            $event->speaker()->delete();
+            $event->scheduleDateTime()->delete();
+            $event->nominatedEmployee()->delete();
 
-        return $event;
+            $event->delete();
+
+            return $event;
+        });
     }
 }
