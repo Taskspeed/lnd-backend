@@ -59,7 +59,7 @@ class ScheduleController extends Controller
     public function update(Request $request, int $eventId)
     {
         $validated = $request->validate([
-            'status' => 'required|in:Pending,Complete,Cancel'
+            'status' => 'required|in:Pending,Complete,Cancel,Approved'
         ]);
 
         try {
