@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Event;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Event\EventAddScheduleRequest;
 use App\Http\Requests\Event\EventCreateRequest;
+use App\Http\Requests\Event\EventUpdateScheduleRequest;
 use App\Models\Event\Event;
 use App\Models\Event\EventSchedule;
 use App\Services\Event\EventService;
@@ -60,20 +61,7 @@ class EventController extends Controller
         }
     }
 
-    public function update(Request $request, int $eventId)
-    {
-        $validated = $request->validate([
-            'status' => 'required|in:Pending,Complete,Cancel'
-        ]);
-
-        try {
-            $result = $this->eventService->updateEventStatus($validated, $eventId);
-
-            return $this->successMessage($result, 'success update', 200,);
-        } catch (\Exception $e) {
-            return $this->errorMessage($e->getMessage(), 500);
-        }
-    }
+    
 
     public function destory(int $eventId)
     {
@@ -114,18 +102,7 @@ class EventController extends Controller
     }
 
 
-    public function add(EventAddScheduleRequest $request)
-    {
-        $validated = $request->validated();
-
-        try {
-            $result = $this->eventService->addSchedule($validated);
-
-            return $this->successMessage($result, 'success created', 200,);
-        } catch (\Throwable $e) {
-            return $this->errorMessage($e->getMessage(), 500);
-        }
-    }
+   
 
 
 }
