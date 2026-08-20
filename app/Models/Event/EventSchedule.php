@@ -17,12 +17,15 @@ class EventSchedule extends Model
         'event_id',
         'venue_name',
         'mode_name',
-        'status'
+        'status',
+        'hours',
+        'qualifications',
+        'fee'
     ];
 
     protected $casts = [
         'event_id' => 'integer',
-       
+       'hours'  => 'integer',
     ];
 
     protected $appends = ['scheduleId'];
@@ -50,5 +53,10 @@ class EventSchedule extends Model
     public function nominatedEmployee()
     {
         return $this->hasMany(NominatedEmployee::class);
+    }
+
+     public function event()
+    {
+        return $this->belongsTo(Event::class);
     }
 }

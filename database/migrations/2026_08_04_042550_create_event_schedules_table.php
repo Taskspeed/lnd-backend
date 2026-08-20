@@ -17,6 +17,9 @@ return new class extends Migration
             $table->string('venue_name')->nullable();
             $table->string('mode_name')->nullable();
             $table->string('status')->nullable();
+            $table->integer('hours')->nullable();
+            $table->string('qualifications')->nullable();
+            $table->string('fee')->nullable();
             $table->timestamps();
         });
     }
