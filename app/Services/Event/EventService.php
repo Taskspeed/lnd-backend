@@ -2,6 +2,7 @@
 
 namespace App\Services\Event;
 
+use App\Models\Employee\NominatedEmployee;
 use App\Models\Event\Event;
 use App\Models\Event\EventDepartment;
 use App\Models\Event\EventForm;
@@ -15,7 +16,7 @@ use Illuminate\Validation\Concerns\FormatsMessages;
 
 class EventService
 {
-     use FormatsDateRanges;
+    use FormatsDateRanges;
 
     public function listOfEvent()
     {
@@ -86,39 +87,46 @@ class EventService
         return $event;
     }
 
-    public function nominatedEmployee(int $eventId, int $eventScheduleId)
-    {
-        $event = Event::with([
-            'form',
-            'schedule' => function ($query) use ($eventId, $eventScheduleId) {
-                $query->with([
-                    'speaker',
-                    'scheduleDateTime',
-                    'office',
-                    'nominatedEmployee'
-                ])
-                    ->where('event_id', $eventId)
-                    ->where('id', $eventScheduleId);
-            }
-        ])->find($eventId);
-
-        if (!$event) {
-            throw new \Exception('Event not found');
+   public function nominatedEmployee(int $eventId, int $eventScheduleId, int $perPage = 10)
+{
+    $event = Event::with([
+        'form',
+        'schedule' => function ($query) use ($eventId, $eventScheduleId) {
+            $query->with([
+                'speaker',
+                'scheduleDateTime',
+                'office',
+                'nominatedEmployee' // kailangan pa rin ito, buo, para sa count
+            ])
+                ->where('event_id', $eventId)
+                ->where('id', $eventScheduleId);
         }
+    ])->find($eventId);
 
-        // Compute counts per office after loading
-        foreach ($event->schedule as $schedule) {
-            $counts = $schedule->nominatedEmployee
-                ->groupBy('office') // adjust field: office_name, department, etc.
-                ->map->count();
-
-            foreach ($schedule->office as $office) {
-                $office->employee_nominated = $counts->get($office->office_name, 0);
-            }
-        }
-
-        return $event;
+    if (!$event) {
+        throw new \Exception('Event not found');
     }
+
+    // Compute counts per office after loading
+    foreach ($event->schedule as $schedule) {
+        $counts = $schedule->nominatedEmployee
+            ->groupBy('office')
+            ->map->count();
+
+        foreach ($schedule->office as $office) {
+            $office->employee_nominated = $counts->get($office->office_name, 0);
+        }
+
+        // palitan ang buong collection ng paginated version para sa display
+        $schedule->setRelation(
+            'nominatedEmployee',
+            NominatedEmployee::where('event_schedule_id', $schedule->id)
+                ->paginate($perPage)
+        );
+    }
+
+    return $event;
+}
 
     // create event
     public function create(?array $validated)
@@ -228,6 +236,25 @@ class EventService
         });
     }
 
+    public function details(int $eventId, int $eventScheduleId)
+    {
+        $event = Event::with([
+            'form',
+            'schedule' => function ($query) use ($eventId, $eventScheduleId) {
+                $query->with([
+                    'speaker',
+                    'scheduleDateTime',
+                    'office',
+                ])
+                    ->where('event_id', $eventId)
+                    ->where('id', $eventScheduleId);
+            }
+        ])->find($eventId);
 
-    
+        if (!$event) {
+            throw new \Exception('Event not found');
+        }
+
+        return $event;
+    }
 }
