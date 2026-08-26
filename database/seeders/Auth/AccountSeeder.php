@@ -16,10 +16,11 @@ class AccountSeeder extends Seeder
     public function run(): void
     {
         // Gumawa muna ng roles/permissions kung wala pa (idempotent gamit firstOrCreate)
-        $adminRole = Role::firstOrCreate([
+        $hr = Role::firstOrCreate([
             'name'       => 'hr_admin',
             'guard_name' => 'sanctum',
         ]);
+ 
 
         $create_events = Permission::firstOrCreate([
             'name'       => 'create_event',
@@ -41,7 +42,7 @@ class AccountSeeder extends Seeder
             ]
         );
 
-        $user->assignRole($adminRole);
+        $user->assignRole($hr);
         $user->givePermissionTo([$create_events, $user_management]);
     }
 }

@@ -61,7 +61,7 @@ class EventController extends Controller
         }
     }
 
-    
+
 
     public function destory(int $eventId)
     {
@@ -76,7 +76,7 @@ class EventController extends Controller
     }
 
 
-     public function edit(EventCreateRequest $request, int $eventId)
+    public function edit(EventCreateRequest $request, int $eventId)
     {
         $validated = $request->validated();
 
@@ -89,20 +89,30 @@ class EventController extends Controller
         }
     }
 
-     public function show(int $eventId,int $eventScheduleId)
+    public function show(Request $request, int $eventId, int $eventScheduleId)
     {
+        $perPage = $request->input('per_page', 10);
 
         try {
-            $result = $this->eventService->nominatedEmployee($eventId,$eventScheduleId);
+            $result = $this->eventService->nominatedEmployee($eventId, $eventScheduleId, $perPage);
 
-            return $this->successMessage($result, 'success fetch', 200,);
+            return $this->successMessage($result, 'success fetch', 200);
         } catch (\Exception $e) {
             return $this->errorMessage($e->getMessage(), 500);
         }
     }
 
 
-   
 
+    public function eventDetails(int $eventId, int $eventScheduleId)
+    {
 
+        try {
+            $result = $this->eventService->details($eventId, $eventScheduleId);
+
+            return $this->successMessage($result, 'success fetch', 200,);
+        } catch (\Exception $e) {
+            return $this->errorMessage($e->getMessage(), 500);
+        }
+    }
 }

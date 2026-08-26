@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class EmployeeService
 {
-    public function create(array $validated, Authenticatable $user)
+    public function create(?array $validated, Authenticatable $user)
     {
         $employees = $validated['employee'];
 
@@ -71,6 +71,7 @@ class EmployeeService
                     'sg'                => $data->sg ?? null,
                     'level'             => $data->level ?? null,
                     'office'            => $user->office ?? null,
+                    'nominate_reason'   => $entry['nominate_reason'] ?? null,
                     'event_schedule_id' => $entry['event_schedule_id'],
                 ]);
             }
@@ -108,7 +109,7 @@ class EmployeeService
         });
     }
 
-    public function delete(int $nominatedEmployeeId)
+    public function remove(int $nominatedEmployeeId)
     {
         $employee = NominatedEmployee::find($nominatedEmployeeId);
 
@@ -116,17 +117,28 @@ class EmployeeService
             throw new \Exception('Nominated employee not found.');
         }
 
-        $event = Event::select('id', 'status')->where('id', $employee->event_id)->first();
-
-        if (!$event) {
-            throw new \Exception('Event not found.');
-        }
-
-        if (in_array($event->status, ['Cancel', 'Complete'])) {
-            throw new \Exception('You cannot delete nominated employee because the event is already cancelled or completed.');
-        }
-
         $employee->delete();
+
+        return $employee;
+    }
+
+    // for nomination
+    public function employeeListForNomination(string $trainingName, Authenticatable $user)
+    {
+
+        $employee = vwEmployee::with(['xTraining' => function ($query) use ($trainingName) {
+            $query->select('ControlNo', 'training', 'Dates', 'NumHours', 'Conductor', 'DateFrom', 'DateTo', 'Type')
+                ->where('training', $trainingName);
+        }])
+            ->select('ControlNo', 'name', 'office', 'position')
+            ->where('office', $user->office)
+            ->get()
+            ->map(function ($emp) {
+                $emp->trainingCount = $emp->xTraining->count();
+                $emp->isAlreadyTrained = $emp->trainingCount > 0;
+                return $emp;
+            });
+
 
         return $employee;
     }

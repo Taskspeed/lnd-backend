@@ -754,9 +754,9 @@
                 "tags": [
                     "Event"
                 ],
-                "summary": "List all events",
-                "description": "Returns all event records (no relations eager loaded).",
-                "operationId": "indexEvent",
+                "summary": "List all events with latest schedule",
+                "description": "Returns all events with related schedules eager loaded. Each event only shows its single latest schedule (based on the most recent schedule_date_time), with a computed 'latest_schedule' field formatted as a date or date range.",
+                "operationId": "listOfEvent",
                 "responses": {
                     "200": {
                         "description": "Success",
@@ -776,29 +776,70 @@
                                             "type": "array",
                                             "items": {
                                                 "properties": {
-                                                    "id": {
-                                                        "type": "integer",
-                                                        "example": 1
-                                                    },
                                                     "title_name": {
                                                         "type": "string",
-                                                        "example": "Annual HR Summit"
+                                                        "example": "Basic Leadership Training"
                                                     },
                                                     "source_name": {
                                                         "type": "string",
                                                         "example": "Internal"
                                                     },
-                                                    "qualifications": {
+                                                    "type_name": {
                                                         "type": "string",
-                                                        "example": "supervisory"
+                                                        "example": "Seminar"
                                                     },
                                                     "hours": {
-                                                        "type": "integer",
-                                                        "example": 4
+                                                        "type": "string",
+                                                        "example": "4"
+                                                    },
+                                                    "qualifications": {
+                                                        "type": "string",
+                                                        "example": "Supervisory"
                                                     },
                                                     "fee": {
                                                         "type": "string",
                                                         "example": "Php 1000"
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "example": "August 19, 2026"
+                                                    },
+                                                    "event_id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "schedule": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "event_id": {
+                                                                    "type": "integer",
+                                                                    "example": 1
+                                                                },
+                                                                "venue_name": {
+                                                                    "type": "string",
+                                                                    "example": "City Hall Conference Room"
+                                                                },
+                                                                "mode_name": {
+                                                                    "type": "string",
+                                                                    "example": "face to face",
+                                                                    "nullable": true
+                                                                },
+                                                                "status": {
+                                                                    "type": "string",
+                                                                    "example": "Created"
+                                                                },
+                                                                "latest_schedule": {
+                                                                    "type": "string",
+                                                                    "example": "December 20, 2026"
+                                                                },
+                                                                "scheduleId": {
+                                                                    "type": "integer",
+                                                                    "example": 2
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
                                                     }
                                                 },
                                                 "type": "object"
@@ -915,6 +956,15 @@
                                                     "type": "string",
                                                     "example": "Php 1000"
                                                 },
+                                                "type_name": {
+                                                    "type": "string",
+                                                    "example": "Seminar"
+                                                },
+                                                "category_name": {
+                                                    "type": "string",
+                                                    "example": "Technical",
+                                                    "nullable": true
+                                                },
                                                 "form": {
                                                     "type": "array",
                                                     "items": {
@@ -951,9 +1001,9 @@
                                                                 "type": "string",
                                                                 "example": "City Hall Conference Room"
                                                             },
-                                                            "type_name": {
+                                                            "mode_name": {
                                                                 "type": "string",
-                                                                "example": "Seminar"
+                                                                "example": "face to face"
                                                             },
                                                             "status": {
                                                                 "type": "string",
@@ -976,21 +1026,13 @@
                                                                             "format": "date",
                                                                             "example": "2026-08-20"
                                                                         },
-                                                                        "morning_in": {
+                                                                        "time_in": {
                                                                             "type": "string",
                                                                             "example": "08:00 AM"
                                                                         },
-                                                                        "morning_out": {
+                                                                        "time_out": {
                                                                             "type": "string",
                                                                             "example": "12:00 PM"
-                                                                        },
-                                                                        "afternoon_in": {
-                                                                            "type": "string",
-                                                                            "example": "01:00 PM"
-                                                                        },
-                                                                        "afternoon_out": {
-                                                                            "type": "string",
-                                                                            "example": "05:00 PM"
                                                                         }
                                                                     },
                                                                     "type": "object"
@@ -1307,6 +1349,16 @@
                                         "example": "Seminar",
                                         "nullable": true
                                     },
+                                    "mode_name": {
+                                        "type": "string",
+                                        "example": "face to face",
+                                        "nullable": true
+                                    },
+                                    "category_name": {
+                                        "type": "string",
+                                        "example": "Technical",
+                                        "nullable": true
+                                    },
                                     "form": {
                                         "type": "array",
                                         "items": {
@@ -1359,25 +1411,13 @@
                                                     "example": "2026-08-20",
                                                     "nullable": true
                                                 },
-                                                "morning_in": {
+                                                "time_in": {
                                                     "type": "string",
-                                                    "example": "08:00 AM",
-                                                    "nullable": true
+                                                    "example": "08:00 AM"
                                                 },
-                                                "morning_out": {
+                                                "time_out": {
                                                     "type": "string",
-                                                    "example": "12:00 PM",
-                                                    "nullable": true
-                                                },
-                                                "afternoon_in": {
-                                                    "type": "string",
-                                                    "example": "01:00 PM",
-                                                    "nullable": true
-                                                },
-                                                "afternoon_out": {
-                                                    "type": "string",
-                                                    "example": "05:00 PM",
-                                                    "nullable": true
+                                                    "example": "12:00 PM"
                                                 }
                                             },
                                             "type": "object"
@@ -1477,293 +1517,6 @@
                 ]
             }
         },
-        "/api/event/add-schedule": {
-            "post": {
-                "tags": [
-                    "Event"
-                ],
-                "summary": "Add a new schedule to an existing event",
-                "description": "Creates a new EventSchedule under an existing event, along with its related office(s), speaker(s), and DateTime entries, inside a DB transaction. Used to add an additional batch/session to an event without creating a duplicate event.",
-                "operationId": "addEventSchedule",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "event_id"
-                                ],
-                                "properties": {
-                                    "event_id": {
-                                        "description": "Must exist in the events table.",
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "venue_name": {
-                                        "type": "string",
-                                        "example": "City Hall Conference Room",
-                                        "nullable": true
-                                    },
-                                    "type_name": {
-                                        "type": "string",
-                                        "example": "Seminar",
-                                        "nullable": true
-                                    },
-                                    "office": {
-                                        "type": "array",
-                                        "items": {
-                                            "properties": {
-                                                "office_name": {
-                                                    "type": "string",
-                                                    "example": "HRMO",
-                                                    "nullable": true
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        "nullable": true
-                                    },
-                                    "speaker": {
-                                        "type": "array",
-                                        "items": {
-                                            "properties": {
-                                                "speaker_name": {
-                                                    "type": "string",
-                                                    "example": "Dr. Jane Santos",
-                                                    "nullable": true
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        "nullable": true
-                                    },
-                                    "DateTime": {
-                                        "type": "array",
-                                        "items": {
-                                            "properties": {
-                                                "schedule_date": {
-                                                    "type": "string",
-                                                    "format": "date",
-                                                    "example": "2026-08-20",
-                                                    "nullable": true
-                                                },
-                                                "morning_in": {
-                                                    "type": "string",
-                                                    "example": "08:00 AM",
-                                                    "nullable": true
-                                                },
-                                                "morning_out": {
-                                                    "type": "string",
-                                                    "example": "12:00 PM",
-                                                    "nullable": true
-                                                },
-                                                "afternoon_in": {
-                                                    "type": "string",
-                                                    "example": "01:00 PM",
-                                                    "nullable": true
-                                                },
-                                                "afternoon_out": {
-                                                    "type": "string",
-                                                    "example": "05:00 PM",
-                                                    "nullable": true
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        "nullable": true
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Created successfully. 'data' is the new schedule with office, speaker, and scheduleDateTime relations loaded.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "success created"
-                                        },
-                                        "data": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer",
-                                                    "example": 2
-                                                },
-                                                "event_id": {
-                                                    "type": "integer",
-                                                    "example": 1
-                                                },
-                                                "venue_name": {
-                                                    "type": "string",
-                                                    "example": "City Hall Conference Room"
-                                                },
-                                                "type_name": {
-                                                    "type": "string",
-                                                    "example": "Seminar"
-                                                },
-                                                "status": {
-                                                    "type": "string",
-                                                    "example": "Created"
-                                                },
-                                                "office": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "properties": {
-                                                            "id": {
-                                                                "type": "integer",
-                                                                "example": 1
-                                                            },
-                                                            "event_schedule_id": {
-                                                                "type": "integer",
-                                                                "example": 2
-                                                            },
-                                                            "office_name": {
-                                                                "type": "string",
-                                                                "example": "HRMO"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    }
-                                                },
-                                                "speaker": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "properties": {
-                                                            "id": {
-                                                                "type": "integer",
-                                                                "example": 1
-                                                            },
-                                                            "event_schedule_id": {
-                                                                "type": "integer",
-                                                                "example": 2
-                                                            },
-                                                            "speaker_name": {
-                                                                "type": "string",
-                                                                "example": "Dr. Jane Santos"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    }
-                                                },
-                                                "scheduleDateTime": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "properties": {
-                                                            "id": {
-                                                                "type": "integer",
-                                                                "example": 1
-                                                            },
-                                                            "event_schedule_id": {
-                                                                "type": "integer",
-                                                                "example": 2
-                                                            },
-                                                            "schedule_date": {
-                                                                "type": "string",
-                                                                "format": "date",
-                                                                "example": "2026-08-20"
-                                                            },
-                                                            "morning_in": {
-                                                                "type": "string",
-                                                                "example": "08:00 AM"
-                                                            },
-                                                            "morning_out": {
-                                                                "type": "string",
-                                                                "example": "12:00 PM"
-                                                            },
-                                                            "afternoon_in": {
-                                                                "type": "string",
-                                                                "example": "01:00 PM"
-                                                            },
-                                                            "afternoon_out": {
-                                                                "type": "string",
-                                                                "example": "05:00 PM"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    }
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Unauthenticated."
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation error (e.g. missing event_id, event_id doesn't exist, or a DateTime field doesn't match the h:i A time format)",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "The selected event id is invalid."
-                                        },
-                                        "errors": {
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Unhandled server error (caught by controller's \\Throwable handler)",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": false
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Server Error"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            }
-        },
         "/api/event/edit/{event}": {
             "put": {
                 "tags": [
@@ -1828,6 +1581,16 @@
                                         "example": "Seminar",
                                         "nullable": true
                                     },
+                                    "mode_name": {
+                                        "type": "string",
+                                        "example": "face to face",
+                                        "nullable": true
+                                    },
+                                    "category_name": {
+                                        "type": "string",
+                                        "example": "Technical",
+                                        "nullable": true
+                                    },
                                     "form": {
                                         "type": "array",
                                         "items": {
@@ -1880,25 +1643,13 @@
                                                     "example": "2026-08-20",
                                                     "nullable": true
                                                 },
-                                                "morning_in": {
+                                                "time_in": {
                                                     "type": "string",
-                                                    "example": "08:00 AM",
-                                                    "nullable": true
+                                                    "example": "08:00 AM"
                                                 },
-                                                "morning_out": {
+                                                "time_out": {
                                                     "type": "string",
-                                                    "example": "12:00 PM",
-                                                    "nullable": true
-                                                },
-                                                "afternoon_in": {
-                                                    "type": "string",
-                                                    "example": "01:00 PM",
-                                                    "nullable": true
-                                                },
-                                                "afternoon_out": {
-                                                    "type": "string",
-                                                    "example": "05:00 PM",
-                                                    "nullable": true
+                                                    "example": "12:00 PM"
                                                 }
                                             },
                                             "type": "object"
@@ -1998,159 +1749,6 @@
                 ]
             }
         },
-        "/api/event/status/{eventScheduleId}": {
-            "put": {
-                "tags": [
-                    "Event"
-                ],
-                "summary": "Update an event schedule's status",
-                "description": "Updates only the status field of an EventSchedule record (not the parent Event). Allowed values: Pending, Complete, Cancel.",
-                "operationId": "updateEventStatus",
-                "parameters": [
-                    {
-                        "name": "eventScheduleId",
-                        "in": "path",
-                        "description": "ID of the event schedule to update",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "status"
-                                ],
-                                "properties": {
-                                    "status": {
-                                        "type": "string",
-                                        "example": "Complete",
-                                        "enum": [
-                                            "Pending",
-                                            "Complete",
-                                            "Cancel"
-                                        ]
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Updated successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "success update"
-                                        },
-                                        "data": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer",
-                                                    "example": 1
-                                                },
-                                                "event_id": {
-                                                    "type": "integer",
-                                                    "example": 1
-                                                },
-                                                "venue_name": {
-                                                    "type": "string",
-                                                    "example": "City Hall Conference Room"
-                                                },
-                                                "type_name": {
-                                                    "type": "string",
-                                                    "example": "Seminar"
-                                                },
-                                                "status": {
-                                                    "type": "string",
-                                                    "example": "Complete"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Unauthenticated."
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation error (missing or invalid status value)",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "The selected status is invalid."
-                                        },
-                                        "errors": {
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Server error, including 'Event id not found' (thrown when no EventSchedule matches the given ID; caught as a generic 500, not a 404).",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": false
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Event id not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            }
-        },
         "/api/event/delete/{eventId}": {
             "delete": {
                 "tags": [
@@ -2234,6 +1832,628 @@
                                         "message": {
                                             "type": "string",
                                             "example": "Event not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/event/details/{eventId}/{eventScheduleId}": {
+            "get": {
+                "tags": [
+                    "Event"
+                ],
+                "summary": "Event details for a specific event schedule",
+                "description": "Returns the event with form and schedule relations, where the schedule is filtered to the one matching both event_id and the given eventScheduleId (including its office, speaker, details).",
+                "operationId": "Event Details",
+                "parameters": [
+                    {
+                        "name": "eventId",
+                        "in": "path",
+                        "description": "ID of the event",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "eventScheduleId",
+                        "in": "path",
+                        "description": "ID of the specific event schedule to filter by",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success fetch"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "title_name": {
+                                                    "type": "string",
+                                                    "example": "Annual HR Summit"
+                                                },
+                                                "form": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "schedule": {
+                                                    "description": "Filtered to only the schedule matching eventScheduleId. Will be an empty array if no schedule matches both event_id and id.",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "event_id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "office": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "properties": {
+                                                                        "id": {
+                                                                            "type": "integer",
+                                                                            "example": 1
+                                                                        },
+                                                                        "event_schedule_id": {
+                                                                            "type": "integer",
+                                                                            "example": 1
+                                                                        },
+                                                                        "office_name": {
+                                                                            "type": "string",
+                                                                            "example": "HRMO"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            },
+                                                            "speaker": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "properties": {
+                                                                        "id": {
+                                                                            "type": "integer",
+                                                                            "example": 1
+                                                                        },
+                                                                        "event_schedule_id": {
+                                                                            "type": "integer",
+                                                                            "example": 1
+                                                                        },
+                                                                        "speaker_name": {
+                                                                            "type": "string",
+                                                                            "example": "Dr. Jane Santos"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            },
+                                                            "nominatedEmployee": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "properties": {
+                                                                        "id": {
+                                                                            "type": "integer",
+                                                                            "example": 1
+                                                                        },
+                                                                        "event_schedule_id": {
+                                                                            "type": "integer",
+                                                                            "example": 1
+                                                                        },
+                                                                        "control_no": {
+                                                                            "type": "string",
+                                                                            "example": "022485"
+                                                                        },
+                                                                        "full_name": {
+                                                                            "type": "string",
+                                                                            "example": "Juan Dela Cruz"
+                                                                        },
+                                                                        "designation": {
+                                                                            "type": "string",
+                                                                            "example": "Administrative Officer"
+                                                                        },
+                                                                        "office": {
+                                                                            "type": "string",
+                                                                            "example": "Records Office"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error, including 'Event not found' (thrown as a generic \\Exception and caught as a 500, not a 404).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Event not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/category/index": {
+            "get": {
+                "tags": [
+                    "Event category (optional)"
+                ],
+                "summary": "List all event categorys",
+                "description": "Returns all event category records. Returns an info message (still HTTP 200) if none exist.",
+                "operationId": "indexEventcategory",
+                "responses": {
+                    "200": {
+                        "description": "Success (records found or empty list)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Success"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "No records found"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to retrieve event types"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/category/store": {
+            "post": {
+                "tags": [
+                    "Event category (optional)"
+                ],
+                "summary": "Create a new event category",
+                "description": "Creates a new event category record inside a DB transaction.",
+                "operationId": "storeEventcategory",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "category_name"
+                                ],
+                                "properties": {
+                                    "category_name": {
+                                        "type": "string",
+                                        "example": "Hybrid"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Created successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The category name field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "category_name": [
+                                                    "The category name field is required."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error, including a failed create (see EventcategoryService::create).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to create event category"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/category/update/{categoryId}": {
+            "put": {
+                "tags": [
+                    "Event category (optional)"
+                ],
+                "summary": "Update an event category",
+                "description": "Updates an existing event category record by ID inside a DB transaction.",
+                "operationId": "updateEventcategory",
+                "parameters": [
+                    {
+                        "name": "categoryId",
+                        "in": "path",
+                        "description": "ID of the event category to update",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 2
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "category_name"
+                                ],
+                                "properties": {
+                                    "category_name": {
+                                        "type": "string",
+                                        "example": "Technical"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Updated successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The category name field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "category_name": [
+                                                    "The category name field is required."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error, including 'not found' (currently returned as 500, not 404 — see EventcategoryService::update).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Event category not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/category/delete/{categoryId}": {
+            "delete": {
+                "tags": [
+                    "Event category (optional)"
+                ],
+                "summary": "Delete an event category",
+                "description": "Deletes an event category record by ID.",
+                "operationId": "destroyEventcategory",
+                "parameters": [
+                    {
+                        "name": "categoryId",
+                        "in": "path",
+                        "description": "ID of the event category to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 2
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted successfully. 'data' contains the record's attributes as they were immediately before deletion.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error, including 'not found' (currently returned as 500, not 404 — see EventcategoryService::destroy).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Event category not found"
                                         }
                                     },
                                     "type": "object"
@@ -4344,7 +4564,827 @@
                 ]
             }
         },
-        "/api/erms/learner-progress/{eventId}/{formName}/{controlNo}": {
+        "/api/event/schedule/store": {
+            "post": {
+                "tags": [
+                    "Event Schedule"
+                ],
+                "summary": "Add a new schedule to an existing event",
+                "description": "Creates a new EventSchedule under an existing event, along with its related office(s), speaker(s), and DateTime entries, inside a DB transaction. Used to add an additional batch/session to an event without creating a duplicate event.",
+                "operationId": "addEventSchedule",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "event_id"
+                                ],
+                                "properties": {
+                                    "event_id": {
+                                        "description": "Must exist in the events table.",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "venue_name": {
+                                        "type": "string",
+                                        "example": "City Hall Conference Room",
+                                        "nullable": true
+                                    },
+                                    "mode_name": {
+                                        "type": "string",
+                                        "example": "face to face",
+                                        "nullable": true
+                                    },
+                                    "qualifications": {
+                                        "type": "string",
+                                        "example": "supervisory",
+                                        "nullable": true
+                                    },
+                                    "hours": {
+                                        "type": "integer",
+                                        "example": 4,
+                                        "nullable": true
+                                    },
+                                    "fee": {
+                                        "type": "string",
+                                        "example": "Php 1000",
+                                        "nullable": true
+                                    },
+                                    "office": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "office_name": {
+                                                    "type": "string",
+                                                    "example": "HRMO",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "nullable": true
+                                    },
+                                    "speaker": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "speaker_name": {
+                                                    "type": "string",
+                                                    "example": "Dr. Jane Santos",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "nullable": true
+                                    },
+                                    "DateTime": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "schedule_date": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "2026-08-20",
+                                                    "nullable": true
+                                                },
+                                                "time_in": {
+                                                    "type": "string",
+                                                    "example": "08:00 AM"
+                                                },
+                                                "time_out": {
+                                                    "type": "string",
+                                                    "example": "12:00 PM"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Created successfully. 'data' is the new schedule with office, speaker, and scheduleDateTime relations loaded.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success created"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "event_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "venue_name": {
+                                                    "type": "string",
+                                                    "example": "City Hall Conference Room"
+                                                },
+                                                "mode_name": {
+                                                    "type": "string",
+                                                    "example": "face to face"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "Created"
+                                                },
+                                                "office": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "event_schedule_id": {
+                                                                "type": "integer",
+                                                                "example": 2
+                                                            },
+                                                            "office_name": {
+                                                                "type": "string",
+                                                                "example": "HRMO"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "speaker": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "event_schedule_id": {
+                                                                "type": "integer",
+                                                                "example": 2
+                                                            },
+                                                            "speaker_name": {
+                                                                "type": "string",
+                                                                "example": "Dr. Jane Santos"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "scheduleDateTime": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "event_schedule_id": {
+                                                                "type": "integer",
+                                                                "example": 2
+                                                            },
+                                                            "schedule_date": {
+                                                                "type": "string",
+                                                                "format": "date",
+                                                                "example": "2026-08-20"
+                                                            },
+                                                            "time_in": {
+                                                                "type": "string",
+                                                                "example": "08:00 AM"
+                                                            },
+                                                            "time_out": {
+                                                                "type": "string",
+                                                                "example": "12:00 PM"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error (e.g. missing event_id, event_id doesn't exist, or a DateTime field doesn't match the h:i A time format)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The selected event id is invalid."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Unhandled server error (caught by controller's \\Throwable handler)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Server Error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/event/schedule/edit/{eventScheduleId}": {
+            "put": {
+                "tags": [
+                    "Event Schedule"
+                ],
+                "summary": "Update an event schedule",
+                "description": "Updates an event schedule's venue, mode, qualifications, hours, and fee. Office, speaker, and DateTime entries are fully replaced (deleted then recreated) — sending an omitted or empty array for any of these will clear existing related records for that field.",
+                "operationId": "updateEventSchedule",
+                "parameters": [
+                    {
+                        "name": "eventScheduleId",
+                        "in": "path",
+                        "description": "ID of the event schedule to update",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "venue_name": {
+                                        "type": "string",
+                                        "example": "City Hall Function Room",
+                                        "nullable": true
+                                    },
+                                    "mode_name": {
+                                        "type": "string",
+                                        "example": "Face to Face",
+                                        "nullable": true
+                                    },
+                                    "qualifications": {
+                                        "type": "string",
+                                        "example": "Supervisory",
+                                        "nullable": true
+                                    },
+                                    "fee": {
+                                        "type": "string",
+                                        "example": "Php 1000",
+                                        "nullable": true
+                                    },
+                                    "hours": {
+                                        "type": "integer",
+                                        "example": 4,
+                                        "nullable": true
+                                    },
+                                    "DateTime": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "schedule_date": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "2026-08-25",
+                                                    "nullable": true
+                                                },
+                                                "time_in": {
+                                                    "type": "string",
+                                                    "example": "08:00 AM"
+                                                },
+                                                "time_out": {
+                                                    "type": "string",
+                                                    "example": "12:00 PM"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "nullable": true
+                                    },
+                                    "office": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "office_name": {
+                                                    "type": "string",
+                                                    "example": "HRMO",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "nullable": true
+                                    },
+                                    "speaker": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "speaker_name": {
+                                                    "type": "string",
+                                                    "example": "Juan Dela Cruz",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success update"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "event_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "venue_name": {
+                                                    "type": "string",
+                                                    "example": "City Hall Function Room"
+                                                },
+                                                "mode_name": {
+                                                    "type": "string",
+                                                    "example": "Face to Face"
+                                                },
+                                                "qualifications": {
+                                                    "type": "string",
+                                                    "example": "Supervisory"
+                                                },
+                                                "fee": {
+                                                    "type": "string",
+                                                    "example": "Php 1000"
+                                                },
+                                                "hours": {
+                                                    "type": "integer",
+                                                    "example": 4
+                                                },
+                                                "office": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "event_schedule_id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "office_name": {
+                                                                "type": "string",
+                                                                "example": "HRMO"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "speaker": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "event_schedule_id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "speaker_name": {
+                                                                "type": "string",
+                                                                "example": "Juan Dela Cruz"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "scheduleDateTime": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 5
+                                                            },
+                                                            "event_schedule_id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "schedule_date": {
+                                                                "type": "string",
+                                                                "format": "date",
+                                                                "example": "2026-08-25"
+                                                            },
+                                                            "time_in": {
+                                                                "type": "string",
+                                                                "example": "08:00 AM"
+                                                            },
+                                                            "time_out": {
+                                                                "type": "string",
+                                                                "example": "12:00 PM"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error, including 'Event schedule are not found' (thrown as a generic \\Exception and caught as a 500, not a 404).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Event schedule are not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/event/schedule/update-status/{eventScheduleId}": {
+            "put": {
+                "tags": [
+                    "Event Schedule"
+                ],
+                "summary": "Update an event schedule's status",
+                "description": "Updates only the status field of an EventSchedule record (not the parent Event). Allowed values: Pending, Complete, Cancel.",
+                "operationId": "updateEventScheduleStatus",
+                "parameters": [
+                    {
+                        "name": "eventScheduleId",
+                        "in": "path",
+                        "description": "ID of the event schedule to update",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "example": "Complete",
+                                        "enum": [
+                                            "Pending",
+                                            "Complete",
+                                            "Cancel"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success update"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "event_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "venue_name": {
+                                                    "type": "string",
+                                                    "example": "City Hall Conference Room"
+                                                },
+                                                "mode_name": {
+                                                    "type": "string",
+                                                    "example": "face to face"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "Complete"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error (missing or invalid status value)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The selected status is invalid."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error, including 'Event id not found' (thrown when no EventSchedule matches the given ID; caught as a generic 500, not a 404).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Event id not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/event/schedule/delete/{eventScheduleId}": {
+            "delete": {
+                "tags": [
+                    "Event Schedule"
+                ],
+                "summary": "Delete an event schedule",
+                "description": "Permanently deletes an EventSchedule record. Does not explicitly cascade-delete related office, speaker, DateTime, or nominated employee records here in the service — deletion behavior for those depends on DB-level constraints (see nominated_employees.event_schedule_id 'no action' note elsewhere in this codebase).",
+                "operationId": "deleteEventSchedule",
+                "parameters": [
+                    {
+                        "name": "eventScheduleId",
+                        "in": "path",
+                        "description": "ID of the event schedule to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted successfully. 'data' is the deleted schedule's attributes as they were before deletion.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success deleted"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "event_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "venue_name": {
+                                                    "type": "string",
+                                                    "example": "City Hall Function Room"
+                                                },
+                                                "mode_name": {
+                                                    "type": "string",
+                                                    "example": "Face to Face"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "Complete"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error, including 'Event Schedule not found' (thrown as a generic \\Exception and caught as a 500, not a 404).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Event Schedule not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/erms/learner-progress/{LearnerProgressFormId}": {
             "get": {
                 "tags": [
                     "Learner Progress Form"
@@ -5301,7 +6341,7 @@
                 }
             }
         },
-        "/api/erms/learning-application-monitoring/{eventId}/{formName}/{controlNo}": {
+        "/api/erms/learning-application-monitoring/{learningApplicationMonitoringFormId}": {
             "get": {
                 "tags": [
                     "Learning Application Monitoring Report Form"
@@ -6392,7 +7432,7 @@
                 }
             }
         },
-        "/api/erms/learning-application-plan/{eventId}/{formName}/{controlNo}": {
+        "/api/erms/learning-application-plan/{learningApplicationPlanFormId}": {
             "get": {
                 "tags": [
                     "Learning Application Plan Form"
@@ -7014,7 +8054,7 @@
                 }
             }
         },
-        "/api/erms/learner-implementation/{eventId}/{formName}/{controlNo}": {
+        "/api/erms/learner-implementation/{learningImplementationFormId}  ": {
             "get": {
                 "tags": [
                     "Learning Implementation Report Form"
@@ -7730,6 +8770,310 @@
                         }
                     }
                 }
+            }
+        },
+        "/api/hr/dashboard/index": {
+            "get": {
+                "tags": [
+                    "HR Dashboard"
+                ],
+                "summary": "List upcoming event schedules (paginated)",
+                "description": "Returns a paginated list of EventSchedule records that have at least one scheduleDateTime on or after today. Each schedule includes a computed 'schedule_date_range' (e.g. 'August 20 - 21, 2026') in place of the raw scheduleDateTime collection.",
+                "operationId": "getUpcomingEvents",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of results per page. Defaults to 10.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "data": {
+                                            "description": "Laravel LengthAwarePaginator structure",
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "event_id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "venue_name": {
+                                                                "type": "string",
+                                                                "example": "City Hall Conference Room"
+                                                            },
+                                                            "hours": {
+                                                                "type": "integer",
+                                                                "example": 4
+                                                            },
+                                                            "status": {
+                                                                "type": "string",
+                                                                "example": "Approved"
+                                                            },
+                                                            "schedule_date_range": {
+                                                                "type": "string",
+                                                                "example": "August 20 - 21, 2026"
+                                                            },
+                                                            "event": {
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "integer",
+                                                                        "example": 1
+                                                                    },
+                                                                    "title_name": {
+                                                                        "type": "string",
+                                                                        "example": "Annual HR Summit"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "last_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Unhandled server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Server Error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/hr/dashboard/calendar": {
+            "get": {
+                "tags": [
+                    "HR Dashboard"
+                ],
+                "summary": "List event schedule dates for a given month/year",
+                "description": "Returns EventScheduleDateTime records filtered by year and month, each with its parent eventSchedule's status. Defaults to the current year and month when 'year'/'month' query params are omitted.",
+                "operationId": "getCalendarEvents",
+                "parameters": [
+                    {
+                        "name": "year",
+                        "in": "query",
+                        "description": "Year to filter by. Defaults to the current year.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 2026,
+                            "maximum": 2100,
+                            "minimum": 2000
+                        }
+                    },
+                    {
+                        "name": "month",
+                        "in": "query",
+                        "description": "Month to filter by (1-12). Defaults to the current month.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 8,
+                            "maximum": 12,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "schedule_date": {
+                                                        "type": "string",
+                                                        "format": "date",
+                                                        "example": "2026-08-20"
+                                                    },
+                                                    "event_schedule_id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "event_schedule": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "status": {
+                                                                "type": "string",
+                                                                "example": "Approved"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error (year out of range, or month not between 1-12)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The month must be between 1 and 12."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Unhandled server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Server Error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/office/employee/store": {
@@ -9708,6 +11052,10 @@
             "description": "Event"
         },
         {
+            "name": "Event category (optional)",
+            "description": "Event category (optional)"
+        },
+        {
             "name": "Event Mode (optional)",
             "description": "Event Mode (optional)"
         },
@@ -9728,6 +11076,10 @@
             "description": "Event Venue (optional)"
         },
         {
+            "name": "Event Schedule",
+            "description": "Event Schedule"
+        },
+        {
             "name": "Learner Progress Form",
             "description": "Learner Progress Form"
         },
@@ -9742,6 +11094,10 @@
         {
             "name": "Learning Implementation Report Form",
             "description": "Learning Implementation Report Form"
+        },
+        {
+            "name": "HR Dashboard",
+            "description": "HR Dashboard"
         },
         {
             "name": "Office Employee Nomination",
