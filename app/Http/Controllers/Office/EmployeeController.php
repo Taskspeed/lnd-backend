@@ -55,7 +55,7 @@ class EmployeeController extends Controller
     {
 
         try {
-            $result = $this->employeeService->delete($nominatedId);
+            $result = $this->employeeService->remove($nominatedId);
 
             return $this->successMessage($result, 'success deleted', 200,);
         } catch (\Throwable $e) {
