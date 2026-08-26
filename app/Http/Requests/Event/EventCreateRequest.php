@@ -32,7 +32,7 @@ class EventCreateRequest extends FormRequest
             'qualifications'=> 'nullable|string',
             'fee'=> 'nullable|string',
             'hours'=> 'nullable|integer',
-            'category_name'=> 'nullable|integer',
+            'category_name'=> 'nullable|string',
 
             // form for event
             'form' => 'nullable|array',

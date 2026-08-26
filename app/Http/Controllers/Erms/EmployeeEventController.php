@@ -30,7 +30,9 @@ class EmployeeEventController extends Controller
     public function show(int $eventId, string $controlNo)
     {
         $employee = NominatedEmployee::with(['event' => function ($query) {
-            $query->with(['schedule', 'speaker']);
+            $query->with(['schedule' => function ($query) {
+                $query->with(['scheduleDateTime']);
+            }]);
         }])
             ->select('event_id', 'control_no', 'office')
             ->where('control_no', $controlNo)
