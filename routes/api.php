@@ -8,6 +8,7 @@ use App\Http\Controllers\Erms\Form\EmployeeLearningApplicationMonitoringFormCont
 use App\Http\Controllers\Erms\Form\EmployeeLearningApplicationPlanFormController;
 use App\Http\Controllers\Erms\Form\EmployeeLearningImplementationFormController;
 use App\Http\Controllers\Event\EventController;
+use App\Http\Controllers\Event\Library\EventCategoryController;
 use App\Http\Controllers\Event\Library\EventModeController;
 use App\Http\Controllers\Event\Library\EventSourceController;
 use App\Http\Controllers\Event\Library\EventTitleController;
@@ -82,9 +83,11 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware(['auth:sanctum', 'role:office_admin'])->group(function () {
 
     Route::prefix('office')->group(function () {
+
         Route::prefix('employee')->group(function () {
             Route::get('/', [OfficeController::class, 'show']);
             Route::post('/store', [EmployeeController::class, 'store']);
+            Route::get('/nomination-list/{traningName}', [EmployeeController::class, 'index']);
             Route::delete('/delete/{nominatedEmployeeId}', [EmployeeController::class, 'destory']);
         });
 
@@ -145,6 +148,13 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
         Route::delete('/delete/{modeId}', [EventModeController::class, 'destroy']);
     });
 
+      Route::prefix('category')->group(function () {
+        Route::get('/index', [EventCategoryController::class, 'index']);
+        Route::post('/store', [EventCategoryController::class, 'store']);
+        Route::put('/update/{categoryId}', [EventCategoryController::class, 'update']);
+        Route::delete('/delete/{categoryId}', [EventCategoryController::class, 'destroy']);
+    });
+
     Route::prefix('source')->group(function () {
         Route::get('/index', [EventSourceController::class, 'index']);
         Route::post('/store', [EventSourceController::class, 'store']);
@@ -172,9 +182,9 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
         Route::post('/store', [EventController::class, 'store']);
         Route::put('/edit/{eventId}', [EventController::class, 'edit']);
         Route::get('/view/{eventId}', [EventController::class, 'view']);
+        Route::get('/details/{eventId}/{eventScheduleId}', [EventController::class, 'eventDetails']);
         Route::get('/nominated-employee/{eventId}/{eventScheduleId}', [EventController::class, 'show']);
         Route::delete('/delete/{eventId}', [EventController::class, 'destory']);
-
 
          Route::prefix('schedule')->group(function () {
             Route::post('/store', [ScheduleController::class, 'store']);

@@ -20,7 +20,9 @@ class NominatedEmployee extends Model
         'sg',
         'level',
         'event_schedule_id',
-        'is_attended'
+        'nominate_reason',
+        'nominate_status'
+    
     ];
 
     protected $hidden = [

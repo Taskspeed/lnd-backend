@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Office;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Office\NominatedEmployeeRequest;
+use App\Models\RSP\vwEmployee;
 use App\Services\Office\EmployeeService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Support\Facades\Auth;
@@ -18,6 +19,21 @@ class EmployeeController extends Controller
     public function __construct(EmployeeService $employeeService)
     {
         $this->employeeService = $employeeService;
+    }
+
+    // for nomination
+    public function index(string $trainingName)
+    {
+        try {
+            $user = Auth::user();
+
+            $result = $this->employeeService->employeeListForNomination($trainingName,$user);
+
+            return $this->successMessage($result, 'Success fetch employee list for nomination', 200);
+
+        } catch (\Throwable $e) {
+            return $this->errorMessage($e->getMessage(), 500);
+        }
     }
 
     public function store(NominatedEmployeeRequest $request)
