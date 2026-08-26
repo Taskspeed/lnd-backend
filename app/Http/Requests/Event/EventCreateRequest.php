@@ -38,9 +38,9 @@ class EventCreateRequest extends FormRequest
             'form' => 'nullable|array',
             'form.*.form_name' => 'nullable|string',
 
-             //schedule Date and time 
+            
 
-             
+             //schedule Date and time 
             'DateTime' => 'nullable|array',
             'DateTime.*.schedule_date' => 'nullable|date_format:Y-m-d',
             'DateTime.*.time_in' => 'nullable|date_format:h:i A',
@@ -57,6 +57,8 @@ class EventCreateRequest extends FormRequest
             // speaker 
             'speaker' => 'nullable|array',
             'speaker.*.speaker_name' => 'nullable|string',
+            'speaker.*.position' => 'nullable|string',
+            'speaker.*.agency' => 'nullable|string',
         ];
     }
 }

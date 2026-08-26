@@ -184,6 +184,8 @@ class EventService
                 EventSpeaker::create([
                     'event_schedule_id'  => $schedule->id,
                     'speaker_name' => $speaker['speaker_name'],
+                    'position' => $speaker['position'],
+                    'agency' => $speaker['agency'],
                 ]);
             }
 

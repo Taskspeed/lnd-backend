@@ -12,7 +12,9 @@ class EventSpeaker extends Model
 
     protected $fillable = [
         'event_schedule_id',
-        'speaker_name'
+        'speaker_name',
+        'agency',
+        'position'
     ];
 
     protected $appends = ['speakerId'];
