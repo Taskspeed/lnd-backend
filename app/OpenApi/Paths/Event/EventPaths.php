@@ -602,5 +602,120 @@ class EventPaths
     )]
     public function destory() {}
 
-
+ #[OA\Get(
+        path: "/api/event/details/{eventId}/{eventScheduleId}",
+        summary: "Event details for a specific event schedule",
+        description: "Returns the event with form and schedule relations, where the schedule is filtered to the one matching both event_id and the given eventScheduleId (including its office, speaker, details).",
+        operationId: "Event Details",
+        tags: ["Event"],
+        security: [["sanctum" => []]],
+        parameters: [
+            new OA\Parameter(
+                name: "eventId",
+                description: "ID of the event",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "integer", example: 1)
+            ),
+            new OA\Parameter(
+                name: "eventScheduleId",
+                description: "ID of the specific event schedule to filter by",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "integer", example: 1)
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Success",
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: "success fetch"),
+                        new OA\Property(
+                            property: "data",
+                            type: "object",
+                            properties: [
+                                new OA\Property(property: "id", type: "integer", example: 1),
+                                new OA\Property(property: "title_name", type: "string", example: "Annual HR Summit"),
+                                new OA\Property(
+                                    property: "form",
+                                    type: "array",
+                                    items: new OA\Items(type: "object")
+                                ),
+                                new OA\Property(
+                                    property: "schedule",
+                                    type: "array",
+                                    description: "Filtered to only the schedule matching eventScheduleId. Will be an empty array if no schedule matches both event_id and id.",
+                                    items: new OA\Items(
+                                        properties: [
+                                            new OA\Property(property: "id", type: "integer", example: 1),
+                                            new OA\Property(property: "event_id", type: "integer", example: 1),
+                                            new OA\Property(
+                                                property: "office",
+                                                type: "array",
+                                                items: new OA\Items(
+                                                    properties: [
+                                                        new OA\Property(property: "id", type: "integer", example: 1),
+                                                        new OA\Property(property: "event_schedule_id", type: "integer", example: 1),
+                                                        new OA\Property(property: "office_name", type: "string", example: "HRMO"),
+                                                    ]
+                                                )
+                                            ),
+                                            new OA\Property(
+                                                property: "speaker",
+                                                type: "array",
+                                                items: new OA\Items(
+                                                    properties: [
+                                                        new OA\Property(property: "id", type: "integer", example: 1),
+                                                        new OA\Property(property: "event_schedule_id", type: "integer", example: 1),
+                                                        new OA\Property(property: "speaker_name", type: "string", example: "Dr. Jane Santos"),
+                                                    ]
+                                                )
+                                            ),
+                                            new OA\Property(
+                                                property: "nominatedEmployee",
+                                                type: "array",
+                                                items: new OA\Items(
+                                                    properties: [
+                                                        new OA\Property(property: "id", type: "integer", example: 1),
+                                                        new OA\Property(property: "event_schedule_id", type: "integer", example: 1),
+                                                        new OA\Property(property: "control_no", type: "string", example: "022485"),
+                                                        new OA\Property(property: "full_name", type: "string", example: "Juan Dela Cruz"),
+                                                        new OA\Property(property: "designation", type: "string", example: "Administrative Officer"),
+                                                        new OA\Property(property: "office", type: "string", example: "Records Office"),
+                                                    ]
+                                                )
+                                            ),
+                                        ]
+                                    )
+                                ),
+                            ]
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 401,
+                description: "Unauthenticated",
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: "message", type: "string", example: "Unauthenticated."),
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 500,
+                description: "Server error, including 'Event not found' (thrown as a generic \\Exception and caught as a 500, not a 404).",
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: false),
+                        new OA\Property(property: "message", type: "string", example: "Event not found"),
+                    ]
+                )
+            ),
+        ]
+    )]
+    public function deatils() {}
 }
