@@ -33,17 +33,29 @@ class OfficeEmployeeController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $office)
+    public function show(string $office,Request $request)
     {
-        $employee = vwEmployee::select('ControlNo', 'office', 'position', 'name', 'status')
+    $titleName = $request->query('title');
+      $employee = vwEmployee::with(['xCivilService','xTraining' => function ($query) use ($titleName) {
+            $query->select('ControlNo', 'training', 'Dates', 'NumHours', 'Conductor', 'DateFrom', 'DateTo', 'Type')
+                ->where('training', $titleName);
+        }])
+            ->select('ControlNo', 'name', 'office', 'position','status','sg','level')
             ->where('office', $office)
-            ->get();
+            ->get()
+            ->map(function ($emp) {
+                $emp->trainingCount = $emp->xTraining->count();
+                $emp->isAlreadyTrained = $emp->trainingCount > 0;
+                return $emp;
+            });
 
+
+    
         if ($employee->isEmpty()) {
             return $this->errorMessage('No record employee found', 404);
         }
 
-        return $this->successMessage($employee, 'success fetch', 200);
+        return $this->successMessage($employee, 'Success fetch list of employee', 200);
     }
 
     /**
