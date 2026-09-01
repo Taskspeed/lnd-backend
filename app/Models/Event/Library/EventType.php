@@ -16,6 +16,10 @@ class EventType extends Model
     protected $appends = ['typeId'];
     protected $hidden = ['id'];
 
+    protected $casts = [
+        'created_at' => 'date:F d, Y'
+    ];
+
     public function getTypeIdAttribute()
     {
         return $this->id;

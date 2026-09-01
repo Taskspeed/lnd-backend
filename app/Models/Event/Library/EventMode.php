@@ -21,4 +21,7 @@ class EventMode extends Model
     {
         return $this->id;
     }
+    protected $casts = [
+        'created_at' => 'date:F d, Y'
+    ];
 }

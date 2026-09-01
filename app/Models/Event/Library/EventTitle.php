@@ -15,6 +15,10 @@ class EventTitle extends Model
      protected $appends = ['titleId'];
     protected $hidden = ['id'];
 
+    protected $casts = [
+        'created_at' => 'date:F d, Y'
+    ];
+
     public function getTitleIdAttribute()
     {
         return $this->id;

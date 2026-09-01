@@ -16,6 +16,10 @@ class EventVenue extends Model
     protected $appends = ['venueId'];
     protected $hidden = ['id'];
 
+    protected $casts = [
+        'created_at' => 'date:F d, Y'
+    ];
+
     public function getVenueIdAttribute()
     {
         return $this->id;
