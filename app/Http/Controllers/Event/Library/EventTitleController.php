@@ -19,10 +19,11 @@ class EventTitleController extends Controller
         $this->service = $service;
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        $search = $request->query('search');
         try {
-            $title = $this->service->index();
+            $title = $this->service->index($search);
 
             if ($title->isEmpty()) {
                 return $this->infoMessage('No records found', 200);

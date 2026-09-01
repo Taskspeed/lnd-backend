@@ -20,10 +20,13 @@ class EventTypeController extends Controller
         $this->service = $service;
     }
 
-    public function index()
+    public function index(Request $request)
     {
+
+        $search  = $request->query('search');
+
         try {
-            $type = $this->service->index();
+            $type = $this->service->index($search);
 
             if ($type->isEmpty()) {
                 return $this->infoMessage('No records found', 200);

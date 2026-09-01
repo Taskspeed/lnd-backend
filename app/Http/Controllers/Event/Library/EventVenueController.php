@@ -21,10 +21,11 @@ class EventVenueController extends Controller
         $this->service = $service;
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        $search = $request->query('search');      
         try {
-            $venue = $this->service->index();
+            $venue = $this->service->index($search);
 
             if ($venue->isEmpty()) {
                 return $this->infoMessage('No records found', 200);

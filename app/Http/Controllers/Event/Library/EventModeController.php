@@ -20,10 +20,11 @@ class EventModeController extends Controller
         $this->service = $service;
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        $search = $request->query('search');
         try {
-            $mode = $this->service->index();
+            $mode = $this->service->index($search);
 
             if ($mode->isEmpty()) {
                 return $this->infoMessage('No records found', 200);

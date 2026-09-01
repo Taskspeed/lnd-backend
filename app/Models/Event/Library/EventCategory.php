@@ -15,5 +15,17 @@ class EventCategory extends Model
         'category_name'
     ];
 
+      protected $casts = [
+        'created_at' => 'date:F d, Y'
+    ];
+
+      protected $appends = ['categoryId'];
+    protected $hidden = ['id'];
+
+    public function getCategoryIdAttribute()
+    {
+        return $this->id;
+    }
+
     
 }

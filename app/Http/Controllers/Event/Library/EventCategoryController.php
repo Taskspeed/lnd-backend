@@ -20,10 +20,11 @@ class EventCategoryController extends Controller
         $this->service = $service;
     }
 
-    public function index()
+    public function index(Request $request)
     {
+         $search  = $request->query('search'); 
         try {
-            $category = $this->service->index();
+            $category = $this->service->index($search);
 
             if ($category->isEmpty()) {
                 return $this->infoMessage('No records found', 200);
