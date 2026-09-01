@@ -8,10 +8,19 @@ use Illuminate\Support\Facades\DB;
 class EventVenueService
 {
 
-  public function index()
+   public function index(?string $search = null)
     {
-        $venue = EventVenue::all();
-        return $venue;
+        
+        $query = EventVenue::query();
+
+        if (!empty($search)) {
+            $query->where('venue_name', 'like', "%{$search}%");
+        }
+
+        $titles = $query->orderBy('venue_name')
+            ->get();
+
+        return $titles;
     }
 
     public function create(array $validateData)

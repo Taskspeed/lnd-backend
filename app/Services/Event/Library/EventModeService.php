@@ -10,7 +10,16 @@ class EventModeService
     
     public function index()
     {
-        $mode = EventMode::all();
+    
+        $query = EventMode::query();
+
+        if (!empty($search)) {
+            $query->where('mode_name', 'like', "%{$search}%");
+        }
+
+        $mode = $query->orderBy('mode_name')
+            ->get();
+
         return $mode;
     }
 

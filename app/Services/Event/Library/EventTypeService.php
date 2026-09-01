@@ -9,10 +9,19 @@ class EventTypeService
 {
 
 
-    public function index()
+   public function index(?string $search = null)
     {
-        $type = EventType::all();
-        return $type;
+        
+        $query = EventType::query();
+
+        if (!empty($search)) {
+            $query->where('type_name', 'like', "%{$search}%");
+        }
+
+        $types = $query->orderBy('type_name')
+            ->get();
+
+        return $types;
     }
 
     public function create(array $validateData)

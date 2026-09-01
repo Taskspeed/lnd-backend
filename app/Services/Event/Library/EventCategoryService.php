@@ -7,11 +7,22 @@ use Illuminate\Support\Facades\DB;
 
 class EventCategoryService
 {
-    public function index()
+    
+   public function index(?string $search = null)
     {
-        $category = EventCategory::all();
+        
+        $query = EventCategory::query();
+
+        if (!empty($search)) {
+            $query->where('category_name', 'like', "%{$search}%");
+        }
+
+        $category = $query->orderBy('category_name')
+            ->get();
+
         return $category;
     }
+
 
     public function create(array $validateData)
     {

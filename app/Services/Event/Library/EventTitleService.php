@@ -3,16 +3,26 @@
 namespace App\Services\Event\Library;
 
 use App\Models\Event\Library\EventTitle;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class EventTitleService
 {
-    public function index()
+    public function index(?string $search = null)
     {
-        $title = EventTitle::all();
-        return $title;
-    }
+        
+        $query = EventTitle::query();
 
+        if (!empty($search)) {
+            $query->where('title_name', 'like', "%{$search}%");
+        }
+
+        $titles = $query->orderBy('title_name')
+            ->get();
+
+        return $titles;
+    }
+    
     public function create(array $validateData)
     {
         return DB::transaction(function () use ($validateData) {
