@@ -14,9 +14,9 @@ class Event extends Model
 
     protected $fillable = [
         'title_name',
-        'type_name',
-        'source_name',
-        'category_name'
+        // 'type_name',
+        // 'source_name',
+        // 'category_name'
 
     ];
     protected $casts = [
