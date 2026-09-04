@@ -4,6 +4,9 @@ namespace App\Models\Event;
 
 use App\Casts\TimeFormatCast;
 use App\Models\Employee\NominatedEmployee;
+use App\Models\Event\Compentecy\EventCore;
+use App\Models\Event\Compentecy\EventLeadership;
+use App\Models\Event\Compentecy\EventTechnical;
 use DateTime;
 use Illuminate\Database\Eloquent\Model;
 
@@ -58,5 +61,21 @@ class EventSchedule extends Model
      public function event()
     {
         return $this->belongsTo(Event::class);
+    }
+
+    // competency
+    public function eventCore(){
+
+        return $this->hasMany(EventCore::class);
+    }
+
+    public function eventTechnical(){
+
+        return $this->hasMany(EventTechnical::class);
+    }
+
+    public function eventLeadership(){
+        
+        return $this->hasMany(EventLeadership::class);
     }
 }
