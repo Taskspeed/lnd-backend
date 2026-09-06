@@ -41,6 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('office')->group(function () {
         Route::get('/index', [OfficeController::class, 'index']);
+          Route::get('/employee/{office}', [OfficeController::class, 'employee']);
     });
 
     Route::prefix('erms')->group(function () {
@@ -93,7 +94,7 @@ Route::middleware(['auth:sanctum', 'role:office_admin'])->group(function () {
 
         Route::prefix('event')->group(function () {
             Route::get('/list-of-event', [OfficeEventController::class, 'index']);
-            Route::get('/view-event/{eventId}', [OfficeEventController::class, 'show']);
+            Route::get('/view-event/{scheduleId}', [OfficeEventController::class, 'show']);
         });
     });
 });
@@ -105,16 +106,18 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
 
     Route::prefix('hr')->group(function () {
 
-      Route::prefix('dashboard')->group(function () {
+        Route::prefix('dashboard')->group(function () {
             Route::get('/up-coming/events', [DashboardController::class, 'index']);
             Route::get('/calendar', [DashboardController::class, 'calendar']);
-
         });
 
         Route::prefix('submission')->group(function () {
             Route::put('/update/{employeeFormSubmissionId}', [EmployeeFormSubmissionController::class, 'update']);
         });
 
+        Route::prefix('employee')->group(function () {
+            Route::get('/list/suggested/training/{office}', [OfficeEmployeeController::class, 'show']);
+        });
     });
 
 
@@ -135,21 +138,21 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
     });
 
     Route::prefix('type')->group(function () {
-        Route::get('/index', [EventTypeController::class, 'index']);
+        Route::get('/', [EventTypeController::class, 'index']);
         Route::post('/store', [EventTypeController::class, 'store']);
         Route::put('/update/{typeId}', [EventTypeController::class, 'update']);
         Route::delete('/delete/{typeId}', [EventTypeController::class, 'destroy']);
     });
 
     Route::prefix('mode')->group(function () {
-        Route::get('/index', [EventModeController::class, 'index']);
+        Route::get('/', [EventModeController::class, 'index']);
         Route::post('/store', [EventModeController::class, 'store']);
         Route::put('/update/{modeId}', [EventModeController::class, 'update']);
         Route::delete('/delete/{modeId}', [EventModeController::class, 'destroy']);
     });
 
-      Route::prefix('category')->group(function () {
-        Route::get('/index', [EventCategoryController::class, 'index']);
+    Route::prefix('category')->group(function () {
+        Route::get('/', [EventCategoryController::class, 'index']);
         Route::post('/store', [EventCategoryController::class, 'store']);
         Route::put('/update/{categoryId}', [EventCategoryController::class, 'update']);
         Route::delete('/delete/{categoryId}', [EventCategoryController::class, 'destroy']);
@@ -163,7 +166,7 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
     });
 
     Route::prefix('title')->group(function () {
-        Route::get('/index', [EventTitleController::class, 'index']);
+        Route::get('/', [EventTitleController::class, 'index']);
         Route::post('/store', [EventTitleController::class, 'store']);
         Route::put('/update/{titleId}', [EventTitleController::class, 'update']);
         Route::delete('/delete/{titleId}', [EventTitleController::class, 'destroy']);
@@ -171,10 +174,10 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
 
 
     Route::prefix('venue')->group(function () {
-        Route::get('/index', [EventVenueController::class, 'index']);
+        Route::get('/', [EventVenueController::class, 'index']);
         Route::post('/store', [EventVenueController::class, 'store']);
         Route::put('/update/{venueId}', [EventVenueController::class, 'update']);
-        Route::delete('/delete/{venueId}', [EventVenueController::class, 'destory']);
+        Route::delete('/delete/{venueId}', [EventVenueController::class, 'destroy']);
     });
 
     Route::prefix('event')->group(function () {
@@ -186,9 +189,10 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
         Route::get('/nominated-employee/{eventId}/{eventScheduleId}', [EventController::class, 'show']);
         Route::delete('/delete/{eventId}', [EventController::class, 'destory']);
 
-         Route::prefix('schedule')->group(function () {
+        Route::prefix('schedule')->group(function () {
             Route::post('/store', [ScheduleController::class, 'store']);
             Route::put('/edit/{eventScheduleId}', [ScheduleController::class, 'edit']);
+            Route::get('/view/{eventScheduleId}', [ScheduleController::class, 'view']);
             Route::put('/update-status/{eventScheduleId}', [ScheduleController::class, 'update']);
             Route::delete('/delete/{eventScheduleId}', [ScheduleController::class, 'destory']);
         });
@@ -201,9 +205,5 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
 
         Route::put('/update/{userId}', [AuthController::class, 'update']);
         Route::delete('/delete/{userId}', [UserController::class, 'destroy']);
-    });
-
-    Route::prefix('employee')->group(function () {
-        Route::get('/show/{office}', [OfficeEmployeeController::class, 'show']);
     });
 });

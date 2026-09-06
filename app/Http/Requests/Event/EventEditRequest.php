@@ -24,9 +24,9 @@ class EventEditRequest extends FormRequest
     {
         return [
             'title_name' => 'required|string',
-            'type_name'=> 'nullable|string',
-            'source_name'=> 'nullable|string',
-            'category_name'=> 'nullable|string',
+            // 'type_name'=> 'nullable|string',
+            // 'source_name'=> 'nullable|string',
+            // 'category_name'=> 'nullable|string',
         ];
     }
 }

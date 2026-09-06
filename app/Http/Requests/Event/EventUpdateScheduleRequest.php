@@ -33,6 +33,7 @@ class EventUpdateScheduleRequest extends FormRequest
             'fee'=> 'nullable|string',
             'hours'=> 'nullable|integer',
             'category_name'=> 'nullable|string',
+             'conducted_by'=> 'nullable|string',
 
              //schedule Date and time 
             'DateTime' => 'nullable|array',

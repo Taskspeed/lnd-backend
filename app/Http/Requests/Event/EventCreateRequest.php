@@ -33,6 +33,7 @@ class EventCreateRequest extends FormRequest
             'fee'=> 'nullable|string',
             'hours'=> 'nullable|integer',
             'category_name'=> 'nullable|string',
+             'conducted_by'=> 'nullable|string',
 
             // form for event
             'form' => 'nullable|array',

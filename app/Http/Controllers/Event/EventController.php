@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Event;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Event\EventAddScheduleRequest;
 use App\Http\Requests\Event\EventCreateRequest;
+use App\Http\Requests\Event\EventEditRequest;
 use App\Http\Requests\Event\EventUpdateScheduleRequest;
 use App\Models\Event\Event;
 use App\Models\Event\EventSchedule;
@@ -55,7 +56,7 @@ class EventController extends Controller
         try {
             $result = $this->eventService->create($validated);
 
-            return $this->successMessage($result, 'success created', 200,);
+            return $this->successMessage($result, 'Schedule added successfully', 200,);
         } catch (\Throwable $e) {
             return $this->errorMessage($e->getMessage(), 500);
         }
@@ -76,7 +77,7 @@ class EventController extends Controller
     }
 
 
-    public function edit(EventCreateRequest $request, int $eventId)
+    public function edit(EventEditRequest $request, int $eventId)
     {
         $validated = $request->validated();
 

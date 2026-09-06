@@ -31,5 +31,15 @@ class OfficeController extends Controller
         return $this->successMessage($employee, 'success fetch', 200);
     }
 
+     public function employee(string $office)
+    {
+      
+
+        $employee = vwEmployee::select('ControlNo', 'name', 'office', 'position')->where('office', $office)->get();
+
+        return $this->successMessage($employee, 'success fetch', 200);
+    }
+
+
     
 }

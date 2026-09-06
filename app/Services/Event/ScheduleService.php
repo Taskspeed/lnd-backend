@@ -10,6 +10,7 @@ use App\Models\Event\EventEmployeeTag;
 use App\Models\Event\EventSchedule;
 use App\Models\Event\EventScheduleDateTime;
 use App\Models\Event\EventSpeaker;
+use Exception;
 use Illuminate\Support\Facades\DB;
 
 class ScheduleService
@@ -29,6 +30,7 @@ class ScheduleService
                 'source_name'  => $validated['source_name'] ?? null,
                 'type_name'    => $validated['type_name'] ?? null,
                 'category_name'    => $validated['category_name'] ?? null,
+                'conducted_by'    => $validated['conducted_by'] ?? null,
                 'status'       => 'Created',
             ]);
 
@@ -83,6 +85,8 @@ class ScheduleService
                 EventSpeaker::create([
                     'event_schedule_id'  => $schedule->id,
                     'speaker_name' => $speaker['speaker_name'],
+                    'position' => $speaker['position'],
+                    'agency' => $speaker['agency'],
                 ]);
             }
 
@@ -122,6 +126,7 @@ class ScheduleService
                 'source_name'  => $validated['source_name'] ?? null,
                 'type_name'    => $validated['type_name'] ?? null,
                 'category_name'    => $validated['category_name'] ?? null,
+                'conducted_by'    => $validated['conducted_by'] ?? null,
                 // 'status'       => 'Created',
             ]);
 
@@ -173,6 +178,8 @@ class ScheduleService
                 EventSpeaker::create([
                     'event_schedule_id' => $schedule->id,
                     'speaker_name'      => $speaker['speaker_name'],
+                    'agency'      => $speaker['agency'],
+                    'position'      => $speaker['position'],
                 ]);
             }
 
@@ -229,5 +236,17 @@ class ScheduleService
 
             return $event;
         });
+    }
+
+    public function eventViewSchedule(int $scheduleId){
+
+    $schedule  = EventSchedule::with(['speaker','eventCore','eventTechnical','eventLeaderShip','scheduleDateTime','office','employeeTag'])->find($scheduleId);
+
+     if(!$scheduleId){
+        throw new \Exception('Schedule are not found');
+
+     }
+
+    return $schedule;
     }
 }

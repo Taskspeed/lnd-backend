@@ -18,4 +18,8 @@ class EventEmployeeTag extends Model
         'office',
         'status'
     ];
+      protected $hidden = [
+        'created_at',
+        'updated_at'
+    ];
 }

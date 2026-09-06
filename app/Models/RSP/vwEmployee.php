@@ -18,4 +18,11 @@ class vwEmployee extends Model
             'ControlNo'  // local key on vwEmployee table
         );
     }
+
+      public function xCivilService(){ return $this->hasMany(
+            xCivilService::class,
+            'ControlNo', // foreign key on xTrainings table
+            'ControlNo'  // local key on vwEmployee table
+        );
+    }
 }

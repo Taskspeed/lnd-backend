@@ -8,6 +8,7 @@ use App\Http\Requests\Event\EventUpdateScheduleRequest;
 use App\Services\Event\ScheduleService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schedule;
 
 class ScheduleController extends Controller
 {
@@ -82,6 +83,20 @@ class ScheduleController extends Controller
 
             return $this->successMessage($result, 'success deleted', 200,);
         } catch (\Throwable $e) {
+            return $this->errorMessage($e->getMessage(), 500);
+        }
+    }
+
+    
+    public function view(int $scheduleId)
+    {
+      
+
+        try {
+            $result = $this->scheduleService->eventViewSchedule($scheduleId);
+
+            return $this->successMessage($result, 'success fetch', 200,);
+        } catch (\Exception $e) {
             return $this->errorMessage($e->getMessage(), 500);
         }
     }

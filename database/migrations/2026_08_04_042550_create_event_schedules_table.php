@@ -20,6 +20,10 @@ return new class extends Migration
             $table->integer('hours')->nullable();
             $table->string('qualifications')->nullable();
             $table->string('fee')->nullable();
+            $table->string('source_name')->nullable();
+            $table->string('type_name')->nullable();
+            $table->string('category_name')->nullable();
+            $table->string('conducted_by')->nullable();
             $table->timestamps();
         });
     }

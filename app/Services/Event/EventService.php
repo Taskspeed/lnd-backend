@@ -3,8 +3,12 @@
 namespace App\Services\Event;
 
 use App\Models\Employee\NominatedEmployee;
+use App\Models\Event\Compentecy\EventCore;
+use App\Models\Event\Compentecy\EventLeadership;
+use App\Models\Event\Compentecy\EventTechnical;
 use App\Models\Event\Event;
 use App\Models\Event\EventDepartment;
+use App\Models\Event\EventEmployeeTag;
 use App\Models\Event\EventForm;
 use App\Models\Event\EventSchedule;
 use App\Models\Event\EventScheduleDateTime;
@@ -87,46 +91,46 @@ class EventService
         return $event;
     }
 
-   public function nominatedEmployee(int $eventId, int $eventScheduleId, int $perPage = 10)
-{
-    $event = Event::with([
-        'form',
-        'schedule' => function ($query) use ($eventId, $eventScheduleId) {
-            $query->with([
-                'speaker',
-                'scheduleDateTime',
-                'office',
-                'nominatedEmployee' // kailangan pa rin ito, buo, para sa count
-            ])
-                ->where('event_id', $eventId)
-                ->where('id', $eventScheduleId);
-        }
-    ])->find($eventId);
+    public function nominatedEmployee(int $eventId, int $eventScheduleId, int $perPage = 10)
+    {
+        $event = Event::with([
+            'form',
+            'schedule' => function ($query) use ($eventId, $eventScheduleId) {
+                $query->with([
+                    'speaker',
+                    'scheduleDateTime',
+                    'office',
+                    'nominatedEmployee' // kailangan pa rin ito, buo, para sa count
+                ])
+                    ->where('event_id', $eventId)
+                    ->where('id', $eventScheduleId);
+            }
+        ])->find($eventId);
 
-    if (!$event) {
-        throw new \Exception('Event not found');
-    }
-
-    // Compute counts per office after loading
-    foreach ($event->schedule as $schedule) {
-        $counts = $schedule->nominatedEmployee
-            ->groupBy('office')
-            ->map->count();
-
-        foreach ($schedule->office as $office) {
-            $office->employee_nominated = $counts->get($office->office_name, 0);
+        if (!$event) {
+            throw new \Exception('Event not found');
         }
 
-        // palitan ang buong collection ng paginated version para sa display
-        $schedule->setRelation(
-            'nominatedEmployee',
-            NominatedEmployee::where('event_schedule_id', $schedule->id)
-                ->paginate($perPage)
-        );
-    }
+        // Compute counts per office after loading
+        foreach ($event->schedule as $schedule) {
+            $counts = $schedule->nominatedEmployee
+                ->groupBy('office')
+                ->map->count();
 
-    return $event;
-}
+            foreach ($schedule->office as $office) {
+                $office->employee_nominated = $counts->get($office->office_name, 0);
+            }
+
+            // palitan ang buong collection ng paginated version para sa display
+            $schedule->setRelation(
+                'nominatedEmployee',
+                NominatedEmployee::where('event_schedule_id', $schedule->id)
+                    ->paginate($perPage)
+            );
+        }
+
+        return $event;
+    }
 
     // create event
     public function create(?array $validated)
@@ -144,10 +148,7 @@ class EventService
 
             $event = Event::create([
                 'title_name'   => $validated['title_name'] ?? null,
-                'source_name'  => $validated['source_name'] ?? null,
-                'type_name'    => $validated['type_name'] ?? null,
-                'cagetory_name'    => $validated['cagetory_name'] ?? null,
-
+                // 'intervention'   => $validated['intervention'] ?? null,
             ]);
 
 
@@ -162,20 +163,64 @@ class EventService
                 'qualifications'  => $validated['qualifications'] ?? null,
                 'hours'  => $validated['hours'] ?? null,
                 'fee'  => $validated['fee'] ?? null,
+                'source_name'  => $validated['source_name'] ?? null,
+                'type_name'    => $validated['type_name'] ?? null,
+                'category_name'    => $validated['category_name'] ?? null,
+                'conducted_by'    => $validated['conducted_by'] ?? null,
                 'status'       => 'Created',
             ]);
+
+
+            EventCore::create([
+                'event_schedule_id' => $schedule->id,
+                'delivering_service_excellence'   => $validated['delivering_service_excellence'] ?? false,
+                'exemplifying_integrity'    => $validated['exemplifying_integrity'] ?? false,
+                'interpersonal_skills'  => $validated['interpersonal_skills'] ?? false,
+            ]);
+
+            EventTechnical::create([
+                'event_schedule_id' => $schedule->id,
+                'planning_organizing'   => $validated['planning_organizing'] ?? false,
+                'monitoring_evaluation'    => $validated['monitoring_evaluation'] ?? false,
+                'records_management'  => $validated['records_management'] ?? false,
+                'partnering_networking'  => $validated['partnering_networking'] ?? false,
+                'process_management'  => $validated['process_management'] ?? false,
+                'attention_details'  => $validated['attention_details'] ?? false,
+
+
+            ]);
+            EventLeadership::create([
+                'event_schedule_id' => $schedule->id,
+                'managing_performance_coaching_results'   => $validated['managing_performance_coaching_results'] ?? false,
+                'building_collaborative_inclusive_working_relationships'    => $validated['building_collaborative_inclusive_working_relationships'] ?? false,
+                'thinking_strategically_creatively'  => $validated['thinking_strategically_creatively'] ?? false,
+                'problem_solving_decision_making'  => $validated['problem_solving_decision_making'] ?? false,
+
+            ]);
+
+
+            foreach ($validated['employee'] as $emp) {
+                EventEmployeeTag::create([
+                    'event_schedule_id' => $schedule->id,
+                    'name'       => $emp['name'] ?? null,
+                    'control_no' => $emp['control_no'] ?? null,
+                    'office'     => $emp['office'] ?? null,
+                    'position'   => $emp['position'] ?? null,
+                    'status'     => $emp['status'] ?? null,
+                ]);
+            }
 
             foreach ($validated['form'] ?? [] as $form) {
                 EventForm::create([
                     'event_id'  => $event->id,
-                    'form_name' => $form['form_name'],
+                    'form_name' => $form['form_name'] ?? null,
                 ]);
             }
 
             foreach ($validated['office'] ?? [] as $office) {
                 EventDepartment::create([
                     'event_schedule_id'  => $schedule->id,
-                    'office_name' => $office['office_name'],
+                    'office_name' => $office['office_name'] ?? null,
                 ]);
             }
 
@@ -183,9 +228,9 @@ class EventService
             foreach ($validated['speaker'] ?? [] as $speaker) {
                 EventSpeaker::create([
                     'event_schedule_id'  => $schedule->id,
-                    'speaker_name' => $speaker['speaker_name'],
-                    'position' => $speaker['position'],
-                    'agency' => $speaker['agency'],
+                    'speaker_name' => $speaker['speaker_name'] ?? null,
+                    'position' => $speaker['position'] ?? null,
+                    'agency' => $speaker['agency'] ?? null,
                 ]);
             }
 
@@ -193,8 +238,13 @@ class EventService
                 EventScheduleDateTime::create([
                     'event_schedule_id'  => $schedule->id,
                     'schedule_date' => $dateTime['schedule_date'] ?? null,
-                    'time_in' => $dateTime['time_in'] ?? null,
-                    'time_out' => $dateTime['time_out'] ?? null,
+                    // 'time_in' => $dateTime['time_in'] ?? null,
+                    // 'time_out' => $dateTime['time_out'] ?? null,
+                    'morning_in' => $dateTime['morning_in'] ?? null,
+                    'morning_out' => $dateTime['morning_out'] ?? null,
+                    'afternoon_in' => $dateTime['afternoon_in'] ?? null,
+                    'afternoon_out' => $dateTime['afternoon_out'] ?? null,
+
                 ]);
             }
 
@@ -229,9 +279,9 @@ class EventService
 
             $event->update([
                 'title_name'      => $validated['title_name'] ?? null,
-                'source_name'     => $validated['source_name'] ?? null,
-                'type_name'  => $validated['type_name'] ?? null,
-                'category_name'  => $validated['category_name'] ?? null,
+                // 'source_name'     => $validated['source_name'] ?? null,
+                // 'type_name'  => $validated['type_name'] ?? null,
+                // 'category_name'  => $validated['category_name'] ?? null,
             ]);
 
             return $event;

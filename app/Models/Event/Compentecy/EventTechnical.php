@@ -16,7 +16,7 @@ class EventTechnical extends Model
         'records_management',
         'partnering_networking',
         'process_management',
-        'attention_detail'
+        'attention_details'
     ];
 
     protected $hidden = [
@@ -30,6 +30,6 @@ class EventTechnical extends Model
         'records_management' => 'boolean',
         'partnering_networking' => 'boolean',
         'process_management' => 'boolean',
-        'attention_detail' => 'boolean',
+        'attention_details' => 'boolean',
     ];
 }

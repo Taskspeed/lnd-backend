@@ -15,6 +15,7 @@ class xTraining extends Model
 
 
     protected $casts = [
-        // 'Dates' =>  'date:F d, Y'
+        // 'DateFrom' =>  'date:F d, Y',
+        // 'DateTo' =>  'date:F d, Y'
     ];
 }

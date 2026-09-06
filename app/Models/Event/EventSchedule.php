@@ -7,6 +7,7 @@ use App\Models\Employee\NominatedEmployee;
 use App\Models\Event\Compentecy\EventCore;
 use App\Models\Event\Compentecy\EventLeadership;
 use App\Models\Event\Compentecy\EventTechnical;
+use Carbon\Carbon;
 use DateTime;
 use Illuminate\Database\Eloquent\Model;
 
@@ -23,7 +24,11 @@ class EventSchedule extends Model
         'status',
         'hours',
         'qualifications',
-        'fee'
+        'fee',
+         'type_name',
+        'source_name',
+        'category_name',
+        'conducted_by'
     ];
 
     protected $casts = [
@@ -31,8 +36,31 @@ class EventSchedule extends Model
        'hours'  => 'integer',
     ];
 
-    protected $appends = ['scheduleId'];
-    protected $hidden = ['id', 'created_at', 'updated_at'];
+    protected $appends = ['scheduleId','computedStatus'];
+    protected $hidden = ['id', 'created_at', 'updated_at','status'];
+
+    public function getComputedStatusAttribute()
+    {
+        $dates = $this->scheduleDateTime()
+            ->orderBy('schedule_date') // palitan kung ibang column name
+            ->pluck('schedule_date');
+
+        if ($dates->isEmpty()) {
+            return $this->status; // fallback sa manual status kung wala pang date
+        }
+
+        $start = Carbon::parse($dates->first())->startOfDay();
+        $end   = Carbon::parse($dates->last())->endOfDay();
+        $today = Carbon::now();
+
+        if ($today->lt($start)) {
+            return 'up-coming';
+        } elseif ($today->between($start, $end)) {
+            return 'ongoing';
+        } else {
+            return 'complete';
+        }
+    }
 
 
     public function getScheduleIdAttribute()
@@ -77,5 +105,10 @@ class EventSchedule extends Model
     public function eventLeadership(){
         
         return $this->hasMany(EventLeadership::class);
+    }
+
+      public function employeeTag(){
+        
+        return $this->hasMany(EventEmployeeTag::class);
     }
 }
