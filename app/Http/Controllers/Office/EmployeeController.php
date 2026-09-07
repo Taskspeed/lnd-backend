@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Office;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Office\NominatedEmployeeRequest;
-use App\Models\RSP\vwEmployee;
+use App\Models\Employee\NominatedEmployee;
 use App\Services\Office\EmployeeService;
 use App\Traits\ApiResponseTrait;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+
+use function PHPUnit\Framework\returnArgument;
 
 class EmployeeController extends Controller
 {
@@ -22,15 +25,14 @@ class EmployeeController extends Controller
     }
 
     // for nomination
-    public function index(string $trainingName)
+    public function index(Request $request)
     {
         try {
             $user = Auth::user();
-
-            $result = $this->employeeService->employeeListForNomination($trainingName,$user);
+            $trainingName = $request->query('training_name');
+            $result = $this->employeeService->employeeListForNomination($trainingName, $user);
 
             return $this->successMessage($result, 'Success fetch employee list for nomination', 200);
-
         } catch (\Throwable $e) {
             return $this->errorMessage($e->getMessage(), 500);
         }
@@ -51,7 +53,7 @@ class EmployeeController extends Controller
         }
     }
 
-      public function destory(int $nominatedId)
+    public function destory(int $nominatedId)
     {
 
         try {
@@ -62,7 +64,6 @@ class EmployeeController extends Controller
             return $this->errorMessage($e->getMessage(), 500);
         }
     }
-
 
 
     // public function update(NominatedEmployeeRequest $request, int $nominatedId)
@@ -82,4 +83,30 @@ class EmployeeController extends Controller
     //         return $this->errorMessage($e->getMessage(), 500);
     //     }
     // }
+
+    public function employeeNominatedByOffice(int $scheduleId)
+    {
+
+        $user = Auth::user();
+
+        $employee  = NominatedEmployee::where('office', $user->office)->where('event_schedule_id', $scheduleId)->get();
+
+        return $this->successMessage($employee, 'list of employee nominated', 200);
+    }
+
+    public function editReason(Request $request, int $nominatedEmployeeId)
+    {
+
+        $validated = $request->validate([
+            'nominate_reason' => 'required|string',
+        ]);
+
+        try {
+            $result =  $this->employeeService->editReason($validated, $nominatedEmployeeId);
+
+            return $this->successMessage($result, 'Reason updated successfully.', 200);
+        } catch (\Throwable $e) {
+            return $this->errorMessage($e->getMessage(), 500);
+        }
+    }
 }

@@ -39,10 +39,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
     });
 
-    Route::prefix('office')->group(function () {
-        Route::get('/index', [OfficeController::class, 'index']);
-          Route::get('/employee/{office}', [OfficeController::class, 'employee']);
-    });
+    // Route::prefix('office')->group(function () {
+    //     Route::get('/index', [OfficeController::class, 'index']);
+    //       Route::get('/employee/{office}', [OfficeController::class, 'employee']);
+    // });
+ 
 
     Route::prefix('erms')->group(function () {
         Route::get('/index/{controlNo}', [EmployeeEventController::class, 'index'])->withoutMiddleware(['auth:sanctum']);
@@ -88,13 +89,16 @@ Route::middleware(['auth:sanctum', 'role:office_admin'])->group(function () {
         Route::prefix('employee')->group(function () {
             Route::get('/', [OfficeController::class, 'show']);
             Route::post('/store', [EmployeeController::class, 'store']);
-            Route::get('/nomination-list/{traningName}', [EmployeeController::class, 'index']);
-            Route::delete('/delete/{nominatedEmployeeId}', [EmployeeController::class, 'destory']);
+            Route::get('/nomination-list', [EmployeeController::class, 'index']);
+            Route::put('/nominated-employee/{nominatedEmployeeId}/reason', [EmployeeController::class, 'editReason']);
+            Route::delete('/delete/{nominatedEmployeeId}', [EmployeeController::class, 'destory']);//  employee remove on the nominated event
         });
 
         Route::prefix('event')->group(function () {
             Route::get('/list-of-event', [OfficeEventController::class, 'index']);
             Route::get('/view-event/{scheduleId}', [OfficeEventController::class, 'show']);
+            Route::get('/employee/nominate/{scheduleId}', [EmployeeController::class, 'employeeNominatedByOffice']); // list of employee nominated
+       
         });
     });
 });

@@ -6,6 +6,7 @@ use App\Models\Employee\NominatedEmployee;
 use App\Models\Event\Event;
 use App\Models\Event\EventSchedule;
 use App\Models\RSP\vwEmployee;
+use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
 
@@ -130,7 +131,7 @@ class EmployeeService
             $query->select('ControlNo', 'training', 'Dates', 'NumHours', 'Conductor', 'DateFrom', 'DateTo', 'Type')
                 ->where('training', $trainingName);
         }])
-            ->select('ControlNo', 'name', 'office', 'position')
+            ->select('ControlNo', 'name', 'office', 'position', 'status')
             ->where('office', $user->office)
             ->get()
             ->map(function ($emp) {
@@ -139,6 +140,23 @@ class EmployeeService
                 return $emp;
             });
 
+
+        return $employee;
+    }
+
+    public function editReason(array $validated, int $nominatedEmployeeId)
+    {
+
+        $employee = NominatedEmployee::find($nominatedEmployeeId);
+
+
+        if (!$employee) {
+            throw new \Exception('Employee not found', 404);
+        }
+
+        $employee->update([
+            'nominate_reason' => $validated['nominate_reason'],
+        ]);
 
         return $employee;
     }
