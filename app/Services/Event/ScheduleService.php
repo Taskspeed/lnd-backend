@@ -129,6 +129,19 @@ class ScheduleService
                 'conducted_by'    => $validated['conducted_by'] ?? null,
                 // 'status'       => 'Created',
             ]);
+            
+            $schedule->employeeTag()->delete();
+
+            foreach ($validated['employee'] as $emp) {
+                EventEmployeeTag::create([
+                    'event_schedule_id' => $schedule->id,
+                    'name'       => $emp['name'] ?? null,
+                    'control_no' => $emp['control_no'] ?? null,
+                    'office'     => $emp['office'] ?? null,
+                    'position'   => $emp['position'] ?? null,
+                    'status'     => $emp['status'] ?? null,
+                ]);
+            }
 
 
             $schedule->eventCore()->delete();
