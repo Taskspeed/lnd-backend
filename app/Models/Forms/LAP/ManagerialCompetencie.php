@@ -20,4 +20,14 @@ class ManagerialCompetencie extends Model
         'problem_solving_decision_making'
 
     ];
+          protected $hidden = [ 'created_at', 'updated_at'];
+
+          protected $casts = [
+                  'learning_application_plan_form_id' => 'integer',
+        'managing_performance_coaching_results'=> 'boolean',
+        'building_collaborative_inclusive_working_relationships'=> 'boolean',
+        'thinking_strategically_creatively'=> 'boolean',
+        'partnering_networking'=> 'boolean',
+        'problem_solving_decision_making'
+          ];
 }

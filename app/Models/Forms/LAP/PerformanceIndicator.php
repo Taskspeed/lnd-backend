@@ -18,4 +18,12 @@ class PerformanceIndicator extends Model
         'support_functions'
 
     ];
+          protected $hidden = [ 'created_at', 'updated_at'];
+
+          protected $casts = [
+                'learning_application_plan_form_id' => 'integer',
+        'strategic_functions' => 'boolean',
+        'core_functions'=> 'boolean',
+        'support_functions'=> 'boolean',
+          ];
 }

@@ -19,4 +19,14 @@ class ResourcesUtilized extends Model
         'policy_process_resources'
 
     ];
+          protected $hidden = [ 'created_at', 'updated_at'];
+
+          protected $casts = [
+              'learning_application_plan_form_id' => 'integer',
+        'digital_technologies' => 'boolean',
+        'physical_printed_resources'=> 'boolean',
+        'human_resources_organizational_support'=> 'boolean',
+        'financial_logistical_support'=> 'boolean',
+        'policy_process_resources'=> 'boolean',
+          ];
 }

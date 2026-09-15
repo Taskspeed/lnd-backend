@@ -15,4 +15,10 @@ class SupervisoryCompetencie extends Model
         'supervisory_building_collaborative_inclusive_working_relationships',
 
     ];
+    protected $hidden = ['created_at', 'updated_at'];
+    protected $casts = [
+           'supervisory_learning_application_plan_form_id' => 'integer',
+        'supervisory_managing_performance_coaching_results'=> 'boolean',
+        'supervisory_building_collaborative_inclusive_working_relationships' => 'boolean',
+    ];
 }

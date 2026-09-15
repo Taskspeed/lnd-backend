@@ -31,7 +31,12 @@ class LearningApplicationPlanForm extends Model
 
     protected $casts = [
   
-        'employee_form_submission_id' => 'integer'
+        'employee_form_submission_id' => 'integer',
+        'foundation' => 'boolean',
+        'techinal' => 'boolean',
+        'supervisory' => 'boolean',
+        'managerial' => 'boolean',
+         
     ];
 
     public function getLearningApplicationPlanFormIdAttribute()
@@ -39,7 +44,7 @@ class LearningApplicationPlanForm extends Model
         return $this->id;
     }
 
-    public function foundation()
+    public function foundations()
     {
         return $this->hasOne(FoundationCompetencie::class);
     }
@@ -47,11 +52,11 @@ class LearningApplicationPlanForm extends Model
     {
         return $this->hasOne(TechnicalCompetencie::class);
     }
-    public function managerial()
+    public function managerials()
     {
         return $this->hasOne(ManagerialCompetencie::class);
     }
-    public function supervisory()
+    public function supervisorys()
     {
         return $this->hasOne(SupervisoryCompetencie::class);
     }

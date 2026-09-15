@@ -18,4 +18,5 @@ class TechnicalCompetencie extends Model
         'process_management',
         'attention_detail'
     ];
+          protected $hidden = [ 'created_at', 'updated_at'];
 }

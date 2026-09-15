@@ -15,4 +15,13 @@ class FoundationCompetencie extends Model
         'exemplifying_integrity',
         'interpersonal_skills'
     ];
+
+      protected $hidden = [ 'created_at', 'updated_at'];
+
+      protected $casts = [
+        'learning_application_plan_form_id' => 'integer',
+        'delivering_service_excellence' => 'boolean',
+        'exemplifying_integrity' => 'boolean',
+        'interpersonal_skills' => 'boolean',
+      ];
 }

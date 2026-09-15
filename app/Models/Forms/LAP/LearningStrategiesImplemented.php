@@ -20,4 +20,15 @@ class LearningStrategiesImplemented extends Model
         'include_ipcr'
 
     ];
+          protected $hidden = [ 'created_at', 'updated_at'];
+
+          protected $casts = [
+               'learning_application_plan_form_id' => 'integer',
+        'immediate_application_skills'=> 'boolean',
+        'knowledge_sharing'=> 'boolean',
+        'peer_coaching_collaboration'=> 'boolean',
+        'develop_office_policies_guidelines'=> 'boolean',
+        'create_pilot_project'=> 'boolean',
+        'include_ipcr'=> 'boolean',
+          ];
 }
