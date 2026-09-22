@@ -16,6 +16,7 @@ use App\Models\Event\EventSpeaker;
 use App\Traits\FormatsDateRanges;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Concerns\FormatsMessages;
 
 class EventService
@@ -224,6 +225,22 @@ class EventService
                 ]);
             }
 
+        // Notify office admins ng bawat kasamang office
+            $officeNames = collect($validated['office'] ?? [])->pluck('office_name')->filter();
+            
+            if ($officeNames->isNotEmpty()) {
+                $officeAdmins = \App\Models\User::whereIn('office', $officeNames)
+                    ->role('office_admin')
+                    ->get();
+
+                if ($officeAdmins->isNotEmpty()) {
+                    foreach ($officeAdmins as $admin) {
+                        $admin->notify(new \App\Notifications\EventCreated($event, $schedule));
+                    }
+                } else {
+                    Log::info("No office admins found for offices: " . $officeNames->implode(', '));
+                }
+            }
 
             foreach ($validated['speaker'] ?? [] as $speaker) {
                 EventSpeaker::create([
