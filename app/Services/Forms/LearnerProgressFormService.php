@@ -18,7 +18,7 @@ class LearnerProgressFormService
 {
     private function formName()
     {
-        return 'Leaner Progress Report';
+        return 'Learner Progress Report';
     }
 
     public function create(?array $validated)
