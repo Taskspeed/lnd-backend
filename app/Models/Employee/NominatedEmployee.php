@@ -2,6 +2,7 @@
 
 namespace App\Models\Employee;
 
+use App\Models\Event\EmployeeFormSubmission;
 use App\Models\Event\Event;
 use Illuminate\Database\Eloquent\Model;
 
@@ -21,7 +22,8 @@ class NominatedEmployee extends Model
         'level',
         'event_schedule_id',
         'nominate_reason',
-        'nominate_status'
+        'nominate_status',
+        'certificate_issued'
     
     ];
 
@@ -57,5 +59,9 @@ class NominatedEmployee extends Model
 
     public function employeeAttendances(){
         return $this->hasMany(EmployeeAttendance::class);
+    }
+
+    public function formSubmissions(){
+        return $this->hasMany(EmployeeFormSubmission::class,'control_no', 'control_no');
     }
 }
