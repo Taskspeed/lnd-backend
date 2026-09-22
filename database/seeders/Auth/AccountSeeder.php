@@ -20,6 +20,11 @@ class AccountSeeder extends Seeder
             'name'       => 'hr_admin',
             'guard_name' => 'sanctum',
         ]);
+
+        $office = Role::create([
+            'name'       => 'office_admin',
+            'guard_name' => 'sanctum',
+        ]);
  
 
         $create_events = Permission::firstOrCreate([
