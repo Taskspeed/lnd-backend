@@ -47,8 +47,9 @@ Route::prefix('mobile')->group(function () {
 
 
 
-         Route::prefix('certification')->group(function(){
+        Route::prefix('certification')->group(function(){
            Route::get('/preview/{nominatedEmployeeId}', [CertificateController::class, 'preview']); // list of employee for 
+         Route::post('/send/{nominatedEmployeeId}', [CertificateController::class, 'send']); 
     });
 
 

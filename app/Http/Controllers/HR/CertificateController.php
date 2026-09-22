@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\HR;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendCertificateEmail;
+use App\Mail\CertificateMail;
 use App\Models\Employee\NominatedEmployee;
 use App\Models\Event\EmployeeFormSubmission;
+use App\Models\RSP\xPersonalAddt;
 use App\Traits\ApiResponseTrait;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -18,8 +21,8 @@ class CertificateController extends Controller
     use ApiResponseTrait;
 
 
-// walang epekto sa DB, walang email — panonood lang
-    public function preview( int $nominatedEmployeeId)
+    // walang epekto sa DB, walang email — panonood lang
+    public function preview(int $nominatedEmployeeId)
     {
         $data = $this->buildCertificateData($nominatedEmployeeId);
 
@@ -30,21 +33,35 @@ class CertificateController extends Controller
     }
 
     // ito na ang talagang nag-eemail
-    // public function send(int $nominatedEmployeeId)
-    // {
-    //     $nominee = NominatedEmployee::with('user')->findOrFail($nominatedEmployeeId);
-    //     $data = $this->buildCertificateData($nominatedEmployeeId);
+    public function send(int $nominatedEmployeeId)
+    {
+        $nominee = NominatedEmployee::findOrFail($nominatedEmployeeId);
 
-    //     $pdf = Pdf::loadView('certificates.certificate', $data)
-    //         ->setPaper('a4', 'landscape');
+        $nomineeEmail = xPersonalAddt::where('ControlNo', $nominee->control_no)->first();
 
-    //     Mail::to($nominee->user->email)
-    //         ->send(new CertificateMail($pdf->output(), $nominee->full_name));
+        if (!$nomineeEmail || !$nomineeEmail->EmailAdd) {
+            return $this->errorMessage('No email address found for this employee', 422);
+        }
 
-    //     $nominee->update(['certificate_issued' => true]);
+        $data = $this->buildCertificateData($nominatedEmployeeId);
 
-    //     return $this->successMessage(null, 'Certificate sent successfully', 200);
-    // }
+        $pdf = Pdf::loadView('certificates.certificate', $data)
+            ->setPaper('a4', 'landscape');
+
+        Mail::to($nomineeEmail->EmailAdd)
+            ->queue(new CertificateMail(
+                $pdf->output(),
+                $data['recipientName'],
+                $data['trainingTitle'],
+                $data['signatoryName'],
+                $data['signatoryTitle'],
+                $data['dateIssued'],
+            ));
+
+        $nominee->update(['certificate_issued' => true]);
+
+        return $this->successMessage(null, 'Certificate queued for sending', 200);
+    }
 
     private function buildCertificateData(int $nominatedEmployeeId)
     {
