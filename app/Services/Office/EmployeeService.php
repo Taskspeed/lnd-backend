@@ -74,6 +74,7 @@ class EmployeeService
                     'office'            => $user->office ?? null,
                     'nominate_reason'   => $entry['nominate_reason'] ?? null,
                     'event_schedule_id' => $entry['event_schedule_id'],
+                    'nominate_status'   => 'Pending', // default pending
                 ]);
             }
 
