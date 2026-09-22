@@ -47,8 +47,8 @@ Route::prefix('mobile')->group(function () {
 
 
 
-  Route::prefix('certification')->group(function(){
-           Route::get('/list-of-releasing', [CertificateController::class, 'index']); // list of employee for 
+         Route::prefix('certification')->group(function(){
+           Route::get('/preview/{nominatedEmployeeId}', [CertificateController::class, 'preview']); // list of employee for 
     });
 
 
@@ -231,7 +231,9 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
             Route::get('/forms', [EmployeeFormSubmissionController::class, 'show']);
 
             Route::prefix('submission')->group(function () {
-                Route::put('/update/{employeeFormSubmissionId}', [EmployeeFormSubmissionController::class, 'update']); // approved or returned with remarks
+            Route::put('/update/{employeeFormSubmissionId}', [EmployeeFormSubmissionController::class, 'update']); // approved or returned with remarks
+            Route::get('/list', [EmployeeFormSubmissionController::class, 'listOfEmployeeSubmitted']); // list of employee submitted
+
             });
 
             Route::prefix('attendance')->group(function () {
