@@ -34,15 +34,31 @@ class DashboardService
         return $schedules;
     }
 
+    // public function eventDate(int $year, int $month)
+    // {
+
+    //     $eventSchedule = EventScheduleDateTime::select('id', 'schedule_date', 'event_schedule_id')
+    //         ->with(['eventSchedule' => function ($query) {
+    //             $query->select('id', 'status')->with('');
+    //         }])
+    //         ->whereYear('schedule_date', $year)
+    //         ->whereMonth('schedule_date', $month)
+    //         ->get();
+
+    //     return $eventSchedule;
+    // }
     public function eventDate(int $year, int $month)
     {
 
-        $eventSchedule = EventScheduleDateTime::select('id', 'schedule_date', 'event_schedule_id')
-            ->with(['eventSchedule' => function ($query) {
-                $query->select('id', 'status');
+        $eventSchedule = EventSchedule::select('id', 'venue_name', 'event_id')
+            ->with(['event' => function ($query) {
+                $query->select('id', 'title_name', 'learning_intervention');
+            }, 'scheduleDateTime' => function ($query) use ($year,$month) {
+                $query->select('id', 'schedule_date', 'event_schedule_id', 'morning_in', 'morning_out', 'afternoon_in', 'afternoon_out')   ->whereYear('schedule_date', $year)
+            ->whereMonth('schedule_date', $month);
             }])
-            ->whereYear('schedule_date', $year)
-            ->whereMonth('schedule_date', $month)
+         
+
             ->get();
 
         return $eventSchedule;
