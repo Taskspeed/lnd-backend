@@ -45,20 +45,26 @@ class EventController extends Controller
     //     return $this->successMessage($event, 'Success fetch', 200);
     // }
 
-    public function index()
-    {
-        $user = Auth::user();
+   public function index()
+{
+    $user = Auth::user();
 
-        $event = EventSchedule::with(['event', 'scheduleDateTime', 'office' => function ($query) use ($user) {
-            $query->select('id', 'event_schedule_id', 'office_name')->where('office_name', $user->office);
-        }])->get();
+    $event = EventSchedule::with(['event', 'scheduleDateTime'])
+        ->whereHas('office', function ($query) use ($user) {
+            $query->where('office_name', $user->office);
+        })
+        ->with(['office' => function ($query) use ($user) {
+            $query->select('id', 'event_schedule_id', 'office_name')
+                  ->where('office_name', $user->office);
+        }])
+        ->get();
 
-        if ($event->isEmpty()) {
-            return $this->infoMessage('There is no available event for your office', 200);
-        }
-
-        return $this->successMessage($event, 'Success fetch', 200);
+    if ($event->isEmpty()) {
+        return $this->infoMessage('There is no available event for your office', 200);
     }
+
+    return $this->successMessage($event, 'Success fetch', 200);
+}
     /**
      * Store a newly created resource in storage.
      */
