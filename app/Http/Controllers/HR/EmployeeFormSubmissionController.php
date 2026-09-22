@@ -23,9 +23,15 @@ class EmployeeFormSubmissionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         //
+        $controlNo = $request->input('control_no');
+        $eventId = $request->input('event_id');
+        $eventScheduleId = $request->input('event_schedule_id');
+
+        $list_of_submission = EmployeeFormSubmission::where('control_no', $controlNo)->where('event_id', $eventId)->where('event_schedule_id', $eventScheduleId)->get();
+        return $this->successMessage($list_of_submission, 'Fetch success list of employee submission', 200);
     }
 
     /**
@@ -39,11 +45,23 @@ class EmployeeFormSubmissionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(int $employeeFormSubmissionId)
+    public function show(Request $request)
     {
-        //
-        
+        $controlNo = $request->input('control_no');
+        $formName = $request->input('form_name');
+        $eventScheduleId = $request->input('event_schedule_id');
 
+        try {
+            $result = $this->employeeSubmissionService->showEmployeeFormSubmitted(
+                $controlNo,
+                $formName,
+                $eventScheduleId
+            );
+
+            return $this->successMessage($result, 'Success', 200);
+        } catch (\Exception $e) {
+            return $this->errorMessage($e->getMessage(), 404);
+        }
     }
 
     /**
@@ -53,19 +71,17 @@ class EmployeeFormSubmissionController extends Controller
     {
         //
         $validated = $request->validate([
-            'status' => 'required|in:Returned,Approved,Pending',
+            'status' => 'required|in:Returned,Approved',
             'remarks' => 'nullable|string'
         ]);
 
         try {
-            $result = $this->employeeSubmissionService->updateSubmission($validated,$employeeFormSubmissionId);
+            $result = $this->employeeSubmissionService->updateSubmission($validated, $employeeFormSubmissionId);
 
-        return $this->successMessage($result,'success updated',200);
+            return $this->successMessage($result, 'success updated', 200);
         } catch (\Exception $e) {
-            return $this->errorMessage($e->getMessage(),404);
+            return $this->errorMessage($e->getMessage(), 404);
         }
-
-      
     }
 
     /**
