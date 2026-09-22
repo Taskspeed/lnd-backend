@@ -49,4 +49,13 @@ class NominatedEmployee extends Model
     {
         return $this->belongsTo(Event::class);
     }
+
+        public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'control_no', 'control_no');
+    }
+
+    public function employeeAttendances(){
+        return $this->hasMany(EmployeeAttendance::class);
+    }
 }

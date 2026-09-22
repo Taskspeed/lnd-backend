@@ -10,7 +10,7 @@ class TechinicalImplementation extends Model
     protected $table = 'technical_implementation';
 
     protected $fillable = [
-        'learning_implementation_report_id',
+        'learning_implementation_form_id',
         'planning_organizing',
         'monitoring_evaluation',
         'records_management',
