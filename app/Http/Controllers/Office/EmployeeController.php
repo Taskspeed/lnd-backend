@@ -98,7 +98,7 @@ class EmployeeController extends Controller
     {
 
         $validated = $request->validate([
-            'nominate_reason' => 'required|string',
+            'nominate_reason' => 'nullable|string|max:2000',
         ]);
 
         try {
