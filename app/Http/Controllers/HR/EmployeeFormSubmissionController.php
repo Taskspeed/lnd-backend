@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\HR;
 
 use App\Http\Controllers\Controller;
+use App\Models\Employee\NominatedEmployee;
 use App\Models\Event\EmployeeFormSubmission;
 use App\Services\HR\Submission\EmployeeSubmissionService;
 use App\Traits\ApiResponseTrait;
@@ -90,5 +91,62 @@ class EmployeeFormSubmissionController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    private const REQUIRED_APPROVALS = 4;
+
+
+    public function listOfEmployeeSubmitted(Request $request)
+    {
+        $perPage = $request->input('per_page', 10);
+
+        $list = NominatedEmployee::query()
+            ->where('nominate_status', 'Approved')
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $q->where('full_name', 'like', '%' . $request->search . '%');
+            })
+            // only include nominees who actually have at least one form submission
+            ->whereHas('formSubmissions', function ($q) use ($request) {
+                $q->when(
+                    $request->filled('event_schedule_id'),
+                    fn($q2) => $q2->where('event_schedule_id', $request->event_schedule_id)
+                );
+            })
+            ->with(['formSubmissions' => function ($q) use ($request) {
+                $q->when(
+                    $request->filled('event_schedule_id'),
+                    fn($q2) => $q2->where('event_schedule_id', $request->event_schedule_id)
+                );
+            }])
+            ->orderBy('control_no')
+            ->paginate($perPage)
+            ->through(function ($nominee) {
+                $submissions = $nominee->formSubmissions;
+
+                $pending  = $submissions->where('status', 'Pending')->count();
+                $approved = $submissions->where('status', 'Approved')->count();
+                $returned = $submissions->where('status', 'Returned')->count();
+
+                // control_no / event_schedule_id dapat magkapareho sa lahat ng
+                // submissions ng isang nominee, kaya kunin na lang natin sa una
+                $first = $submissions->first();
+
+                return [
+                    'control_no'            => $first->control_no,
+                    'full_name'             => $nominee->full_name,
+                    'event_id'              => $nominee->event_id,
+                    'nominated_employee_id' => $nominee->id,
+                    'event_schedule_id'     => (int) $first->event_schedule_id,
+                    'pending'               => $pending,
+                    'approved'              => $approved,
+                    'returned'              => $returned,
+                    'required_approvals'    => self::REQUIRED_APPROVALS,
+                    'certificate_status'    => $approved >= self::REQUIRED_APPROVALS
+                        ? 'Complete'
+                        : 'Incomplete',
+                ];
+            });
+
+        return $this->successMessage($list, 'list of employee form submitted', 200);
     }
 }
