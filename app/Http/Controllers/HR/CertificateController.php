@@ -3,11 +3,15 @@
 namespace App\Http\Controllers\HR;
 
 use App\Http\Controllers\Controller;
+
+use App\Http\Resources\Certification\EmployeeCertificateResource;
 use App\Jobs\SendCertificateEmail;
 use App\Mail\CertificateMail;
 use App\Models\Employee\NominatedEmployee;
 use App\Models\Event\EmployeeFormSubmission;
+use App\Models\RSP\vwEmployee;
 use App\Models\RSP\xPersonalAddt;
+use App\Services\HR\Certification\CertificateService;
 use App\Traits\ApiResponseTrait;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -15,10 +19,16 @@ use Illuminate\Support\Facades\Mail;
 
 class CertificateController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     use ApiResponseTrait;
+
+
+    protected CertificateService $certificateService;
+
+    public function __construct(CertificateService $certificateService)
+    {
+        $this->certificateService = $certificateService;
+    }
 
 
     // walang epekto sa DB, walang email — panonood lang
@@ -74,5 +84,28 @@ class CertificateController extends Controller
             'signatoryTitle' => 'Manager',
             'dateIssued'     => now()->format('F d, Y'),
         ];
+    }
+
+    public function employeeCertificateRelease(Request $request)
+    {
+        $perPage = $request->input('per_page', 10);
+
+        $data = $this->certificateService->certificateRelease($perPage, $request);
+
+        return $this->successMessage($data, 'Employee have Certificate', 200);
+    }
+
+    public function employeeListOfCertificate(string $controlNo, Request $request)
+    {
+        $search  = $request->query('search');
+        $perPage = (int) $request->query('per_page', 10);
+
+        $certificate = $this->certificateService->certificate($controlNo, $search, $perPage);
+
+        $certificate->getCollection()->transform(
+            fn($item) => new EmployeeCertificateResource($item)
+        );
+
+        return $this->successMessage($certificate, 'Employee have Certificate', 200);
     }
 }

@@ -24,7 +24,7 @@ class NominatedEmployee extends Model
         'nominate_reason',
         'nominate_status',
         'certificate_issued'
-    
+
     ];
 
     protected $hidden = [
@@ -37,8 +37,9 @@ class NominatedEmployee extends Model
     protected $appends = ['nominated_employee_id'];
     protected $casts = [
         'event_id' => 'integer',
-        'event_schedule_id'=> 'integer',
+        'event_schedule_id' => 'integer',
         'is_attended' => 'boolean',
+        'certificate_issued' => 'boolean'
     ];
 
     public function getNominatedEmployeeIdAttribute()
@@ -52,16 +53,18 @@ class NominatedEmployee extends Model
         return $this->belongsTo(Event::class);
     }
 
-        public function user()
+    public function user()
     {
         return $this->belongsTo(\App\Models\User::class, 'control_no', 'control_no');
     }
 
-    public function employeeAttendances(){
+    public function employeeAttendances()
+    {
         return $this->hasMany(EmployeeAttendance::class);
     }
 
-    public function formSubmissions(){
-        return $this->hasMany(EmployeeFormSubmission::class,'control_no', 'control_no');
+    public function formSubmissions()
+    {
+        return $this->hasMany(EmployeeFormSubmission::class, 'control_no', 'control_no');
     }
 }
