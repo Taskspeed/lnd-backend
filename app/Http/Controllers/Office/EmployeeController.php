@@ -109,4 +109,18 @@ class EmployeeController extends Controller
             return $this->errorMessage($e->getMessage(), 500);
         }
     }
+
+    // employee photo
+    public function photo(string $controlNo)
+    {
+        $photo = $this->employeeService->getEmployeePhoto($controlNo);
+
+        if (!$photo) {
+            return response()->json(['error' => 'Image not found'], 404);
+        }
+
+        return response($photo['contents'], 200)
+            ->header('Content-Type', $photo['mime'])
+            ->header('Cache-Control', 'public, max-age=3600');
+    }
 }

@@ -8,6 +8,7 @@ use App\Models\Event\EmployeeFormSubmission;
 use App\Models\RSP\yOffice;
 use App\Notifications\NominationDisapproved;
 use App\Notifications\NominationStatusUpdated;
+use App\Services\Office\EmployeeService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -20,6 +21,16 @@ class NominatedEmployeeController extends Controller
     /**
      * Display a listing of the resource.
      */
+
+    protected EmployeeService $employeeService;
+
+
+    public function __construct(EmployeeService $employeeService)
+    {
+        $this->employeeService = $employeeService;
+    }
+
+
     public function index()
     {
         //
@@ -36,24 +47,25 @@ class NominatedEmployeeController extends Controller
     /**
      * Display the specified resource.
      */
+    
         public function show(int $nominatedEmployeeId)
         {
             $employee = NominatedEmployee::find($nominatedEmployeeId);
 
             if (!$employee) {
-                return $this->errorMessage('Employee are not Nominated', 404);
+                return $this->errorMessage('Employee is not nominated', 404);
             }
 
-            $officeAbbr = yOffice::select('Descriptions', 'Abbr')
-                ->where('Descriptions', $employee->office)
-                ->first();
-
-            // i-attach ang abbr sa response — dagdag na field lang, hindi binabago ang model mismo
             $data = $employee->toArray();
-            $data['office_abbr'] = $officeAbbr->Abbr ?? null;
+            $data['office_abbr'] = yOffice::where('Descriptions', $employee->office)->value('Abbr');
+            $data['photo_url']   = $employee->control_no
+                ? url("/api/event/employee/{$employee->control_no}/photo")
+                : null;
 
             return $this->successMessage($data, 'Success', 200);
         }
+
+
 
     /**
      * Update the specified resource in storage.
