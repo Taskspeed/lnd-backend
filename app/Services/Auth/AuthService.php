@@ -3,6 +3,9 @@
 namespace App\Services\Auth;
 
 use App\Models\User;
+use Illuminate\Auth\Events\Authenticated;
+use Illuminate\Auth\Middleware\Authenticate;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -91,5 +94,19 @@ class AuthService
 
             return $user->load(['roles', 'permissions']);
         });
+    }
+
+    public function updateProfile(array $validated, $user)
+    {
+        $data = ['username' => $validated['username']];
+
+        // i-update lang ang password kung may laman
+        if (!empty($validated['password'])) {
+            $data['password'] = Hash::make($validated['password']);
+        }
+
+        $user->update($data);
+
+        return $user->only(['id', 'username']); // huwag ibalik ang buong model
     }
 }
