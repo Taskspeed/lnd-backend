@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Forms\RSE;
+namespace App\Models\Forms\LES;
 
 use Illuminate\Database\Eloquent\Model;
 
