@@ -13,15 +13,17 @@ return new class extends Migration
     {
         Schema::create('training_evaluation_speakers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('event_speaker_id')->constrained('event_speakers')->onDelete('cascade');
-
             $table->string('event')->nullable();
             $table->string('date')->nullable();
             $table->string('venue')->nullable();
-
             $table->string('learning_service_provider')->nullable();
-            $table->text('comments')->nullable();
+            $table->timestamps();
+        });
 
+        Schema::create('speaker_evaluations', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('event_speaker_id')->constrained('event_speakers')->onDelete('cascade');
+            $table->foreignId('training_evaluation_speaker_id')->constrained('training_evaluation_speakers')->onDelete('cascade');
             $table->unsignedTinyInteger('mastery_of_subject')->nullable();
             $table->unsignedTinyInteger('ability_to_involve')->nullable();
             $table->unsignedTinyInteger('session_interest')->nullable();
@@ -31,6 +33,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('practical_relevance')->nullable();
             $table->unsignedTinyInteger('over_all_rating')->nullable();
 
+            $table->text('comments')->nullable();
 
             $table->timestamps();
         });
@@ -42,5 +45,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('training_evaluation_speakers');
+        Schema::dropIfExists('speaker_evaluations');
     }
 };

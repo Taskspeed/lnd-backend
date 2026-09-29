@@ -29,7 +29,7 @@ class EvaluationInstrumentRequest extends FormRequest
             'name_of_participant'  => ['required', 'string'],
             'comments_suggestions' => ['nullable', 'string'],
 
-            'feedback'                      => ['required', 'array'],
+                'feedback'                      => ['required', 'array'],
                 'feedback.*.excellent'          => ['nullable', 'boolean'],
                 'feedback.*.high_average'       => ['nullable', 'boolean'],
                 'feedback.*.good'               => ['nullable', 'boolean'],
