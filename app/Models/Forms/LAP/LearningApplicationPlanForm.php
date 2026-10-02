@@ -44,7 +44,7 @@ class LearningApplicationPlanForm extends Model
         return $this->id;
     }
 
-    public function foundations()
+    public function foundation()
     {
         return $this->hasOne(FoundationCompetencie::class);
     }
@@ -52,11 +52,11 @@ class LearningApplicationPlanForm extends Model
     {
         return $this->hasOne(TechnicalCompetencie::class);
     }
-    public function managerials()
+    public function managerial()
     {
         return $this->hasOne(ManagerialCompetencie::class);
     }
-    public function supervisorys()
+    public function supervisory()
     {
         return $this->hasOne(SupervisoryCompetencie::class);
     }

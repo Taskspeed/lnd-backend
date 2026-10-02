@@ -10,7 +10,7 @@ class TechnicalMonitoring extends Model
     protected $table = 'technical_monitoring';
 
     protected $fillable = [
-        'learning_application_monitoring_report_id',
+        'learning_application_monitoring_form_id',
         'planning_organizing',
         'monitoring_evaluation',
         'records_management',
@@ -28,7 +28,7 @@ class TechnicalMonitoring extends Model
 
     protected $casts = [
         
-       'learning_application_monitoring_report_id' => 'integer',
+       'learning_application_monitoring_form_id' => 'integer',
         'planning_organizing'=> 'boolean',
         'monitoring_evaluation'=> 'boolean',
         'records_management'=> 'boolean',

@@ -28,5 +28,6 @@ class EventLeadership extends Model
         'building_collaborative_inclusive_working_relationships' => 'boolean',
         'thinking_strategically_creatively' => 'boolean',
         'problem_solving_decision_making' => 'boolean',
+          'event_schedule_id' => 'integer',
     ];
 }

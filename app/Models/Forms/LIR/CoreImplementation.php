@@ -16,4 +16,16 @@ class CoreImplementation extends Model
         'exemplifying_integrity',
         'interpersonal_skills'
     ];
+
+    protected $casts = [
+        'learning_implementation_form_id'=> 'integer',
+        'delivering_service_excellence' => 'boolean',
+        'exemplifying_integrity' => 'boolean',
+        'interpersonal_skills' => 'boolean',
+    ];
+    
+     protected $hidden = [
+        'created_at',
+        'updated_at'
+    ];
 }

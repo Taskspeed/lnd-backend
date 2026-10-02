@@ -31,5 +31,6 @@ class EventTechnical extends Model
         'partnering_networking' => 'boolean',
         'process_management' => 'boolean',
         'attention_details' => 'boolean',
+        'event_schedule_id' =>  'integer',
     ];
 }

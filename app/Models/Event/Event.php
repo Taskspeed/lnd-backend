@@ -24,7 +24,7 @@ class Event extends Model
         'updated_at' =>'date:F d, Y',
     ];
 
-    protected $hidden = ['id','updated_at'];
+    protected $hidden = ['id','updated_at','created_at'];
     protected $appends = ['event_id'];
 
     public function getEventIdAttribute()

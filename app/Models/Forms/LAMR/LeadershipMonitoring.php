@@ -11,7 +11,7 @@ class LeadershipMonitoring extends Model
     protected $table = 'leadership_monitoring';
 
     protected $fillable = [
-        'learning_application_monitoring_report_id',
+        'learning_application_monitoring_form_id',
         'managing_performance_coaching_results',
         'building_collaborative_inclusive_working_relationships',
         'thinking_strategically_creatively',
@@ -27,10 +27,11 @@ class LeadershipMonitoring extends Model
     }
 
     protected $casts = [
-        'learning_application_monitoring_report_id' => 'integer',
+        'learning_application_monitoring_form_id' => 'integer',
         'managing_performance_coaching_results' => 'boolean',
         'building_collaborative_inclusive_working_relationships' => 'boolean',
         'thinking_strategically_creatively' => 'boolean',
         'problem_solving_decision_making'  => 'boolean',
     ];
 }
+   

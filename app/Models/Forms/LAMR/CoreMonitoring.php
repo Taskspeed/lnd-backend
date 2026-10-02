@@ -11,7 +11,7 @@ class CoreMonitoring extends Model
     protected $table = 'core_monitoring';
 
     protected $fillable = [
-        'learning_application_monitoring_report_id',
+    'learning_application_monitoring_form_id',
         'delivering_service_excellence',
         'exemplifying_integrity',
         'interpersonal_skills'
@@ -27,11 +27,11 @@ class CoreMonitoring extends Model
     }
 
     protected $casts = [
-        'learning_application_monitoring_report_id' => 'integer',
-        
+      'learning_application_monitoring_form_id' => 'integer',
         'delivering_service_excellence' => 'boolean',
         'exemplifying_integrity' => 'boolean',
         'thinking_strategically_creatively' => 'boolean',
         'interpersonal_skills'  => 'boolean',
+        'learning_application_monitoring_form_id' => 'integer'
     ];
 }

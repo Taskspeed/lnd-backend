@@ -16,4 +16,17 @@ class LeadershipImplementation extends Model
         'thinking_strategically_creatively',
         'problem_solving_decision_making',
     ];
+
+    protected $casts = [
+        'learning_implementation_form_id' => 'integer',
+        'managing_performance_coaching_results' => 'boolean',
+        'building_collaborative_inclusive_working_relationships' => 'boolean',
+        'thinking_strategically_creatively' => 'boolean',
+        'problem_solving_decision_making' => 'boolean',
+    ];
+
+    protected $hidden = [
+        'created_at',
+        'updated_at'
+    ];
 }

@@ -50,7 +50,7 @@ class LearnerProgressForm extends Model
         'building_collaborative_inclusive_working_relationships_competency' => 'integer',
         'thinking_strategically_creatively_competency'=> 'integer',
         'problem_solving_decision_making_competency'=> 'integer',
-        'date_of_attendance' => 'date:F d, Y',
+        // 'date_of_attendance' => 'date:F d, Y',
         'employee_form_submission_id' => 'integer'
     ];
 

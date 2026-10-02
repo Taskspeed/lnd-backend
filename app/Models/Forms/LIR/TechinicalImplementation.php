@@ -17,4 +17,17 @@ class TechinicalImplementation extends Model
         'partnering_networking',
         'process_management'
     ];
+
+    protected $casts = [
+          'learning_implementation_form_id' => 'integer',
+        'planning_organizing'=> 'boolean',
+        'monitoring_evaluation'=> 'boolean',
+        'records_management'=> 'boolean',
+        'partnering_networking'=> 'boolean',
+        'process_management'=> 'boolean',
+    ];
+     protected $hidden = [
+        'created_at',
+        'updated_at'
+    ];
 }

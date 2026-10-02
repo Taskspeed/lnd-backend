@@ -25,5 +25,6 @@ class EventCore extends Model
         'delivering_service_excellence' => 'boolean',
         'exemplifying_integrity' => 'boolean',
         'interpersonal_skills' => 'boolean',
+        'event_schedule_id' => 'integer',
     ];
 }

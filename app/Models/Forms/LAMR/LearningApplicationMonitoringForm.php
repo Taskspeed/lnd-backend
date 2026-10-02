@@ -32,8 +32,9 @@ class LearningApplicationMonitoringForm extends Model
     protected $hidden = ['id', 'created_at', 'updated_at'];
 
     protected $casts = [
-        'date_of_attendance' => 'date:F d, Y',
-        'event_id' => 'integer'
+        // 'date_of_attendance' => 'date:F d, Y',
+        'event_id' => 'integer',
+        'employee_form_submission_id' => 'integer'
     ];
 
     public function getLearningApplicationMonitoringFormIdAttribute()
