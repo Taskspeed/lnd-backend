@@ -41,7 +41,7 @@ class EmployeeLearningApplicationMonitoringFormController extends Controller
         try {
             $result = $this->learningApplicationMonitoringFormService->create($validated);
 
-            return $this->successMessage($result, 'success create', 201);
+            return $this->successMessage($result, 'Submitted successfully', 201);
         } catch (\Exception $e) {
             return $this->errorMessage($e->getMessage(), 409);
         }

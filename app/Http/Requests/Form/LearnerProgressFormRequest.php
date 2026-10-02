@@ -32,7 +32,7 @@ class LearnerProgressFormRequest extends FormRequest
             'office' => 'nullable|string',
             'learner' => 'nullable|string',
             'lnd_attended' => 'nullable|string',
-            'date_of_attendance' => 'nullable|date_format:Y-m-d',
+            'date_of_attendance' => 'nullable|string',
  
             // competency ratings — 1 to 5 scale
             'delivering_service_excellence_competency' => 'nullable|integer|min:1|max:5',

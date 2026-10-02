@@ -40,7 +40,7 @@ class EmployeeLearningApplicationPlanFormController extends Controller
 
         $result = $this->LearningApplicationPlanFormService->create($validated);
 
-        return $this->successMessage($result, 'success create', 201);
+        return $this->successMessage($result, 'Submitted successfully', 201);
     }
 
     /**

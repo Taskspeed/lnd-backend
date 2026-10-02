@@ -41,7 +41,7 @@ class EmployeeEvalautionInstrumentController extends Controller
 
         $data = $this->evaluationService->create($validated);
 
-        return $this->successMessage($data, 'Evaluation successfully saved' ,200);
+        return $this->successMessage($data, 'Submitted successfully' ,200);
 
 
     }

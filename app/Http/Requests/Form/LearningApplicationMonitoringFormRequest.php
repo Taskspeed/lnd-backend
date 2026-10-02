@@ -26,11 +26,11 @@ class LearningApplicationMonitoringFormRequest extends FormRequest
             //
 
             'event_id' => 'required|exists:events,id',
-             'event_schedule_id' => 'required|exists:event_schedules,id',
+            'event_schedule_id' => 'required|exists:event_schedules,id',
             'control_no' => 'required|string',
             'learner' => 'nullable|string',
             'lnd_attended' => 'nullable|string',
-            'date_of_attendance' => 'nullable|date_format:Y-m-d',
+            'date_of_attendance' => 'nullable|string',
             'competency_developed_acquired' => 'nullable|string',
 
 

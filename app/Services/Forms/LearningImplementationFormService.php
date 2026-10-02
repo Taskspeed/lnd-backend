@@ -9,10 +9,14 @@ use App\Models\Forms\LIR\CoreImplementation;
 use App\Models\Forms\LIR\LeadershipImplementation;
 use App\Models\Forms\LIR\LearningImplementationForm;
 use App\Models\Forms\LIR\TechinicalImplementation;
+use App\Traits\ResubmitsForm;
 use Illuminate\Support\Facades\DB;
 
 class LearningImplementationFormService
+
 {
+    use ResubmitsForm;
+
     private function formName()
     {
 
@@ -20,12 +24,11 @@ class LearningImplementationFormService
     }
 
 
+
     public function create(?array $validated)
     {
-
         return DB::transaction(function () use ($validated) {
 
-            // check if this form is actually allowed/configured for the event
             $event = Event::with(['form' => function ($query) {
                 $query->where('form_name', $this->formName());
             }])
@@ -36,9 +39,9 @@ class LearningImplementationFormService
                 throw new \Exception('Event not found.');
             }
 
-            if ($event->form->isEmpty()) {
-                throw new \Exception('This form is not available for this event.');
-            }
+            // if ($event->form->isEmpty()) {
+            //     throw new \Exception('This form is not available for this event.');
+            // }
 
             $event_schedule = EventSchedule::where('id', $validated['event_schedule_id'] ?? null)
                 ->where('event_id', $event->id)
@@ -48,73 +51,42 @@ class LearningImplementationFormService
                 throw new \Exception('Event schedule not found.');
             }
 
+            $form_submit = $this->upsertSubmission($event, $event_schedule, $validated);
 
-            if (!in_array($event_schedule->status, ['Approved', 'Complete'])) {
-                throw new \Exception('You cannot submit this form. The event schedule is not yet approved by HR.');
-            }
+            $learning_implementation = LearningImplementationForm::updateOrCreate(
+                ['employee_form_submission_id' => $form_submit->id],
+                [
+                    'form_name' => $this->formName(),
+                    'control_no' => $validated['control_no'],
+                    'learner' => $validated['learner'] ?? null,
+                    'lnd_attended' => $validated['lnd_attended'] ?? null,
+                    'date_of_attendance' => $validated['date_of_attendance'] ?? null,
+                    'competency_developed_acquired' => $validated['competency_developed_acquired'] ?? null,
+                    'learning_strategies_applied' => $validated['learning_strategies_applied'] ?? null,
+                    'resources_used' => $validated['resources_used'] ?? null,
+                    'beneficiaries_strategies_applied' => $validated['beneficiaries_strategies_applied'] ?? null,
+                    'performance_indicators_behavior_toward_work' => $validated['performance_indicators_behavior_toward_work'] ?? null,
+                    'financial_aid_training_attended' => $validated['financial_aid_training_attended'] ?? null,
+                    'return_financial_aid' => $validated['return_financial_aid'] ?? null,
+                ]
+            );
 
-            // check first if employee are already submit
-            $employee_submit = LearningImplementationForm::where('event_schedule_id', $validated['event_schedule_id'])
-                ->where('form_name', $this->formName()) // match sa ginagamit mo sa create()
-                ->where('control_no', $validated['control_no'])
-                ->first();
+            $fk = ['learning_implementation_form_id' => $learning_implementation->id];
 
-            if ($employee_submit) {
-                throw new \Exception('You already submitted this form. You can edit or delete it instead.');
-            }
-
-            $form_submit = EmployeeFormSubmission::create([
-
-                'event_id' => $validated['event_id'] ?? null,
-                'event_schedule_id' => $validated['event_schedule_id'] ?? null,
-                'form_name' => $this->formName(),
-                'control_no' => $validated['control_no'] ?? null,
-                'status' => 'Pending',
-                'submitted_at' => now(),
-
-            ]);
-
-
-            $learning_implementation = LearningImplementationForm::create([
-
-                'employee_form_submission_id' => $form_submit->id,
-
-                'form_name' => $this->formName(),
-                'control_no' => $validated['control_no'],
-                'learner' => $validated['learner'] ?? null,
-                'lnd_attended' => $validated['lnd_attended'] ?? null,
-                'date_of_attendance' => $validated['date_of_attendance'] ?? null,
-                'competency_developed_acquired' => $validated['competency_developed_acquired'] ?? null,
-                'learning_strategies_applied' => $validated['learning_strategies_applied'] ?? null,
-                'resources_used' => $validated['resources_used'] ?? null,
-                'beneficiaries_strategies_applied' => $validated['beneficiaries_strategies_applied'] ?? null,
-                'performance_indicators_behavior_toward_work' => $validated['performance_indicators_behavior_toward_work'] ?? null,
-                'financial_aid_training_attended' => $validated['financial_aid_training_attended'] ?? null,
-                'return_financial_aid' => $validated['return_financial_aid'] ?? null,
-
-            ]);
-
-            $core_implementation = CoreImplementation::create([
-
-                'learning_implementation_report_id' =>  $learning_implementation->id ?? null,
+            $core_implementation = CoreImplementation::updateOrCreate($fk, [
                 'delivering_service_excellence' => $validated['delivering_service_excellence'] ?? null,
                 'exemplifying_integrity' => $validated['exemplifying_integrity'] ?? null,
                 'interpersonal_skills' => $validated['interpersonal_skills'] ?? null,
             ]);
 
-            $leadership_implementation = LeadershipImplementation::create([
-
-                'learning_implementation_report_id' =>  $learning_implementation->id ?? null,
+            $leadership_implementation = LeadershipImplementation::updateOrCreate($fk, [
                 'managing_performance_coaching_results' => $validated['managing_performance_coaching_results'] ?? null,
                 'building_collaborative_inclusive_working_relationships' => $validated['building_collaborative_inclusive_working_relationships'] ?? null,
                 'thinking_strategically_creatively' => $validated['thinking_strategically_creatively'] ?? null,
                 'problem_solving_decision_making' => $validated['problem_solving_decision_making'] ?? null,
             ]);
 
-
-            $technical_implementation  = TechinicalImplementation::create([
-
-                'learning_implementation_report_id' =>  $learning_implementation->id ?? null,
+            $technical_implementation = TechinicalImplementation::updateOrCreate($fk, [
                 'planning_organizing' => $validated['planning_organizing'] ?? null,
                 'monitoring_evaluation' => $validated['monitoring_evaluation'] ?? null,
                 'records_management' => $validated['records_management'] ?? null,
@@ -122,19 +94,15 @@ class LearningImplementationFormService
                 'process_management' => $validated['process_management'] ?? null,
             ]);
 
-
-
             return [
                 $learning_implementation,
                 $core_implementation,
                 $leadership_implementation,
                 $technical_implementation,
-                $form_submit
+                $form_submit,
             ];
         });
     }
-
-
     public function edit(int $learningImplementationFormId, ?array $validated)
     {
 

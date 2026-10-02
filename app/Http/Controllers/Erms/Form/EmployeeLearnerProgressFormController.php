@@ -33,20 +33,20 @@ class EmployeeLearnerProgressFormController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     */
-    public function store(LearnerProgressFormRequest $request)
-    {
-        $validated = $request->validated();
+        */
+        public function store(LearnerProgressFormRequest $request)
+        {
+            $validated = $request->validated();
 
-        try {
-            $result = $this->learnProgressFormService->create($validated);
+            try {
+                $result = $this->learnProgressFormService->create($validated);
 
-            return $this->successMessage($result, 'success created', 201);
-        } catch (\Exception $e) {
+                return $this->successMessage($result, 'Submitted successfully', 201);
+            } catch (\Exception $e) {
 
-            return $this->errorMessage($e->getMessage(), 409);
+                return $this->errorMessage($e->getMessage(), 409);
+            }
         }
-    }
 
     /**
      * Display the specified resource.

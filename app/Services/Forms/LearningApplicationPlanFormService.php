@@ -15,11 +15,13 @@ use App\Models\Forms\LAP\ResourcesUtilized;
 use App\Models\Forms\LAP\SupervisoryCompetencie;
 use App\Models\Forms\LAP\TargetDateCompletion;
 use App\Models\Forms\LAP\TechnicalCompetencie;
+use App\Traits\ResubmitsForm;
 use Illuminate\Support\Facades\DB;
 
 class LearningApplicationPlanFormService
 {
 
+    use ResubmitsForm;
     private function formName()
     {
         return 'Learning Application Plan';
@@ -27,13 +29,8 @@ class LearningApplicationPlanFormService
 
     public function create(?array $validated)
     {
-
-
         return DB::transaction(function () use ($validated) {
 
-
-
-            // check if this form is actually allowed/configured for the event
             $event = Event::with(['form' => function ($query) {
                 $query->where('form_name', $this->formName());
             }])
@@ -56,137 +53,102 @@ class LearningApplicationPlanFormService
                 throw new \Exception('Event schedule not found.');
             }
 
-
-            if (!in_array($event_schedule->status, ['Approved', 'Complete'])) {
-                throw new \Exception('You cannot submit this form. The event schedule is not yet approved by HR.');
-            }
-            // check first if employee are already submit
-            $employee_submit = LearningApplicationPlanForm::where('event_schedule_id', $validated['event_schedule_id'])
-                ->where('form_name', $this->formName()) // match sa ginagamit mo sa create()
-                ->where('control_no', $validated['control_no'])
-                ->first();
-
-            if ($employee_submit) {
-                throw new \Exception('You already submitted this form. You can edit or delete it instead.');
-            }
+            $form_submit = $this->upsertSubmission($event, $event_schedule, $validated);
 
 
-
-            $form_submit = EmployeeFormSubmission::create([
-
-                'event_id' => $validated['event_id'] ?? null,
-                'event_schedule_id' => $validated['event_schedule_id'] ?? null,
-                'form_name' => $this->formName(),
-                'control_no' => $validated['control_no'] ?? null,
-                'status' => 'Pending',
-                'submitted_at' => now(),
-
+            $form_submit = EmployeeFormSubmission::resubmitOrCreate([
+                'event_id'          => $event->id,
+                'event_schedule_id' => $event_schedule->id,
+                'form_name'         => $this->formName(),
+                'control_no'        => $validated['control_no'] ?? null,
             ]);
 
-            $learning_application_plan = LearningApplicationPlanForm::create([
-                'employee_form_submission_id' => $form_submit->id,
-                'form_name' => $this->formName(),
-                'control_no' => $validated['control_no'],
-                'office' => $validated['office'] ?? null,
-                'learner' => $validated['learner'] ?? null,
-                'title_of_intervention' => $validated['title_of_intervention'] ?? null,
-                'date_conducted' => $validated['date_conducted'] ?? null,
-                'venue' => $validated['venue'] ?? null,
+            $learning_application_plan = LearningApplicationPlanForm::updateOrCreate(
+                ['employee_form_submission_id' => $form_submit->id],
+                [
+                    'form_name' => $this->formName(),
+                    'control_no' => $validated['control_no'] ?? null,
+                    'office' => $validated['office'] ?? null,
+                    'learner' => $validated['learner'] ?? null,
+                    'title_of_intervention' => $validated['title_of_intervention'] ?? null,
+                    'date_conducted' => $validated['date_conducted'] ?? null,
+                    'venue' => $validated['venue'] ?? null,
+                    'foundation' => $validated['foundation'] ?? null,
+                    'techinal' => $validated['techinal'] ?? null,
+                    'supervisory' => $validated['supervisory'] ?? null,
+                    'managerial' => $validated['managerial'] ?? null,
+                    'significant_learning_insight' => $validated['significant_learning_insight'] ?? null,
+                ]
+            );
 
-                'foundation' => $validated['foundation'] ?? null,
-                'techinal' => $validated['techinal'] ?? null,
-                'supervisory' => $validated['supervisory'] ?? null,
-                'managerial' => $validated['managerial'] ?? null,
-                'significant_learning_insight' => $validated['significant_learning_insight'] ?? null,
+            $fk = ['learning_application_plan_form_id' => $learning_application_plan->id];
 
-            ]);
-
-            $foundation_competency = FoundationCompetencie::create([
-                'learning_application_plan_form_id' => $learning_application_plan->id,
+            $foundation_competency = FoundationCompetencie::updateOrCreate($fk, [
                 'delivering_service_excellence' => $validated['delivering_service_excellence'] ?? null,
                 'exemplifying_integrity' => $validated['exemplifying_integrity'] ?? null,
                 'interpersonal_skills' => $validated['interpersonal_skills'] ?? null,
-
             ]);
 
-
-            $technical_competency = TechnicalCompetencie::create([
-                'learning_application_plan_form_id' => $learning_application_plan->id,
+            $technical_competency = TechnicalCompetencie::updateOrCreate($fk, [
                 'planning_organizing' => $validated['planning_organizing'] ?? null,
                 'monitoring_evaluation' => $validated['monitoring_evaluation'] ?? null,
                 'records_management' => $validated['records_management'] ?? null,
                 'partnering_networking' => $validated['partnering_networking'] ?? null,
                 'process_management' => $validated['process_management'] ?? null,
                 'attention_detail' => $validated['attention_detail'] ?? null,
-
             ]);
 
-            $managerial_competency = ManagerialCompetencie::create([
-                'learning_application_plan_form_id' => $learning_application_plan->id,
+            $managerial_competency = ManagerialCompetencie::updateOrCreate($fk, [
                 'managing_performance_coaching_results' => $validated['managing_performance_coaching_results'] ?? null,
                 'building_collaborative_inclusive_working_relationships' => $validated['building_collaborative_inclusive_working_relationships'] ?? null,
                 'thinking_strategically_creatively' => $validated['thinking_strategically_creatively'] ?? null,
                 'problem_solving_decision_making' => $validated['problem_solving_decision_making'] ?? null,
-
-
             ]);
 
-            $supervisory_competency = SupervisoryCompetencie::create([
-                'learning_application_plan_form_id' => $learning_application_plan->id,
+            $supervisory_competency = SupervisoryCompetencie::updateOrCreate($fk, [
                 'supervisory_managing_performance_coaching_results' => $validated['supervisory_managing_performance_coaching_results'] ?? null,
                 'supervisory_building_collaborative_inclusive_working_relationships' => $validated['supervisory_building_collaborative_inclusive_working_relationships'] ?? null,
-
             ]);
 
-            $learning_strategies = LearningStrategiesImplemented::create([
-                'learning_application_plan_form_id' => $learning_application_plan->id,
+            $learning_strategies = LearningStrategiesImplemented::updateOrCreate($fk, [
                 'immediate_application_skills' => $validated['immediate_application_skills'] ?? null,
                 'knowledge_sharing' => $validated['knowledge_sharing'] ?? null,
                 'peer_coaching_collaboration' => $validated['peer_coaching_collaboration'] ?? null,
                 'develop_office_policies_guidelines' => $validated['develop_office_policies_guidelines'] ?? null,
                 'create_pilot_project' => $validated['create_pilot_project'] ?? null,
                 'include_ipcr' => $validated['include_ipcr'] ?? null,
-
             ]);
 
-            $performance_indicator = PerformanceIndicator::create([
-                'learning_application_plan_form_id' => $learning_application_plan->id,
+            $performance_indicator = PerformanceIndicator::updateOrCreate($fk, [
                 'strategic_functions' => $validated['strategic_functions'] ?? null,
                 'core_functions' => $validated['core_functions'] ?? null,
                 'support_functions' => $validated['support_functions'] ?? null,
-
             ]);
 
-            $beneficaties = BeneficiariesStrategieApplied::create([
-                'learning_application_plan_form_id' => $learning_application_plan->id,
-                'employees_staff' => $validated['strategic_functions'] ?? null,
-                'office_department' => $validated['core_functions'] ?? null,
-                'city_government_organization' => $validated['support_functions'] ?? null,
-                'clients_stakeholders_general_public' => $validated['support_functions'] ?? null,
-
+            // FIX: dating nakakabit sa strategic/core/support_functions ang mga value
+            $beneficiaries = BeneficiariesStrategieApplied::updateOrCreate($fk, [
+                'employees_staff' => $validated['employees_staff'] ?? null,
+                'office_department' => $validated['office_department'] ?? null,
+                'city_government_organization' => $validated['city_government_organization'] ?? null,
+                'clients_stakeholders_general_public' => $validated['clients_stakeholders_general_public'] ?? null,
             ]);
 
-
-            $resources = ResourcesUtilized::create([
-                'learning_application_plan_form_id' => $learning_application_plan->id,
-                'digital_technologies' => $validated['strategic_functions'] ?? null,
-                'physical_printed_resources' => $validated['core_functions'] ?? null,
-                'human_resources_organizational_support' => $validated['support_functions'] ?? null,
-                'financial_logistical_support' => $validated['support_functions'] ?? null,
-                'policy_process_resources' => $validated['support_functions'] ?? null,
-
+            // FIX: pareho
+            $resources = ResourcesUtilized::updateOrCreate($fk, [
+                'digital_technologies' => $validated['digital_technologies'] ?? null,
+                'physical_printed_resources' => $validated['physical_printed_resources'] ?? null,
+                'human_resources_organizational_support' => $validated['human_resources_organizational_support'] ?? null,
+                'financial_logistical_support' => $validated['financial_logistical_support'] ?? null,
+                'policy_process_resources' => $validated['policy_process_resources'] ?? null,
             ]);
 
-            $target = TargetDateCompletion::create([
-                'learning_application_plan_form_id' => $learning_application_plan->id,
+            // FIX: tinanggal ang financial_logistical_support na napasama dito
+            $target = TargetDateCompletion::updateOrCreate($fk, [
                 'within_2_weeks_after_training' => $validated['within_2_weeks_after_training'] ?? null,
                 'within_1_month_after_training' => $validated['within_1_month_after_training'] ?? null,
                 'within_2_months_after_training' => $validated['within_2_months_after_training'] ?? null,
-                'financial_logistical_support' => $validated['financial_logistical_support'] ?? null,
                 'within_3_months_after_training' => $validated['within_3_months_after_training'] ?? null,
-
             ]);
-
 
             return [
                 $learning_application_plan,
@@ -196,7 +158,7 @@ class LearningApplicationPlanFormService
                 $supervisory_competency,
                 $learning_strategies,
                 $performance_indicator,
-                $beneficaties,
+                $beneficiaries,
                 $resources,
                 $target,
                 $form_submit,

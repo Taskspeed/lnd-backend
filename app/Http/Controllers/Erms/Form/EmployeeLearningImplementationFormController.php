@@ -42,7 +42,7 @@ class EmployeeLearningImplementationFormController extends Controller
 
         try {
             $result = $this->LearningImplementationFormService->create($validated);
-            return $this->successMessage($result, 'success create', 201);
+            return $this->successMessage($result, 'Submitted successfully', 201);
         } catch (\Exception $e) {
             return $this->errorMessage($e->getMessage(), 400);
         }
@@ -51,27 +51,27 @@ class EmployeeLearningImplementationFormController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(int $learningImplementationFormId)
-    {
-        $learning_implementation = LearningApplicationMonitoringForm::with([
-            'coreImplementation',
-            'coreImplementation',
-            'learderShipImplementation',
-            'technicalImplementation'
-        ])->find($learningImplementationFormId);
+    // public function show(int $learningImplementationFormId)
+    // {
+    //     $learning_implementation = LearningApplicationMonitoringForm::with([
+    //         'coreImplementation',
+    //         'coreImplementation',
+    //         'learderShipImplementation',
+    //         'technicalImplementation'
+    //     ])->find($learningImplementationFormId);
 
-        if (!$learning_implementation) {
-            return $this->errorMessage('Learning implementation id not found', 400);
-        }
+    //     if (!$learning_implementation) {
+    //         return $this->errorMessage('Learning implementation id not found', 400);
+    //     }
 
-        $status = EmployeeFormSubmission::find($learning_implementation->employee_form_submission_id);
+    //     $status = EmployeeFormSubmission::find($learning_implementation->employee_form_submission_id);
 
 
-        return $this->successMessage([
-            'form' => $learning_implementation,
-            'status' => $status,
-        ], 'Success fetch', 200);
-    }
+    //     return $this->successMessage([
+    //         'form' => $learning_implementation,
+    //         'status' => $status,
+    //     ], 'Success fetch', 200);
+    // }
 
     /**
      * Update the specified resource in storage.

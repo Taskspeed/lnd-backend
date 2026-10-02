@@ -47,7 +47,7 @@ class EmployeeSubmissionService
         }
 
         $formData = match ($employeeFormSubmission->form_name) {
-            'Learning Application Plan' => LearningApplicationPlanForm::with(['foundations','technical','managerials','supervisorys','learningStrategies','performanceIndicator','beneficiaries','resources','targetCompletion'])->where(
+            'Learning Application Plan' => LearningApplicationPlanForm::with(['foundation','technical','managerial','supervisory','learningStrategies','performanceIndicator','beneficiaries','resources','targetCompletion'])->where(
                 'employee_form_submission_id',
                 $employeeFormSubmission->id
             )->first(),
