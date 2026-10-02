@@ -27,11 +27,13 @@ class LearnerProgressForm extends Model
         'building_collaborative_inclusive_working_relationships_competency',
         'thinking_strategically_creatively_competency',
         'problem_solving_decision_making_competency',
-        'remarks'
+        'remarks',
+        'monitoring_evaluation_competency',
+        'attention_detail_competency'
     ];
 
     protected $appends = ['learner_progress_form_id'];
-    protected $hidden = ['id','created_at','updated_at'];
+    protected $hidden = ['id', 'created_at', 'updated_at'];
 
     public function getLearnerProgressFormIdAttribute()
     {
@@ -40,29 +42,35 @@ class LearnerProgressForm extends Model
 
     protected $casts = [
         'delivering_service_excellence_competency' => 'integer',
-        'exemplifying_integrity_competency'=> 'integer',
-        'interpersonal_skills_competency'=> 'integer',
-        'planning_organizing_competency'=> 'integer',
-        'records_management_competency'=> 'integer',
-        'partnering_networking_competency'=> 'integer',
-        'process_management_competency'=> 'integer',
-        'managing_performance_coaching_results_competency'=> 'integer',
+        'exemplifying_integrity_competency' => 'integer',
+        'interpersonal_skills_competency' => 'integer',
+        'planning_organizing_competency' => 'integer',
+        'records_management_competency' => 'integer',
+        'partnering_networking_competency' => 'integer',
+        'process_management_competency' => 'integer',
+        'managing_performance_coaching_results_competency' => 'integer',
         'building_collaborative_inclusive_working_relationships_competency' => 'integer',
-        'thinking_strategically_creatively_competency'=> 'integer',
-        'problem_solving_decision_making_competency'=> 'integer',
+        'thinking_strategically_creatively_competency' => 'integer',
+        'problem_solving_decision_making_competency' => 'integer',
         // 'date_of_attendance' => 'date:F d, Y',
-        'employee_form_submission_id' => 'integer'
+        'employee_form_submission_id' => 'integer',
+        'monitoring_evaluation_competency' => 'integer',
+        'attention_detail_competency' => 'integer',
+
     ];
 
-    public function coreProgress(){
+    public function coreProgress()
+    {
         return  $this->hasOne(CoreProgress::class);
     }
 
-     public function leaderShipProgress(){
+    public function leaderShipProgress()
+    {
         return  $this->hasOne(LeadershipProgress::class);
     }
 
-     public function technicalProgress(){
+    public function technicalProgress()
+    {
         return  $this->hasOne(TechnicalProgress::class);
     }
 }

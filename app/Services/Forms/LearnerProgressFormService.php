@@ -60,6 +60,8 @@ class LearnerProgressFormService
                     'interpersonal_skills_competency' => $validated['interpersonal_skills_competency'] ?? null,
                     'planning_organizing_competency' => $validated['planning_organizing_competency'] ?? null,
                     'monitoring_evaluation_competency' => $validated['monitoring_evaluation_competency'] ?? null,
+                    'attention_detail_competency' => $validated['monitoring_evaluation_competency'] ?? null,
+
                     'records_management_competency' => $validated['records_management_competency'] ?? null,
                     'partnering_networking_competency' => $validated['partnering_networking_competency'] ?? null,
                     'process_management_competency' => $validated['process_management_competency'] ?? null,

@@ -47,6 +47,7 @@ class LearnerProgressFormRequest extends FormRequest
             'building_collaborative_inclusive_working_relationships_competency' => 'nullable|integer|min:1|max:5',
             'thinking_strategically_creatively_competency' => 'nullable|integer|min:1|max:5',
             'problem_solving_decision_making_competency' => 'nullable|integer|min:1|max:5',
+            'attention_detail_competency' => 'nullable|integer|min:1|max:5',
 
             'remarks' => 'nullable|string',
 
