@@ -11,14 +11,26 @@ class TrainingEvaluationSpeakers extends Model
     protected $table = 'training_evaluation_speakers';
 
     protected $fillable = [
-        'event_speaker_id',
+        'employee_form_submission_id',
         'event',
         'date',
         'venue',
         'learning_service_provider',
+        'form_name',
+        'control_no',
     ];
 
-    public function speakerEvaluation(){
-        return $this->hasMany(SpeakerEvaluation::class);
+    protected $casts = [
+        'employee_form_submission_id' => 'integer',
+    ];
+
+    protected $hidden = [
+        'created_at',
+        'updated_at'
+    ];
+
+    public function speakerEvaluation()
+    {
+        return $this->hasMany(SpeakerEvaluation::class, 'training_evaluation_speaker_id');
     }
 }
