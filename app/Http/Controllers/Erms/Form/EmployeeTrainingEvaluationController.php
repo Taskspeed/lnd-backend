@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Erms\Form;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Form\TrainingEvaluationRequest;
+use App\Models\Forms\RSE\TrainingEvaluationSpeakers;
 use App\Services\Forms\TrainingEvaluationService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
@@ -38,18 +39,20 @@ class EmployeeTrainingEvaluationController extends Controller
         //
         $validated = $request->validated();
 
-        $data = $this->trainingService->create( $validated);
+        $data = $this->trainingService->create($validated);
 
-        return $this->successMessage($data,'Training Evaluation Success created', 200);
+        return $this->successMessage($data,'Submitted successfully', 200);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-        //
-    }
+    // public function show(int $trainingEvaluationSpeakerId)
+    // {
+    //     //
+    //     $data = TrainingEvaluationSpeakers::with('speakerEvaluation')->where('id',$trainingEvaluationSpeakerId)->first();
+    //      return $this->successMessage($data,'Submitted successfully', 200);
+    // }
 
     /**
      * Update the specified resource in storage.

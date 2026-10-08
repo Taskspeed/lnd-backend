@@ -26,13 +26,14 @@ class TrainingEvaluationRequest extends FormRequest
 
 
             'event'                     => ['required', 'string'],
-            'date'                      => ['required', 'date'],
+            'date'                      => ['required', 'string'],
             'venue'                     => ['nullable', 'string'],
             'learning_service_provider' => ['nullable', 'string'],
-
+            'event_id' => ['required', 'exists:events,id'],
+            'event_schedule_id' => ['required', 'exists:event_schedules,id'],
+            'control_no'                      => ['required', 'string'],
 
             'speaker' => ['required', 'array'],
-            'speaker.*.event_speaker_id' => ['required', 'exists:event_speakers,id'],
             'speaker.*.mastery_of_subject' => ['required', 'integer', 'between:1,5'],
             'speaker.*.ability_to_involve' => ['required', 'integer', 'between:1,5'],
             'speaker.*.session_interest'   => ['required', 'integer', 'between:1,5'],
@@ -40,8 +41,8 @@ class TrainingEvaluationRequest extends FormRequest
             'speaker.*.voice_projection'   => ['required', 'integer', 'between:1,5'],
             'speaker.*.communication'      => ['required', 'integer', 'between:1,5'],
             'speaker.*.practical_relevance' => ['required', 'integer', 'between:1,5'],
-            'speaker.*.overall_rating'     => ['required', 'integer', 'between:1,5'],
-            'speaker.*.comments'     => ['nullable','string'],
+            'speaker.*.over_all_rating'     => ['required', 'integer', 'between:1,5'],
+            'speaker.*.comments'     => ['nullable', 'string'],
 
         ];
     }

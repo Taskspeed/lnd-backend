@@ -24,10 +24,13 @@ class EvaluationInstrumentRequest extends FormRequest
     {
         $rules = [
             'event'                => ['required', 'string'],
-            'date'                 => ['required', 'date'],
+            'date'                 => ['required', 'string'],
             'venue'                => ['required', 'string'],
             'name_of_participant'  => ['required', 'string'],
             'comments_suggestions' => ['nullable', 'string'],
+            'event_id' => ['required', 'exists:events,id'],
+            'event_schedule_id' => ['required', 'exists:event_schedules,id'],
+            'control_no' => ['required', 'string'],
 
                 'feedback'                      => ['required', 'array'],
                 'feedback.*.excellent'          => ['nullable', 'boolean'],

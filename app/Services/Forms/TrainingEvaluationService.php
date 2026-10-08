@@ -2,39 +2,77 @@
 
 namespace App\Services\Forms;
 
+use App\Models\Event\Event;
+use App\Models\Event\EventSchedule;
 use App\Models\Forms\RSE\TrainingEvaluationSpeakers;
+use App\Traits\ResubmitsForm;
+use Illuminate\Support\Facades\DB;
 
 class TrainingEvaluationService
+
 {
+    use ResubmitsForm;
+
+    private function formName()
+    {
+        return 'Resources Speaker Evaluation Form';
+    }
+
     public function create(?array $validated)
     {
+        return DB::transaction(function () use ($validated) {
 
-        $trainingEvaluation = TrainingEvaluationSpeakers::create([
+            $event = Event::where('id', $validated['event_id'] ?? null)->first();
 
-            'event'                     => $validated['event'],
-            'date'                      => $validated['date'],
-            'venue'                     => $validated['venue'] ?? null,
-            'learning_service_provider' =>  $validated['learning_service_provider'] ?? null,
-            'comments'                  =>  $validated['comments'] ?? null,
-        ]);
+            if (!$event) {
+                throw new \Exception('Event not found.');
+            }
 
-        // speaker
-        foreach ($validated['speaker'] as $item) {
-            $trainingEvaluation->speakerEvaluation()->create([
-                'training_evaluation_speaker_id' => $trainingEvaluation->id,
-                'event_speaker_id'          => $item['event_speaker_id'],
-                'mastery_of_subject'          => $item['mastery_of_subject'],
-                'ability_to_involve'    => $item['ability_to_involve'],
-                'session_interest'             => $item['session_interest'],
-                'handling_questions'          => $item['handling_questions'],
-                'voice_projection' => $item['voice_projection'],
-                'communication' => $item['communication'],
-                'practical_relevance' => $item['practical_relevance'],
-                'comments' => $item['comments'] ?? null,
+            $event_schedule = EventSchedule::where('id', $validated['event_schedule_id'] ?? null)
+                ->where('event_id', $event->id)
+                ->first();
 
-            ]);
-        }
+            if (!$event_schedule) {
+                throw new \Exception('Event schedule not found.');
+            }
 
-        return $trainingEvaluation;
+            $form_submit = $this->upsertSubmission($event, $event_schedule, $validated);
+
+            $trainingEvaluation = TrainingEvaluationSpeakers::updateOrCreate(
+                ['employee_form_submission_id' => $form_submit->id],
+                [
+                    'form_name'                 => $this->formName(),
+                    'control_no'                => $validated['control_no'] ?? null,
+                    'event'                     => $validated['event'],
+                    'date'                      => $validated['date'],
+                    'venue'                     => $validated['venue'] ?? null,
+                    'learning_service_provider' => $validated['learning_service_provider'] ?? null,
+                    'comments'                  => $validated['comments'] ?? null,
+                ]
+            );
+
+            $speakerIds = [];
+
+            foreach ($validated['speaker'] as $item) {
+                $trainingEvaluation->speakerEvaluation()->updateOrCreate(
+                    [
+                        'mastery_of_subject'  => $item['mastery_of_subject'],
+                        'ability_to_involve'  => $item['ability_to_involve'],
+                        'session_interest'    => $item['session_interest'],
+                        'handling_questions'  => $item['handling_questions'],
+                        'voice_projection'    => $item['voice_projection'],
+                        'communication'       => $item['communication'],
+                        'practical_relevance' => $item['practical_relevance'],
+                        'over_all_rating'      => $item['over_all_rating'],
+                        'comments'            => $item['comments'] ?? null,
+                    ]
+                );
+
+        
+            }
+
+
+            return $trainingEvaluation->load('speakerEvaluation');
+        });
     }
 }
