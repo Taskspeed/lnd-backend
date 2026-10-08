@@ -18,4 +18,17 @@ class Facilitator extends Model
         'disagree',
         'strongly_disagree',
     ];
+    
+    protected $hidden = [
+        'created_at',
+        'updated_at'
+    ];
+
+    protected $casts = [
+        'strongly_agree' => 'boolean',
+        'agree'=> 'boolean',
+        'disagree'=> 'boolean',
+        'strongly_disagree'=> 'boolean',
+        'evaluation_instrument_id' => 'integer'
+    ];
 }

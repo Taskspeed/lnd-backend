@@ -20,4 +20,21 @@ class Feedback extends Model
         'highly_recommended',
         'not_a_priority',
     ];
+
+       protected $casts  = [
+        'evaluation_instrument_id' => 'integer',
+        'excellent'=> 'boolean',
+        'high_average'=> 'boolean',
+        'good'=> 'boolean',
+        'poor'=> 'boolean',
+        'fair'=> 'boolean',
+        'highly_recommended'=> 'boolean',
+        'not_a_priority'=> 'boolean',
+    ];
+
+    
+    protected $hidden = [
+        'created_at',
+        'updated_at'
+    ];
 }
