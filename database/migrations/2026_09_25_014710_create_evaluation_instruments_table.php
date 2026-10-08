@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('evaluation_instruments', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('employee_form_submission_id')->constrained('employee_form_submissions')->onDelete('cascade');
             $table->string('event')->nullable();
             $table->string('date')->nullable();
             $table->string('venue')->nullable();
