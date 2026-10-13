@@ -13,9 +13,21 @@ class xTraining extends Model
 
     protected $table = 'xTrainings'; 
 
+    public $timestamps = false;
 
     protected $casts = [
         // 'DateFrom' =>  'date:F d, Y',
         // 'DateTo' =>  'date:F d, Y'
     ];
+
+    protected $fillable = [
+    'ControlNo',
+    'Training',
+    'NumHours',
+    'Conductor',
+    'DateFrom',
+    'DateTo',
+    'type',
+    'Dates'
+];
 }
