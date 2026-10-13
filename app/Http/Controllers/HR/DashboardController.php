@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\HR;
 
 use App\Http\Controllers\Controller;
-use App\Models\Event\Event;
 use App\Models\Event\EventSchedule;
-use App\Models\Event\EventScheduleDateTime;
 use App\Services\HR\Dashboard\DashboardService;
 use App\Traits\ApiResponseTrait;
-use App\Traits\FormatsDateRanges;
+
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schedule;
 
 class DashboardController extends Controller
 {
@@ -50,5 +50,21 @@ class DashboardController extends Controller
         $result = $this->dashboardService->eventDate($year, $month);
 
         return $this->successMessage($result, 'success', 200);
+    }
+
+    public function numberEventStatus(Request $request)
+    {
+        $validated = $request->validate([
+            'year'  => 'nullable|integer|min:2000|max:2100',
+            'month' => 'nullable|integer|min:1|max:12',
+        ]);
+
+        $year  = $validated['year'] ?? now()->year;
+        $month = $validated['month'] ?? now()->month;
+
+        $data = $this->dashboardService->eventStatus($year, $month);
+
+
+        return $this->successMessage($data, 'success', 200);
     }
 }
