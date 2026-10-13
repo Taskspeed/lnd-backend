@@ -8,6 +8,7 @@ use App\Models\Documents\Document;
 use App\Models\Documents\EmployeeDocument;
 use App\Services\Documents\DocumentService;
 use App\Traits\ApiResponseTrait;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -28,21 +29,35 @@ class DocumentController extends Controller
     {
         $validated = $request->validated();
 
-         $employeeDocument = $this->documentService->document($validated);
-    
+        $employeeDocument = $this->documentService->document($validated);
+
         return $this->successMessage(
             $employeeDocument->load('documents'),
             'Documents submitted successfully.'
         );
     }
 
-    public function getImage(int $eventId, int $eventScheduleId, string $controlNo)
+    public function getImage(Request $request, int $eventId, int $eventScheduleId, string $controlNo)
     {
-        $document = EmployeeDocument::with('documents')
-            ->where('event_id', $eventId)
+
+        $perPage = $request->input('per_page', 10);
+
+        $document = EmployeeDocument::where('event_id', $eventId)
             ->where('event_schedule_id', $eventScheduleId)
             ->where('control_no', $controlNo)
             ->first();
+
+        if (!$document) {
+            return $this->successMessage(null, 'Document Fetch', 200);
+        }
+
+        // i-paginate ang mga documents, hindi ang parent
+        $documents = $document->documents()
+            ->orderBy('id')        // palitan kung iba ang column, para stable ang pages
+            ->paginate($perPage);
+
+        // ipalit sa relation para kapareho pa rin ng dating shape: { ...document, documents: {...} }
+        $document->setRelation('documents', $documents);
 
         return $this->successMessage($document, 'Document Fetch', 200);
     }
@@ -79,6 +94,4 @@ class DocumentController extends Controller
 
         return $this->successMessage(null, 'Document deleted successfully.');
     }
-
-    
 }
