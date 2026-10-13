@@ -118,7 +118,7 @@ class AuthController extends Controller
 
             $data = $profile->toArray();
             $data['username']= $userAuth->username;
-            $data['photo_url'] = url("/api/event/employee/{$profile->ControlNo}/photo");
+            $data['photo_url'] = url("/api/employee/{$profile->ControlNo}/photo");
 
             return $this->successMessage($data, 'User profile successfully.', 200);
         }
