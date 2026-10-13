@@ -31,8 +31,6 @@ class CertificateService
 
     public function certificateRelease(int $perPage, Request $request)
     {
-
-
         $controlNos = NominatedEmployee::where('nominate_status', 'Approved')
             ->where('certificate_issued', true)
             ->distinct()
@@ -45,6 +43,14 @@ class CertificateService
             })
             ->orderBy('name')
             ->paginate($perPage);
+
+        $employees->through(function ($employee) {
+            $employee->photo_url = $employee->ControlNo
+                ? url("/api/event/employee/{$employee->ControlNo}/photo")
+                : null;
+
+            return $employee;
+        });
 
         return $employees;
     }
