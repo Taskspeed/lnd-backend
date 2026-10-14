@@ -51,7 +51,7 @@ class EventUpdateScheduleRequest extends FormRequest
             // office 
             'office' => 'nullable|array',
             'office.*.office_name' => 'nullable|string',
-
+            'office.*.number_of_attendees' => 'nullable|integer',
             // speaker 
             'speaker' => 'nullable|array',
             'speaker.*.speaker_name' => 'nullable|string',

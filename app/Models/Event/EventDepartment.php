@@ -11,7 +11,8 @@ class EventDepartment extends Model
 
     protected $fillable = [
         'event_schedule_id',
-        'office_name'
+        'office_name',
+        'number_of_attendees'
     ];
 
     protected $appends = ['departmentId'];

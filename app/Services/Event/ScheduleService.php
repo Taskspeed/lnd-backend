@@ -5,6 +5,7 @@ namespace App\Services\Event;
 use App\Models\Event\Compentecy\EventCore;
 use App\Models\Event\Compentecy\EventLeadership;
 use App\Models\Event\Compentecy\EventTechnical;
+use App\Models\Event\Event;
 use App\Models\Event\EventDepartment;
 use App\Models\Event\EventEmployeeTag;
 use App\Models\Event\EventSchedule;
@@ -12,6 +13,7 @@ use App\Models\Event\EventScheduleDateTime;
 use App\Models\Event\EventSpeaker;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ScheduleService
 {
@@ -22,7 +24,7 @@ class ScheduleService
 
             $schedule = EventSchedule::create([
                 'event_id' => $validated['event_id'],
-               'venue_name'   => $validated['venue_name'] ?? null,
+                'venue_name'   => $validated['venue_name'] ?? null,
                 'mode_name'    => $validated['mode_name'] ?? null,
                 'qualifications'  => $validated['qualifications'] ?? null,
                 'hours'  => $validated['hours'] ?? null,
@@ -33,6 +35,9 @@ class ScheduleService
                 'conducted_by'    => $validated['conducted_by'] ?? null,
                 'status'       => 'Created',
             ]);
+            
+            $event  = Event::find($validated['event_id']);
+
 
             EventCore::create([
                 'event_schedule_id' => $schedule->id,
@@ -77,7 +82,25 @@ class ScheduleService
                 EventDepartment::create([
                     'event_schedule_id'  => $schedule->id,
                     'office_name' => $office['office_name'],
+                    'number_of_attendees' => $office['number_of_attendees'],
                 ]);
+            }
+
+             // Notify office admins ng bawat kasamang office
+            $officeNames = collect($validated['office'] ?? [])->pluck('office_name')->filter();
+            
+            if ($officeNames->isNotEmpty()) {
+                $officeAdmins = \App\Models\User::whereIn('office', $officeNames)
+                    ->role('office_admin')
+                    ->get();
+
+                if ($officeAdmins->isNotEmpty()) {
+                    foreach ($officeAdmins as $admin) {
+                        $admin->notify(new \App\Notifications\EventCreated($event, $schedule));
+                    }
+                } else {
+                    Log::info("No office admins found for offices: " . $officeNames->implode(', '));
+                }
             }
 
 
@@ -182,6 +205,7 @@ class ScheduleService
                 EventDepartment::create([
                     'event_schedule_id' => $schedule->id,
                     'office_name'       => $office['office_name'],
+                    'number_of_attendees'       => $office['number_of_attendees'],
                 ]);
             }
 
@@ -253,7 +277,7 @@ class ScheduleService
 
     public function eventViewSchedule(int $scheduleId){
 
-    $schedule  = EventSchedule::with(['speaker','eventCore','eventTechnical','eventLeaderShip','scheduleDateTime','office','employeeTag'])->find($scheduleId);
+    $schedule  = EventSchedule::with(['speaker','eventCore','eventTechnical','eventLeaderShip','scheduleDateTime','office','employeeTag',])->find($scheduleId);
 
      if(!$scheduleId){
         throw new \Exception('Schedule are not found');

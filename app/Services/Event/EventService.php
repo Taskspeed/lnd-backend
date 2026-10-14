@@ -222,6 +222,7 @@ class EventService
                 EventDepartment::create([
                     'event_schedule_id'  => $schedule->id,
                     'office_name' => $office['office_name'] ?? null,
+                    'number_of_attendees' => $office['number_of_attendees'] ?? null,
                 ]);
             }
 

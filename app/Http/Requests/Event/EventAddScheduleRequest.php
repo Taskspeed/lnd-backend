@@ -34,7 +34,7 @@ class EventAddScheduleRequest extends FormRequest
             'fee'=> 'nullable|string',
             'hours'=> 'nullable|integer',
             'category_name'=> 'nullable|string',
-     'conducted_by'=> 'nullable|string',
+            'conducted_by'=> 'nullable|string',
             // form for event
             'form' => 'nullable|array',
             'form.*.form_name' => 'nullable|string',
@@ -55,6 +55,7 @@ class EventAddScheduleRequest extends FormRequest
             // office 
             'office' => 'nullable|array',
             'office.*.office_name' => 'nullable|string',
+            'office.*.number_of_attendees' => 'nullable|integer',
 
             // speaker 
             'speaker' => 'nullable|array',
