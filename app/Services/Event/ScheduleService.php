@@ -34,6 +34,7 @@ class ScheduleService
                 'category_name'    => $validated['category_name'] ?? null,
                 'conducted_by'    => $validated['conducted_by'] ?? null,
                 'status'       => 'Created',
+                'learning_intervention'    => $validated['learning_intervention'] ?? null,
             ]);
             
             $event  = Event::find($validated['event_id']);
@@ -150,6 +151,7 @@ class ScheduleService
                 'type_name'    => $validated['type_name'] ?? null,
                 'category_name'    => $validated['category_name'] ?? null,
                 'conducted_by'    => $validated['conducted_by'] ?? null,
+                'learning_intervention'    => $validated['learning_intervention'] ?? null,
                 // 'status'       => 'Created',
             ]);
             

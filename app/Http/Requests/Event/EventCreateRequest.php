@@ -34,6 +34,7 @@ class EventCreateRequest extends FormRequest
             'hours'=> 'nullable|integer',
             'category_name'=> 'nullable|string',
              'conducted_by'=> 'nullable|string',
+             'learning_intervention' => 'nullable|string',
 
             // form for event
             'form' => 'nullable|array',

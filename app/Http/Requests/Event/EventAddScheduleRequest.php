@@ -23,23 +23,25 @@ class EventAddScheduleRequest extends FormRequest
     public function rules(): array
     {
         return [
-         //
+            //
 
             'event_id' => 'required|exists:events,id',
-            'venue_name'=> 'nullable|string',
-            'type_name'=> 'nullable|string',
-            'mode_name'=> 'nullable|string',
-            'source_name'=> 'nullable|string',
-            'qualifications'=> 'nullable|string',
-            'fee'=> 'nullable|string',
-            'hours'=> 'nullable|integer',
-            'category_name'=> 'nullable|string',
-            'conducted_by'=> 'nullable|string',
+            'venue_name' => 'nullable|string',
+            'type_name' => 'nullable|string',
+            'mode_name' => 'nullable|string',
+            'source_name' => 'nullable|string',
+            'qualifications' => 'nullable|string',
+            'fee' => 'nullable|string',
+            'hours' => 'nullable|integer',
+            'category_name' => 'nullable|string',
+            'conducted_by' => 'nullable|string',
+            'learning_intervention' => 'nullable|string',
+
             // form for event
             'form' => 'nullable|array',
             'form.*.form_name' => 'nullable|string',
 
-             //schedule Date and time 
+            //schedule Date and time 
             'DateTime' => 'nullable|array',
             'DateTime.*.schedule_date' => 'nullable|date_format:Y-m-d',
             // 'DateTime.*.time_in' => 'nullable|date_format:h:i A',
@@ -50,7 +52,7 @@ class EventAddScheduleRequest extends FormRequest
             'DateTime.*.afternoon_out' => 'nullable|date_format:h:i A',
 
 
-   
+
 
             // office 
             'office' => 'nullable|array',
@@ -67,24 +69,24 @@ class EventAddScheduleRequest extends FormRequest
             // competency 
 
             // technical
-            'planning_organizing'=> 'nullable|boolean',
-            'monitoring_evaluation'=> 'nullable|boolean',
-            'records_management'=> 'nullable|boolean',
-            'partnering_networking'=> 'nullable|boolean',
-            'process_management'=> 'nullable|boolean',
-            'attention_details'=> 'nullable|boolean',
+            'planning_organizing' => 'nullable|boolean',
+            'monitoring_evaluation' => 'nullable|boolean',
+            'records_management' => 'nullable|boolean',
+            'partnering_networking' => 'nullable|boolean',
+            'process_management' => 'nullable|boolean',
+            'attention_details' => 'nullable|boolean',
 
 
             // leadership
-            'managing_performance_coaching_results'=> 'nullable|boolean',
-            'building_collaborative_inclusive_working_relationships'=> 'nullable|boolean',
-            'thinking_strategically_creatively'=> 'nullable|boolean',
-            'problem_solving_decision_making'=> 'nullable|boolean',
+            'managing_performance_coaching_results' => 'nullable|boolean',
+            'building_collaborative_inclusive_working_relationships' => 'nullable|boolean',
+            'thinking_strategically_creatively' => 'nullable|boolean',
+            'problem_solving_decision_making' => 'nullable|boolean',
 
             // core 
-            'delivering_service_excellence'=> 'nullable|boolean',
-            'exemplifying_integrity'=> 'nullable|boolean',
-            'interpersonal_skills'=> 'nullable|boolean',
+            'delivering_service_excellence' => 'nullable|boolean',
+            'exemplifying_integrity' => 'nullable|boolean',
+            'interpersonal_skills' => 'nullable|boolean',
 
             'employee' => 'nullable|array',
             'employee.*.control_no' => 'nullable|string',

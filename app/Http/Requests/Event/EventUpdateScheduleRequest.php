@@ -24,18 +24,19 @@ class EventUpdateScheduleRequest extends FormRequest
     {
         return [
             //
-    
-            'venue_name'=> 'nullable|string',
-            'type_name'=> 'nullable|string',
-            'mode_name'=> 'nullable|string',
-            'source_name'=> 'nullable|string',
-            'qualifications'=> 'nullable|string',
-            'fee'=> 'nullable|string',
-            'hours'=> 'nullable|integer',
-            'category_name'=> 'nullable|string',
-             'conducted_by'=> 'nullable|string',
 
-             //schedule Date and time 
+            'venue_name' => 'nullable|string',
+            'type_name' => 'nullable|string',
+            'mode_name' => 'nullable|string',
+            'source_name' => 'nullable|string',
+            'qualifications' => 'nullable|string',
+            'fee' => 'nullable|string',
+            'hours' => 'nullable|integer',
+            'category_name' => 'nullable|string',
+            'conducted_by' => 'nullable|string',
+            'learning_intervention' => 'nullable|string',
+
+            //schedule Date and time 
             'DateTime' => 'nullable|array',
             'DateTime.*.schedule_date' => 'nullable|date_format:Y-m-d',
             // 'DateTime.*.time_in' => 'nullable|date_format:h:i A',
@@ -46,7 +47,7 @@ class EventUpdateScheduleRequest extends FormRequest
             'DateTime.*.afternoon_out' => 'nullable|date_format:h:i A',
 
 
-   
+
 
             // office 
             'office' => 'nullable|array',
@@ -62,24 +63,24 @@ class EventUpdateScheduleRequest extends FormRequest
             // competency 
 
             // technical
-            'planning_organizing'=> 'nullable|boolean',
-            'monitoring_evaluation'=> 'nullable|boolean',
-            'records_management'=> 'nullable|boolean',
-            'partnering_networking'=> 'nullable|boolean',
-            'process_management'=> 'nullable|boolean',
-            'attention_details'=> 'nullable|boolean',
+            'planning_organizing' => 'nullable|boolean',
+            'monitoring_evaluation' => 'nullable|boolean',
+            'records_management' => 'nullable|boolean',
+            'partnering_networking' => 'nullable|boolean',
+            'process_management' => 'nullable|boolean',
+            'attention_details' => 'nullable|boolean',
 
 
             // leadership
-            'managing_performance_coaching_results'=> 'nullable|boolean',
-            'building_collaborative_inclusive_working_relationships'=> 'nullable|boolean',
-            'thinking_strategically_creatively'=> 'nullable|boolean',
-            'problem_solving_decision_making'=> 'nullable|boolean',
+            'managing_performance_coaching_results' => 'nullable|boolean',
+            'building_collaborative_inclusive_working_relationships' => 'nullable|boolean',
+            'thinking_strategically_creatively' => 'nullable|boolean',
+            'problem_solving_decision_making' => 'nullable|boolean',
 
             // core 
-            'delivering_service_excellence'=> 'nullable|boolean',
-            'exemplifying_integrity'=> 'nullable|boolean',
-            'interpersonal_skills'=> 'nullable|boolean',
+            'delivering_service_excellence' => 'nullable|boolean',
+            'exemplifying_integrity' => 'nullable|boolean',
+            'interpersonal_skills' => 'nullable|boolean',
 
             'employee' => 'nullable|array',
             'employee.*.control_no' => 'nullable|string',

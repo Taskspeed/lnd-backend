@@ -28,7 +28,8 @@ class EventSchedule extends Model
          'type_name',
         'source_name',
         'category_name',
-        'conducted_by'
+        'conducted_by',
+        'learning_intervention'
     ];
 
     protected $casts = [
