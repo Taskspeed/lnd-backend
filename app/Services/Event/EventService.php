@@ -92,7 +92,7 @@ class EventService
         return $event;
     }
 
-    public function nominatedEmployee(int $eventId, int $eventScheduleId, int $perPage = 10)
+    public function nominatedEmployee(int $eventId, int $eventScheduleId, int $perPage = 10, ?string $office = null)
     {
         $event = Event::with([
             'form',
@@ -101,7 +101,7 @@ class EventService
                     'speaker',
                     'scheduleDateTime',
                     'office',
-                    'nominatedEmployee' // kailangan pa rin ito, buo, para sa count
+                    'nominatedEmployee', // buo pa rin, para sa count per office
                 ])
                     ->where('event_id', $eventId)
                     ->where('id', $eventScheduleId);
@@ -112,21 +112,23 @@ class EventService
             throw new \Exception('Event not found');
         }
 
-        // Compute counts per office after loading
         foreach ($event->schedule as $schedule) {
+            // Counts per office: HINDI apektado ng filter
             $counts = $schedule->nominatedEmployee
                 ->groupBy('office')
                 ->map->count();
 
-            foreach ($schedule->office as $office) {
-                $office->employee_nominated = $counts->get($office->office_name, 0);
+            foreach ($schedule->office as $office_row) {
+                $office_row->employee_nominated = $counts->get($office_row->office_name, 0);
             }
 
-            // palitan ang buong collection ng paginated version para sa display
+            // Paginated list para sa table: dito lang ang filter
             $schedule->setRelation(
                 'nominatedEmployee',
                 NominatedEmployee::where('event_schedule_id', $schedule->id)
+                    ->when($office, fn($q) => $q->where('office', $office))
                     ->paginate($perPage)
+                    ->withQueryString() // para dala ng pagination links ang ?office=...
             );
         }
 
@@ -222,13 +224,13 @@ class EventService
                 EventDepartment::create([
                     'event_schedule_id'  => $schedule->id,
                     'office_name' => $office['office_name'] ?? null,
-                    'number_of_attendees' => $office['number_of_attendees'] ?? null,
+                    'number_of_attendees'       => $office['number_of_attendees'] ?? 0,
                 ]);
             }
 
-        // Notify office admins ng bawat kasamang office
+            // Notify office admins ng bawat kasamang office
             $officeNames = collect($validated['office'] ?? [])->pluck('office_name')->filter();
-            
+
             if ($officeNames->isNotEmpty()) {
                 $officeAdmins = \App\Models\User::whereIn('office', $officeNames)
                     ->role('office_admin')
