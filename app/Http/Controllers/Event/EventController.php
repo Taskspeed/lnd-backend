@@ -93,9 +93,10 @@ class EventController extends Controller
     public function show(Request $request, int $eventId, int $eventScheduleId)
     {
         $perPage = $request->input('per_page', 10);
+        $office  = $request->filled('office') ? trim($request->query('office')) : null; // optional
 
         try {
-            $result = $this->eventService->nominatedEmployee($eventId, $eventScheduleId, $perPage);
+            $result = $this->eventService->nominatedEmployee($eventId, $eventScheduleId, $perPage, $office);
 
             return $this->successMessage($result, 'success fetch', 200);
         } catch (\Exception $e) {
