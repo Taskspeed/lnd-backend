@@ -82,7 +82,7 @@ class ScheduleService
                 EventDepartment::create([
                     'event_schedule_id'  => $schedule->id,
                     'office_name' => $office['office_name'],
-                    'number_of_attendees' => $office['number_of_attendees'],
+                     'number_of_attendees'       => $office['number_of_attendees'] ?? 0,
                 ]);
             }
 
@@ -205,7 +205,7 @@ class ScheduleService
                 EventDepartment::create([
                     'event_schedule_id' => $schedule->id,
                     'office_name'       => $office['office_name'],
-                    'number_of_attendees'       => $office['number_of_attendees'],
+                    'number_of_attendees'       => $office['number_of_attendees'] ?? 0,
                 ]);
             }
 
