@@ -6,10 +6,12 @@ use App\Models\Employee\NominatedEmployee;
 use App\Models\Event\Event;
 use App\Models\RSP\xPersonal;
 use App\Models\RSP\yOffice;
+use App\Traits\FormatsDateRanges;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class PDFService
-{
+{       
+    use FormatsDateRanges;
    
     public function attendance(int $eventId, int $eventSchduleId, int $scheduleDateTimeId)
     {
@@ -82,4 +84,21 @@ class PDFService
             'participants'      => $nominees,
         ];
     }
+
+
+    public function nominationPdf(int $eventId, int $eventSchduleId)
+    {
+
+        $event = Event::with(['schedule' => function($query) use ($eventSchduleId){
+            $query->select('id','event_id','venue_name',)->where('id',$eventSchduleId)->with(['office','scheduleDateTime']);
+        }])->where('id',$eventId)->first();
+
+          $event?->schedule->each(function ($schedule) {
+            $schedule->schedule_date_range = $this->formatDateRanges($schedule->scheduleDateTime);
+            $schedule->unsetRelation('scheduleDateTime');
+        });
+
+        return $event;
+    }
+
 }
