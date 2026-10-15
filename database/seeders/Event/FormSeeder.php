@@ -16,7 +16,7 @@ class FormSeeder extends Seeder
             ['form_name' => 'Learning Application Plan'],
             ['form_name' => 'Learning Implementation Report'],
             ['form_name' => 'Learning Application Monitoring Report'],
-            ['form_name' => 'Leaner Progress Report'],
+            ['form_name' => 'Learner Progress Report'],
         
           
          
