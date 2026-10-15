@@ -5,11 +5,16 @@ namespace App\Models\Employee;
 use App\Models\Event\EmployeeFormSubmission;
 use App\Models\Event\Event;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 
 class NominatedEmployee extends Model
 {
     //
+    use Notifiable;  
+    
     protected $table = 'nominated_employees';
+
+
 
     protected $fillable = [
         'event_id',
@@ -67,4 +72,7 @@ class NominatedEmployee extends Model
     {
         return $this->hasMany(EmployeeFormSubmission::class, 'control_no', 'control_no');
     }
+
+    
+
 }
