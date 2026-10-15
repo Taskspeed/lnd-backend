@@ -7,9 +7,13 @@ use App\Models\Event\Event;
 use App\Models\Event\EventSchedule;
 use App\Models\RSP\vwEmployee;
 use App\Models\RSP\xPersonal;
+use App\Models\User;
+use App\Notifications\EmployeesNominatedNotification;
 use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 
 class EmployeeService
 {
@@ -78,11 +82,37 @@ class EmployeeService
                     'nominate_status'   => 'Pending', // default pending
                 ]);
             }
-
+            $this->notifyHrAdmins($nominees, $user);
             return $nominees;
         });
     }
+    
+    protected function notifyHrAdmins(array $nominees, Authenticatable $user): void
+    {
+        try {
+            $hrAdmins = User::role('hr_admin')->get();
 
+            if ($hrAdmins->isEmpty()) {
+                return;
+            }
+
+            // Isang notification kada schedule, hindi kada empleyado
+            collect($nominees)
+                ->groupBy('event_schedule_id')
+                ->each(function ($group, $scheduleId) use ($hrAdmins, $user) {
+                    Notification::send($hrAdmins, new EmployeesNominatedNotification(
+                        eventId: (int) $group->first()->event_id,
+                        scheduleId: (int) $scheduleId,
+                        office: $user->office ?? null,
+                        count: $group->count(),
+                        nominatedBy: $user->name ?? null,
+                    ));
+                });
+        } catch (\Throwable $e) {
+            // Hindi dapat pumalya ang nomination kapag pumalya ang notification
+            Log::warning('Failed to notify hr_admin: ' . $e->getMessage());
+        }
+    }
 
     //pending 
     public function update(int $nominatedId, array $validated, Authenticatable $user)
@@ -133,7 +163,7 @@ class EmployeeService
             $query->select('ControlNo', 'training', 'Dates', 'NumHours', 'Conductor', 'DateFrom', 'DateTo', 'Type')
                 ->where('training', $trainingName);
         }])
-            ->select('ControlNo', 'name', 'office', 'position', 'status')
+            ->select('ControlNo', 'name', 'office', 'position', 'status','sg')
             ->where('office', $user->office)
             ->get()
             ->map(function ($emp) {
@@ -163,54 +193,24 @@ class EmployeeService
         return $employee;
     }
 
-    //   public function getEmployeePhoto(string $controlNo)
-    // {
-
-    //     $employee = xPersonal::where('ControlNo', $controlNo)->select('Pics')->first();
-
-    //     if (!$employee || !$employee->Pics) {
-    //         return response()->json(['error' => 'Image not found'], 404);
-    //     }
-
-    //     // Convert Windows UNC path to accessible path
-    //     // \\192.168.2.205\Payroll Database\... → //192.168.2.205/Payroll Database/...
-    //     $path = str_replace('\\', '/', $employee->Pics);
-    //     $path = ltrim($path, '/');
-    //     // Result: 192.168.2.205/Payroll Database/IDPICTURE/.../filename.jpg
-
-    //     // Full UNC for file_get_contents (Linux uses smb:// or mapped path)
-    //     // If Laravel server is Windows and has access to the share:
-    //     $windowsPath = $employee->Pics; // use raw UNC path directly
-
-    //     if (!file_exists($windowsPath)) {
-    //         return response()->json(['error' => 'Image not found'], 404);
-    //     }
-
-    //     $fileContents = file_get_contents($windowsPath);
-    //     $mimeType = mime_content_type($windowsPath) ?: 'image/jpeg';
-
-    //     return response($fileContents, 200)
-    //         ->header('Content-Type', $mimeType)
-    //         ->header('Cache-Control', 'public, max-age=3600');
-    // }
 
     public function getEmployeePhoto(string $controlNo): ?array
-{
-    $path = xPersonal::where('ControlNo', $controlNo)->value('Pics');
+    {
+        $path = xPersonal::where('ControlNo', $controlNo)->value('Pics');
 
-    if (!$path || !is_file($path)) {
-        return null;
+        if (!$path || !is_file($path)) {
+            return null;
+        }
+
+        $contents = file_get_contents($path);
+
+        if ($contents === false) {
+            return null;
+        }
+
+        return [
+            'contents' => $contents,
+            'mime'     => mime_content_type($path) ?: 'image/jpeg',
+        ];
     }
-
-    $contents = file_get_contents($path);
-
-    if ($contents === false) {
-        return null;
-    }
-
-    return [
-        'contents' => $contents,
-        'mime'     => mime_content_type($path) ?: 'image/jpeg',
-    ];
-}
 }
