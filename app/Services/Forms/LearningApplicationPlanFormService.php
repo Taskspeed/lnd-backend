@@ -56,12 +56,7 @@ class LearningApplicationPlanFormService
             $form_submit = $this->upsertSubmission($event, $event_schedule, $validated);
 
 
-            $form_submit = EmployeeFormSubmission::resubmitOrCreate([
-                'event_id'          => $event->id,
-                'event_schedule_id' => $event_schedule->id,
-                'form_name'         => $this->formName(),
-                'control_no'        => $validated['control_no'] ?? null,
-            ]);
+
 
             $learning_application_plan = LearningApplicationPlanForm::updateOrCreate(
                 ['employee_form_submission_id' => $form_submit->id],
