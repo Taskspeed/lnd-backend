@@ -16,11 +16,11 @@ use Illuminate\Support\Str;
 
 class NominationFormController extends Controller
 {
-   
+
     public function inHouseNomination(int $eventId, int $eventSchduleId)
     {
         $userAuth = Auth::user();
-        $data = $this->employeeNominated($eventId,$eventSchduleId,$userAuth);
+        $data = $this->employeeNominated($eventId, $eventSchduleId, $userAuth);
 
         $pdf = Pdf::loadView('forms.inhouse-nomination', $data)
             ->setPaper('a4', 'landscape');
@@ -28,101 +28,99 @@ class NominationFormController extends Controller
         return $pdf->stream('inhouse-nomination-form.pdf');
     }
 
-    
-   
-private function employeeNominated(int $eventId, int $eventScheduleId, Authenticatable $userAuth): array
-{
-    $event = Event::with(['schedule' => function ($query) use ($eventScheduleId) {
-        $query->where('id', $eventScheduleId)->with('scheduleDateTime');
-    }])->findOrFail($eventId);
 
-    $schedule = $event->schedule->first();
 
-    $nominees = NominatedEmployee::where('event_id', $eventId)
-        ->where('event_schedule_id', $eventScheduleId)
-        ->where('office', $userAuth->office)
-        ->get();
+    private function employeeNominated(int $eventId, int $eventScheduleId, Authenticatable $userAuth): array
+    {
+        $event = Event::with(['schedule' => function ($query) use ($eventScheduleId) {
+            $query->where('id', $eventScheduleId)->with('scheduleDateTime');
+        }])->findOrFail($eventId);
 
-    $controlNos = $nominees->pluck('control_no');
+        $schedule = $event->schedule->first();
 
-    $personals = xPersonal::select('ControlNo', 'Surname', 'Firstname', 'MIddlename', 'Sex')
-        ->whereIn('ControlNo', $controlNos)
-        ->get()
-        ->keyBy('ControlNo');
+        $nominees = NominatedEmployee::where('event_id', $eventId)
+            ->where('event_schedule_id', $eventScheduleId)
+            ->where('office', $userAuth->office)
+            ->get();
 
-    $contacts = xPersonalAddt::select('ControlNo', 'CellphoneNo')
-        ->whereIn('ControlNo', $controlNos)
-        ->get()
-        ->keyBy('ControlNo');
+        $controlNos = $nominees->pluck('control_no');
 
-   $participants = $nominees->map(function ($nominee) use ($personals, $contacts) {
-    $personal = $personals->get($nominee->control_no);
-    $contact  = $contacts->get($nominee->control_no);
+        $personals = xPersonal::select('ControlNo', 'Surname', 'Firstname', 'MIddlename', 'Sex')
+            ->whereIn('ControlNo', $controlNos)
+            ->get()
+            ->keyBy('ControlNo');
 
-    return [
-        'surname'    => $personal->Surname ?? '',
-        'first_name' => $personal->Firstname ?? '',
-        'mi'         => Str::upper(Str::substr($personal->MIddlename ?? '', 0, 1)),
-        'sex'        => Str::upper(Str::substr($personal->Sex ?? '', 0, 1)), // M/F
-        'position'   => $nominee->designation,
-        'relevance'  => $nominee->nominate_reason,
-        'status'     => $nominee->status,
-        'contact'    => $contact->CellphoneNo ?? '',
-    ];
-})->values()->all();
+        $contacts = xPersonalAddt::select('ControlNo', 'CellphoneNo')
+            ->whereIn('ControlNo', $controlNos)
+            ->get()
+            ->keyBy('ControlNo');
 
-return [
-    'date'          => now()->format('F d, Y'),
-    'officeName'    => $userAuth->office,
-    'office'        => $userAuth->office,
-    'training_title'=> $event->title_name,
-    'training_date' => $this->formatTrainingDates($schedule?->scheduleDateTime ?? []),
-    'office_head'   => null, // lagyan mo kung saan mo kukunin ang pangalan ng office head
-    'participants'  => $participants,
-];
-}
+        $participants = $nominees->map(function ($nominee) use ($personals, $contacts) {
+            $personal = $personals->get($nominee->control_no);
+            $contact  = $contacts->get($nominee->control_no);
 
-private function formatTrainingDates($scheduleDates): string
-{
-    $dates = collect($scheduleDates)
-        ->map(fn ($s) => Carbon::parse($s->getRawOriginal('schedule_date'))->startOfDay())
-        ->unique(fn ($d) => $d->toDateString())
-        ->sort()
-        ->values();
+            return [
+                'surname'    => $personal->Surname ?? '',
+                'first_name' => $personal->Firstname ?? '',
+                'mi'         => Str::upper(Str::substr($personal->MIddlename ?? '', 0, 1)),
+                'sex'        => Str::upper(Str::substr($personal->Sex ?? '', 0, 1)), // M/F
+                'position'   => $nominee->designation,
+                'relevance'  => $nominee->nominate_reason,
+                'status'     => $nominee->status,
+                'contact'    => $contact->CellphoneNo ?? '',
+            ];
+        })->values()->all();
 
-    if ($dates->isEmpty()) {
-        return '';
+        return [
+            'date'          => now()->format('F d, Y'),
+            'officeName'    => $userAuth->office,
+            'office'        => $userAuth->office,
+            'training_title' => $event->title_name,
+            'training_date' => $this->formatTrainingDates($schedule?->scheduleDateTime ?? []),
+            'office_head'   => null, // lagyan mo kung saan mo kukunin ang pangalan ng office head
+            'participants'  => $participants,
+        ];
     }
 
-    // I-grupo ang magkakasunod na araw
-    $groups = [];
-    $start = $prev = $dates->first();
+    private function formatTrainingDates($scheduleDates): string
+    {
+        $dates = collect($scheduleDates)
+            ->map(fn($s) => Carbon::parse($s->getRawOriginal('schedule_date'))->startOfDay())
+            ->unique(fn($d) => $d->toDateString())
+            ->sort()
+            ->values();
 
-    foreach ($dates->slice(1) as $date) {
-        if ($prev->copy()->addDay()->isSameDay($date)) {
-            $prev = $date;
-            continue;
+        if ($dates->isEmpty()) {
+            return '';
+        }
+
+        // I-grupo ang magkakasunod na araw
+        $groups = [];
+        $start = $prev = $dates->first();
+
+        foreach ($dates->slice(1) as $date) {
+            if ($prev->copy()->addDay()->isSameDay($date)) {
+                $prev = $date;
+                continue;
+            }
+            $groups[] = [$start, $prev];
+            $start = $prev = $date;
         }
         $groups[] = [$start, $prev];
-        $start = $prev = $date;
+
+        return collect($groups)->map(function ($g) {
+            [$s, $e] = $g;
+
+            if ($s->isSameDay($e)) {
+                return $s->format('F j, Y');                             // October 5, 2026
+            }
+            if ($s->format('Y-m') === $e->format('Y-m')) {
+                return $s->format('F j') . '-' . $e->format('j, Y');     // October 5-7, 2026
+            }
+            if ($s->year === $e->year) {
+                return $s->format('F j') . ' - ' . $e->format('F j, Y'); // September 30 - October 2, 2026
+            }
+            return $s->format('F j, Y') . ' - ' . $e->format('F j, Y');  // December 30, 2026 - January 2, 2027
+        })->implode(', ');
     }
-    $groups[] = [$start, $prev];
-
-    return collect($groups)->map(function ($g) {
-        [$s, $e] = $g;
-
-        if ($s->isSameDay($e)) {
-            return $s->format('F j, Y');                             // October 5, 2026
-        }
-        if ($s->format('Y-m') === $e->format('Y-m')) {
-            return $s->format('F j') . '-' . $e->format('j, Y');     // October 5-7, 2026
-        }
-        if ($s->year === $e->year) {
-            return $s->format('F j') . ' - ' . $e->format('F j, Y'); // September 30 - October 2, 2026
-        }
-        return $s->format('F j, Y') . ' - ' . $e->format('F j, Y');  // December 30, 2026 - January 2, 2027
-    })->implode(', ');
-}
-
- 
 }
