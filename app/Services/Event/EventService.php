@@ -102,6 +102,9 @@ class EventService
                     'scheduleDateTime',
                     'office',
                     'nominatedEmployee', // buo pa rin, para sa count per office
+                    'eventCore',
+                    'eventTechnical',
+                    'eventLeadership'
                 ])
                     ->where('event_id', $eventId)
                     ->where('id', $eventScheduleId);
@@ -170,6 +173,7 @@ class EventService
                 'type_name'    => $validated['type_name'] ?? null,
                 'category_name'    => $validated['category_name'] ?? null,
                 'conducted_by'    => $validated['conducted_by'] ?? null,
+                'learning_intervention'    => $validated['learning_intervention'] ?? null,
                 'status'       => 'Created',
             ]);
 
