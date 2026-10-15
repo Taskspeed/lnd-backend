@@ -24,7 +24,8 @@ class EventScheduleDateTime extends Model
 
     protected $hidden = [
         'created_at',
-        'updated_at'
+        'updated_at',
+        'id'
     ];
 
     protected $casts = [
@@ -38,7 +39,15 @@ class EventScheduleDateTime extends Model
         'schedule_date' =>  'date:F d, Y'
     ];
 
-    public function eventSchedule(){
+    protected $appends = ['schedule_date_time_id'];
+
+    public function getScheduleDateTimeIdAttribute()
+    {
+        return $this->id;
+    }
+
+    public function eventSchedule()
+    {
         return $this->belongsTo(EventSchedule::class);
     }
 }
