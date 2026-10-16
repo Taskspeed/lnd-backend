@@ -19,6 +19,7 @@ use App\Http\Controllers\Event\Library\EventTitleController;
 use App\Http\Controllers\Event\Library\EventTypeController;
 use App\Http\Controllers\Event\Library\EventVenueController;
 use App\Http\Controllers\Event\ScheduleController;
+use App\Http\Controllers\File\ExcelController;
 use App\Http\Controllers\HR\CertificateController;
 use App\Http\Controllers\HR\DashboardController;
 use App\Http\Controllers\HR\EmployeeAttendanceController;
@@ -33,7 +34,8 @@ use App\Http\Controllers\Office\EmployeeController;
 use App\Http\Controllers\Office\EventController as OfficeEventController;
 use App\Http\Controllers\Office\NominationFormController;
 use App\Http\Controllers\Office\OfficeController;
-use App\Http\Controllers\PDF\PDFController;;
+use App\Http\Controllers\File\PDFController;
+use App\Http\Controllers\ReportController;;
 
 use App\Http\Controllers\User\PermissionController;
 use App\Http\Controllers\User\RoleController;
@@ -61,9 +63,11 @@ Route::prefix('certification')->group(function () {
 
 
 
+
+
+
 Route::middleware('auth:sanctum')->group(function () {
     //   Route::get('/employeeNominated/{eventId}/{eventScheduleId}', [NominationFormController::class, 'employeeNominated']);
-
 
     Route::prefix('user')->group(function () {
         Route::post('/login', [AuthController::class, 'login'])->withoutMiddleware(['auth:sanctum']);
@@ -208,13 +212,11 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
             Route::get('/list/suggested/training/{office}', [OfficeEmployeeController::class, 'show']);
         });
 
-                
+
         Route::prefix('pdf')->group(function () {
             Route::get('attendance/{eventId}/{eventScheduleId}/{scheduleDateTimeId}', [PDFController::class, 'attendanceSheet']);
             Route::get('nomination/{eventId}/{eventScheduleId}/', [PDFController::class, 'nomination']);
-
         });
-
     });
 
 
@@ -277,6 +279,7 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
         Route::delete('/delete/{venueId}', [EventVenueController::class, 'destroy']);
     });
 
+
     Route::prefix('event')->group(function () {
         Route::get('/index', [EventController::class, 'index']);
         Route::post('/store', [EventController::class, 'store']);
@@ -332,5 +335,16 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
     Route::prefix('office')->group(function () {
         Route::get('/index', [OfficeController::class, 'index']);
         Route::get('/employee/{office}', [OfficeController::class, 'employee']);
+    });
+
+    Route::prefix('report')->group(function () {
+        Route::get('/list', [ReportController::class, 'index']);
+        Route::post('/store', [ReportController::class, 'store']);
+    });
+
+    Route::prefix('excel')->group(function () {
+        Route::get('/agency-learning-development', [ExcelController::class, 'agencyLearningDevelopmentMonitoringReport']); // list of employee for 
+
+
     });
 });

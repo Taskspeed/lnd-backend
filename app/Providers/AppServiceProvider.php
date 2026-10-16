@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Employee\NominatedEmployee;
+use App\Models\RSP\vwEmployee;
 use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 
@@ -27,6 +30,8 @@ class AppServiceProvider extends ServiceProvider
 
         $this->connectNetworkShare();
         $this->connectNetworkShareImagePDS(); // 10.0.1.35 - open share, no credentials
+
+        Relation::morphMap(['employee' => NominatedEmployee::class]);
     }
 
     // ✅ Clean separate method
