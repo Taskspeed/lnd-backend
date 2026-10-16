@@ -19,4 +19,14 @@ class TechnicalCompetencie extends Model
         'attention_detail'
     ];
           protected $hidden = [ 'created_at', 'updated_at'];
+
+
+        protected $casts = [
+              'planning_organizing' => 'boolean',
+        'monitoring_evaluation' => 'boolean',
+        'records_management' => 'boolean',
+        'partnering_networking' => 'boolean',
+        'process_management' => 'boolean',
+        'attention_detail' => 'boolean',
+        ];
 }

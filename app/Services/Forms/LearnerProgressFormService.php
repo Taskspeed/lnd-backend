@@ -94,6 +94,7 @@ class LearnerProgressFormService
                 'records_management' => $validated['records_management'] ?? null,
                 'partnering_networking' => $validated['partnering_networking'] ?? null,
                 'process_management' => $validated['process_management'] ?? null,
+                'attention_details' => $validated['attention_details'] ?? null,
             ]);
 
             return [
@@ -167,6 +168,7 @@ class LearnerProgressFormService
                     'records_management' => $validated['records_management'] ?? null,
                     'partnering_networking' => $validated['partnering_networking'] ?? null,
                     'process_management' => $validated['process_management'] ?? null,
+                    'attention_details' => $validated['attention_details'] ?? null,
                 ]
             );
 

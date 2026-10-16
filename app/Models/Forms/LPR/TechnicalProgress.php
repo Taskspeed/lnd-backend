@@ -16,7 +16,8 @@ class TechnicalProgress extends Model
         'monitoring_evaluation',
         'records_management',
         'partnering_networking',
-        'process_management'
+        'process_management',
+        'attention_details'
     ];
 
     protected $appends = ['technical_progress_id'];
@@ -35,5 +36,6 @@ class TechnicalProgress extends Model
         'records_management'=> 'boolean',
         'partnering_networking'=> 'boolean',
         'process_management'=> 'boolean',
+          'attention_details'=> 'boolean',
     ];
 }

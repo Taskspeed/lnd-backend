@@ -28,6 +28,6 @@ class ManagerialCompetencie extends Model
         'building_collaborative_inclusive_working_relationships'=> 'boolean',
         'thinking_strategically_creatively'=> 'boolean',
         'partnering_networking'=> 'boolean',
-        'problem_solving_decision_making'
+        'problem_solving_decision_making'  => 'boolean',
           ];
 }

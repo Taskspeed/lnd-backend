@@ -15,16 +15,19 @@ class BeneficiariesStrategieApplied extends Model
         'employees_staff',
         'office_department',
         'city_government_organization',
-        'clients_stakeholders_general_public'
+        'clients_stakeholders_general_public',
+        'supervisors_managers'
 
     ];
-          protected $hidden = [ 'created_at', 'updated_at'];
+    protected $hidden = ['created_at', 'updated_at'];
 
-          protected $casts = [
-                    'learning_application_plan_form_id' => 'integer',
-        'employees_staff'=> 'boolean',
-        'office_department'=> 'boolean',
+    protected $casts = [
+        'learning_application_plan_form_id' => 'integer',
+        'employees_staff' => 'boolean',
+        'office_department' => 'boolean',
         'city_government_organization' => 'boolean',
         'clients_stakeholders_general_public' => 'boolean',
-          ];
+        'supervisors_managers' => 'boolean',
+
+    ];
 }

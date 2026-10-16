@@ -95,6 +95,7 @@ class LearningApplicationPlanFormRequest extends FormRequest
             'office_department'=>'nullable|boolean',
             'city_government_organization'=>'nullable|boolean',
             'clients_stakeholders_general_public'=>'nullable|boolean',
+            'supervisors_managers' => 'nullable|boolean',
 
         
             // resources

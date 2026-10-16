@@ -69,7 +69,8 @@ class LearnerProgressFormRequest extends FormRequest
             'monitoring_evaluation' => 'nullable|boolean',
             'records_management' => 'nullable|boolean',
             'partnering_networking' => 'nullable|boolean',
-            'process_management' => 'nullable|boolean'
+            'process_management' => 'nullable|boolean',
+            'attention_details' => 'nullable|boolean'
 
 
         ];

@@ -126,6 +126,7 @@ class LearningApplicationPlanFormService
                 'office_department' => $validated['office_department'] ?? null,
                 'city_government_organization' => $validated['city_government_organization'] ?? null,
                 'clients_stakeholders_general_public' => $validated['clients_stakeholders_general_public'] ?? null,
+                'supervisors_managers' => $validated['supervisors_managers'] ?? null,
             ]);
 
             // FIX: pareho
@@ -263,6 +264,7 @@ class LearningApplicationPlanFormService
                     'office_department' => $validated['core_functions'] ?? null,
                     'city_government_organization' => $validated['support_functions'] ?? null,
                     'clients_stakeholders_general_public' => $validated['support_functions'] ?? null,
+                      'supervisors_managers' => $validated['supervisors_managers'] ?? null,
                 ]
 
             );
