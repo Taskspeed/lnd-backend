@@ -1,12 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\PDF;
+namespace App\Http\Controllers\File;
 
 use App\Http\Controllers\Controller;
-use App\Models\Employee\NominatedEmployee;
-use App\Models\Event\Event;
-use App\Models\RSP\xPersonal;
-use App\Models\RSP\yOffice;
 use App\Services\PDF\PDFService;
 use Barryvdh\DomPDF\Facade\Pdf;
 

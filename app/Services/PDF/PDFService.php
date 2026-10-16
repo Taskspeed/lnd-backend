@@ -7,7 +7,7 @@ use App\Models\Event\Event;
 use App\Models\RSP\xPersonal;
 use App\Models\RSP\yOffice;
 use App\Traits\FormatsDateRanges;
-use Barryvdh\DomPDF\Facade\Pdf;
+
 
 class PDFService
 {       
