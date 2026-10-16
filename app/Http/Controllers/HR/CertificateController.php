@@ -3,16 +3,12 @@
 namespace App\Http\Controllers\HR;
 
 use App\Http\Controllers\Controller;
-
 use App\Http\Resources\Certification\EmployeeCertificateResource;
-use App\Jobs\SendCertificateEmail;
 use App\Mail\CertificateMail;
 use App\Models\Employee\Certificate;
 use App\Models\Employee\NominatedEmployee;
-use App\Models\Event\EmployeeFormSubmission;
 use App\Models\Event\Event;
 use App\Models\Event\EventSchedule;
-use App\Models\RSP\vwEmployee;
 use App\Models\RSP\xPersonalAddt;
 use App\Models\RSP\xTraining;
 use App\Notifications\CertificationReceivedNotification;
