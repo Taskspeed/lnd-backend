@@ -4,6 +4,7 @@ namespace App\Models\Employee;
 
 use App\Models\Event\EmployeeFormSubmission;
 use App\Models\Event\Event;
+use App\Models\Event\EventSchedule;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 
@@ -73,6 +74,10 @@ class NominatedEmployee extends Model
         return $this->hasMany(EmployeeFormSubmission::class, 'control_no', 'control_no');
     }
 
-    
+      public function eventSchedule()
+    {
+        return $this->belongsTo(EventSchedule::class);
+    }
+
 
 }
