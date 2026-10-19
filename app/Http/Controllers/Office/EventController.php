@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Office;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Pagination\ListEventRequest;
 use App\Models\Event\Event;
 use App\Models\Event\EventSchedule;
 use App\Models\RSP\vwEmployee;
 use App\Traits\ApiResponseTrait;
+use App\Traits\FormatsDateRanges;
+use App\Traits\SortsByScheduleStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,94 +20,59 @@ class EventController extends Controller
      */
 
     use ApiResponseTrait;
+    use FormatsDateRanges;
+    use SortsByScheduleStatus;
 
-    // public function index()
-    // {
-    //     $user = Auth::user();
 
-    //     $event = Event::whereHas('schedule.office', function ($query) use ($user) {
-    //         $query->where('office_name', $user->office);
-    //     })
-    //         ->with(['schedule' => function ($query) use ($user) {
-    //             $query->whereHas('office', function ($q) use ($user) {
-    //                 $q->where('office_name', $user->office);
-    //             })
-    //                 ->with([
-    //                     'scheduleDateTime',
-    //                     'office' => function ($q) use ($user) {
-    //                         $q->where('office_name', $user->office);
-    //                     },
-    //                 ]);
-    //         }])
-    //         ->get();
-
-    //     if ($event->isEmpty()) {
-    //         return $this->infoMessage('There is no available event for your office', 200);
-    //     }
-
-    //     return $this->successMessage($event, 'Success fetch', 200);
-    // }
-
-   public function index()
+ public function index(ListEventRequest $request)
 {
-    $user = Auth::user();
+    $user     = Auth::user();
+    $validated = $request->validated();
 
-    $event = EventSchedule::with(['event', 'scheduleDateTime'])
-        ->whereHas('office', function ($query) use ($user) {
-            $query->where('office_name', $user->office);
-        })
-        ->with(['office' => function ($query) use ($user) {
-            $query->select('id', 'event_schedule_id', 'office_name')
-                  ->where('office_name', $user->office);
-        }])
-        ->get();
+    $perPage  = $validated['per_page'] ?? 10;
+    $search   = trim($validated['search'] ?? '');
+    $statuses = $validated['status'] ?? [];
+    $today    = now()->toDateString();
 
-    if ($event->isEmpty()) {
-        return $this->infoMessage('There is no available event for your office', 200);
+    $schedules = EventSchedule::query()
+        ->with([
+            'event',
+            'scheduleDateTime',
+            'office' => fn($q) => $q->select('id', 'event_schedule_id', 'office_name')
+                                    ->where('office_name', $user->office),
+        ])
+        ->whereHas('office', fn($q) => $q->where('office_name', $user->office))
+        ->when($search !== '', fn($q) => $q->where(function ($w) use ($search) {
+            $w->whereHas('event', fn($e) => $e->where('title_name', 'like', "%{$search}%"))
+              ->orWhere('conducted_by', 'like', "%{$search}%");
+        }))
+        ->get();                       // lahat muna
+
+    if (!empty($statuses)) {
+        $schedules = $schedules->filter(fn($s) => in_array($s->computedStatus, $statuses));
     }
 
-    return $this->successMessage($event, 'Success fetch', 200);
+    $events = $this->paginateByScheduleStatus($schedules, $perPage)
+        ->withQueryString();
+
+    $events->through(function ($schedule) {
+        $schedule->schedule_date_range = $this->formatDateRanges($schedule->scheduleDateTime);
+        $schedule->unsetRelation('scheduleDateTime');
+
+        return $schedule;
+    });
+
+    return $this->successMessage($events, 'Success fetch', 200);
 }
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
 
-    /**
-     * Display the specified resource.
-     */
-    // public function show(int $eventId)
-    // {
-    //     $user = Auth::user();
-
-
-    //     $event = Event::with([
-    //         'form',
-    //         'office',
-    //         'speaker',
-    //         'schedule',
-    //         'nominatedEmployee' => function ($query) use ($user) {
-    //             $query->where('office', $user->office);
-    //         },
-    //     ])->find($eventId);
-
-    //     if (!$event) {
-    //         return $this->errorMessage('Event not found');
-    //     }
-
-    //     return $this->successMessage($event, 'Success fetch', 200);
-    // }
 
     public function show(int $scheduleId)
     {
         $user = Auth::user();
 
-        $event = EventSchedule::with(['event', 'scheduleDateTime','eventCore','eventTechnical','eventLeadership','speaker', 'employeeTag' =>function($query) use ($user,$scheduleId){
-                $query->select('id','event_schedule_id','control_no','name','office','position','status')->where('office',$user->office)->where('event_schedule_id',$scheduleId)->get();
-        },'office' => function ($query) use ($user) {
+        $event = EventSchedule::with(['event', 'scheduleDateTime', 'eventCore', 'eventTechnical', 'eventLeadership', 'speaker', 'employeeTag' => function ($query) use ($user, $scheduleId) {
+            $query->select('id', 'event_schedule_id', 'control_no', 'name', 'office', 'position', 'status')->where('office', $user->office)->where('event_schedule_id', $scheduleId)->get();
+        }, 'office' => function ($query) use ($user) {
             $query->select('id', 'event_schedule_id', 'office_name')->where('office_name', $user->office);
         }])->find($scheduleId);
 
@@ -114,20 +82,5 @@ class EventController extends Controller
         }
 
         return $this->successMessage($event, 'Success fetch', 200);
-    }
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }

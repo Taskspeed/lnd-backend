@@ -25,89 +25,71 @@ class EventService
     use FormatsDateRanges;
     use SortsByScheduleStatus;
 
-    public function listOfEvent(array $filters = [])
-    {
-        $search  = $filters['search'] ?? null;
-        $status  = $filters['status'] ?? null;
-        $perPage = $filters['per_page'] ?? 10;
-        $today   = now()->toDateString();
+  
 
-        $events = Event::with(['schedule.scheduleDateTime'])
-            // optional: search by title only
-            ->when($search, fn($q) => $q->where('title', 'like', "%{$search}%"))
 
-            // optional: filter by status
-            ->when($status, function ($q) use ($status, $today) {
-                $q->whereHas('schedule.scheduleDateTime')
-                    ->where(function ($query) use ($status, $today) {
-                        foreach ($status as $value) {
-                            $query->orWhere(function ($condition) use ($value, $today) {
-                                match ($value) {
-                                    'up-coming' => $condition->whereDoesntHave(
-                                        'schedule.scheduleDateTime',
-                                        fn($d) => $d->whereDate('schedule_date', '<=', $today)
-                                    ),
+public function listOfEvent(array $filters = [])
+{
+    $search   = trim($filters['search'] ?? '');
+    $statuses = $filters['status'] ?? [];
+    $perPage  = $filters['per_page'] ?? 10;
+    $today    = now()->toDateString();
 
-                                    'ongoing' => $condition
-                                        ->whereHas(
-                                            'schedule.scheduleDateTime',
-                                            fn($d) => $d->whereDate('schedule_date', '<=', $today)
-                                        )
-                                        ->whereHas(
-                                            'schedule.scheduleDateTime',
-                                            fn($d) => $d->whereDate('schedule_date', '>=', $today)
-                                        ),
+    $events = Event::query()
+        ->with(['schedule.scheduleDateTime'])
 
-                                    'complete' => $condition->whereDoesntHave(
-                                        'schedule.scheduleDateTime',
-                                        fn($d) => $d->whereDate('schedule_date', '>=', $today)
-                                    ),
-                                };
-                            });
-                        }
-                    });
-            })
-            ->latest('id') // palitan kung may ibang sort na gusto
-            ->paginate($perPage);
+        // SEARCH (title)
+        ->when($search !== '', fn($q) => $q->where('title', 'like', "%{$search}%"))
 
-        // same logic mo, pero sa items ng current page lang
-        return $events->through(function ($event) {
-            $latestSchedule = null;
-            $latestDate = null;
+        // STATUS: ang event ay match kung may AT LEAST ONE schedule na pasok sa status
+        ->when(!empty($statuses), function ($q) use ($statuses, $today) {
+            $q->whereHas('schedule', function ($schedule) use ($statuses, $today) {
+                $schedule->where(function ($sq) use ($statuses, $today) {
+                    foreach ($statuses as $status) {
+                        match ($status) {
+                            // lahat ng dates ay nasa future
+                            'up-coming' => $sq->orWhere(function ($c) use ($today) {
+                                $c->whereHas('scheduleDateTime')
+                                  ->whereDoesntHave('scheduleDateTime',
+                                      fn($d) => $d->whereDate('schedule_date', '<=', $today));
+                            }),
 
-            foreach ($event->schedule as $schedule) {
-                $dates = $schedule->scheduleDateTime
-                    ->map(fn($item) => Carbon::parse($item->schedule_date))
-                    ->sort();
+                            // may date na <= today AT may date na >= today (sa iisang schedule)
+                            'ongoing' => $sq->orWhere(function ($c) use ($today) {
+                                $c->whereHas('scheduleDateTime',
+                                      fn($d) => $d->whereDate('schedule_date', '<=', $today))
+                                  ->whereHas('scheduleDateTime',
+                                      fn($d) => $d->whereDate('schedule_date', '>=', $today));
+                            }),
 
-                if ($dates->isEmpty()) {
-                    continue;
-                }
+                            // lahat ng dates ay nasa past
+                            'complete' => $sq->orWhere(function ($c) use ($today) {
+                                $c->whereHas('scheduleDateTime')
+                                  ->whereDoesntHave('scheduleDateTime',
+                                      fn($d) => $d->whereDate('schedule_date', '>=', $today));
+                            }),
+                        };
+                    }
+                });
+            });
+        })
 
-                $earliest = $dates->first();
-                $latest   = $dates->last();
+        ->latest('id')
+        ->paginate($perPage)
+        ->withQueryString();
 
-                $schedule->latest_schedule = $earliest->equalTo($latest)
-                    ? $earliest->format('F d, Y')
-                    : "{$earliest->format('F d, Y')} - {$latest->format('F d, Y')}";
+    // Format per schedule, tapos itago yung raw scheduleDateTime
+    $events->through(function ($event) {
+        foreach ($event->schedule as $schedule) {
+            $schedule->schedule_date_range = $this->formatDateRanges($schedule->scheduleDateTime);
+            $schedule->unsetRelation('scheduleDateTime');
+        }
 
-                unset($schedule->scheduleDateTime);
+        return $event;
+    });
 
-                if (is_null($latestDate) || $latest->greaterThan($latestDate)) {
-                    $latestDate = $latest;
-                    $latestSchedule = $schedule;
-                }
-            }
-
-            $event->setRelation(
-                'schedule',
-                $latestSchedule ? collect([$latestSchedule]) : collect()
-            );
-
-            return $event;
-        });
-    }
-
+    return $events;
+}
  
     public function show(int $eventId, int $perPage = 10)
     {
