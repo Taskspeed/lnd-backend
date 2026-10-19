@@ -7,6 +7,7 @@ use App\Http\Requests\Event\EventAddScheduleRequest;
 use App\Http\Requests\Event\EventCreateRequest;
 use App\Http\Requests\Event\EventEditRequest;
 use App\Http\Requests\Event\EventUpdateScheduleRequest;
+use App\Http\Requests\Pagination\ListEventRequest;
 use App\Models\Event\Event;
 use App\Models\Event\EventSchedule;
 use App\Services\Event\EventService;
@@ -25,11 +26,12 @@ class EventController extends Controller
         $this->eventService = $eventSerice;
     }
 
-    public function index()
+    public function index(ListEventRequest $request)
     {
+            $validated = $request->validated();
 
         try {
-            $result = $this->eventService->listOfEvent();
+            $result = $this->eventService->listOfEvent($validated);
 
             return $this->successMessage($result, 'success fetch', 200,);
         } catch (\Throwable $e) {
@@ -37,11 +39,13 @@ class EventController extends Controller
         }
     }
 
-    public function view(int $eventId)
+    public function view(Request $request, int $eventId)
     {
 
         try {
-            $result = $this->eventService->show($eventId);
+            $perPage = min(max($request->integer('per_page', 10), 1), 100);
+
+            $result = $this->eventService->show($eventId,$perPage);
 
             return $this->successMessage($result, 'success fetch', 200,);
         } catch (\Exception $e) {

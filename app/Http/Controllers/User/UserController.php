@@ -21,11 +21,13 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        $search  = $request->query('search') ?? null;
+        $perPage = (int) $request->input('per_page', 10);
 
         try {
-            $users = $this->userService->listOfUsers();
+            $users = $this->userService->listOfUsers($search,$perPage);
 
             return $this->successMessage($users, 'success fetch', 200,);
         } catch (\Throwable $e) {
@@ -52,8 +54,7 @@ class UserController extends Controller
 
         try {
             $result = $this->userService->edit($validated, $userId);
-
-            return $this->successMessage($result, 'success edit', 200,);
+            return $this->successMessage($result, 'Successfully updated', 200);
         } catch (\Exception $e) {
             return $this->errorMessage($e->getMessage(), 500);
         }

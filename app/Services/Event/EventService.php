@@ -14,6 +14,7 @@ use App\Models\Event\EventSchedule;
 use App\Models\Event\EventScheduleDateTime;
 use App\Models\Event\EventSpeaker;
 use App\Traits\FormatsDateRanges;
+use App\Traits\SortsByScheduleStatus;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -22,14 +23,55 @@ use Illuminate\Validation\Concerns\FormatsMessages;
 class EventService
 {
     use FormatsDateRanges;
+    use SortsByScheduleStatus;
 
-    public function listOfEvent()
+    public function listOfEvent(array $filters = [])
     {
-        $events = Event::with(['schedule' => function ($query) {
-            $query->with('scheduleDateTime');
-        }])->get();
+        $search  = $filters['search'] ?? null;
+        $status  = $filters['status'] ?? null;
+        $perPage = $filters['per_page'] ?? 10;
+        $today   = now()->toDateString();
 
-        $events->each(function ($event) {
+        $events = Event::with(['schedule.scheduleDateTime'])
+            // optional: search by title only
+            ->when($search, fn($q) => $q->where('title', 'like', "%{$search}%"))
+
+            // optional: filter by status
+            ->when($status, function ($q) use ($status, $today) {
+                $q->whereHas('schedule.scheduleDateTime')
+                    ->where(function ($query) use ($status, $today) {
+                        foreach ($status as $value) {
+                            $query->orWhere(function ($condition) use ($value, $today) {
+                                match ($value) {
+                                    'up-coming' => $condition->whereDoesntHave(
+                                        'schedule.scheduleDateTime',
+                                        fn($d) => $d->whereDate('schedule_date', '<=', $today)
+                                    ),
+
+                                    'ongoing' => $condition
+                                        ->whereHas(
+                                            'schedule.scheduleDateTime',
+                                            fn($d) => $d->whereDate('schedule_date', '<=', $today)
+                                        )
+                                        ->whereHas(
+                                            'schedule.scheduleDateTime',
+                                            fn($d) => $d->whereDate('schedule_date', '>=', $today)
+                                        ),
+
+                                    'complete' => $condition->whereDoesntHave(
+                                        'schedule.scheduleDateTime',
+                                        fn($d) => $d->whereDate('schedule_date', '>=', $today)
+                                    ),
+                                };
+                            });
+                        }
+                    });
+            })
+            ->latest('id') // palitan kung may ibang sort na gusto
+            ->paginate($perPage);
+
+        // same logic mo, pero sa items ng current page lang
+        return $events->through(function ($event) {
             $latestSchedule = null;
             $latestDate = null;
 
@@ -51,47 +93,48 @@ class EventService
 
                 unset($schedule->scheduleDateTime);
 
-                // ikumpara laban sa kasalukuyang pinaka-latest
                 if (is_null($latestDate) || $latest->greaterThan($latestDate)) {
                     $latestDate = $latest;
                     $latestSchedule = $schedule;
                 }
             }
 
-            // panatilihin lang yung isang schedule na latest
             $event->setRelation(
                 'schedule',
                 $latestSchedule ? collect([$latestSchedule]) : collect()
             );
-        });
 
-        return $events;
+            return $event;
+        });
     }
 
-    public function show(int $eventId)
+ 
+    public function show(int $eventId, int $perPage = 10)
     {
-        $event = Event::with([
-            'form',
-            'schedule' => function ($query) use ($eventId) {
-                $query->with(['scheduleDateTime'])
-                    ->select('id', 'event_id', 'venue_name', 'mode_name', 'status', 'hours')
-                    ->where('event_id', $eventId);
-            }
-        ])->find($eventId);
+        $event = Event::with('form')->find($eventId);
 
         if (!$event) {
             throw new \Exception('Event not found');
         }
 
-        // attach computed range per schedule
-        $event->schedule->each(function ($schedule) {
+        $schedules = $this->paginateByScheduleStatus(
+            $event->schedule()
+                ->with('scheduleDateTime')
+                ->select('id', 'event_id', 'venue_name', 'mode_name', 'status', 'hours')
+                ->get(),
+            $perPage
+        )->through(function ($schedule) {
             $schedule->schedule_date_range = $this->formatDateRanges($schedule->scheduleDateTime);
             unset($schedule->scheduleDateTime);
+
+            return $schedule;
         });
+
+        $event->setRelation('schedule', $schedules);
 
         return $event;
     }
-
+    
     public function nominatedEmployee(int $eventId, int $eventScheduleId, int $perPage = 10, ?string $office = null)
     {
         $event = Event::with([
