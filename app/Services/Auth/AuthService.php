@@ -21,6 +21,7 @@ class AuthService
                 'office'     => $validated['office'],
                 'username'   => $validated['username'],
                 'control_no' => $validated['control_no'],
+                'isActive' => true,
                 'password'   => Hash::make($validated['password']),
             ]);
 
@@ -44,11 +45,21 @@ class AuthService
     {
         $user = User::where('username', $validated['username'])->first();
 
+    
+
+  
         if (!$user || !Hash::check($validated['password'], $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
+          // 2. Saka i-check kung active
+            if (!$user->isActive) {
+                throw ValidationException::withMessages([
+                    'username' => ['Your account is inactive. Please contact the administrator.'],
+                ]);
+            }
+
 
         // $user->tokens()->delete();
 
@@ -76,6 +87,7 @@ class AuthService
                 'username'   => $validated['username'],
                 'office'     => $validated['office'],
                 'control_no' => $validated['control_no'],
+                'isActive' => $validated['isActive'] ?? null,
             ];
 
             if (!empty($validated['password'])) {

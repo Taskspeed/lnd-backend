@@ -29,7 +29,7 @@ class UpdateUserRequest extends FormRequest
             'password' => 'nullable|string|min:5',
             'office' => 'required|string',
             'control_no' => 'required|string',
-            
+            'isActive' => 'nullable|boolean',
             'role'           => 'required|string|exists:roles,name',
             'permissions'    => 'nullable|array',
             'permissions.*'  => 'nullable|string|exists:permissions,name',

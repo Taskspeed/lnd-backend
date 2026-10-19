@@ -26,7 +26,8 @@ class User extends Authenticatable
         'username',
         'password',
         'office',
-        'control_no'
+        'control_no',
+        'isActive'
     ];
 
     /**
@@ -52,6 +53,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'isActive' => 'boolean'
             
         ];
     }

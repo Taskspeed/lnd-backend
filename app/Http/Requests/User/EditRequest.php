@@ -27,6 +27,7 @@ class EditRequest extends FormRequest
             'username' => 'required|string|unique:users,username,'. $this->route('userId'),
             'password' => 'nullable|string|min:5',
             'control_no' => 'required|string',
+            'isActive' => 'nullable|boolean',
         ];
     }
 }
