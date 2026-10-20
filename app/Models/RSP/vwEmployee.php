@@ -10,17 +10,30 @@ class vwEmployee extends Model
 {
     //
     protected $connection = 'second_db';
-    protected $table = 'vwEmployee'; 
+    protected $table = 'vwEmployee';
 
-    public function xTraining(){ return $this->hasMany(
+    public function xTraining()
+    {
+        return $this->hasMany(
             xTraining::class,
             'ControlNo', // foreign key on xTrainings table
             'ControlNo'  // local key on vwEmployee table
         );
     }
 
-      public function xCivilService(){ return $this->hasMany(
+    public function xCivilService()
+    {
+        return $this->hasMany(
             xCivilService::class,
+            'ControlNo', // foreign key on xTrainings table
+            'ControlNo'  // local key on vwEmployee table
+        );
+    }
+    
+    public function   xTrainingHistory()
+    {
+        return $this->hasMany(
+            xTraining::class,
             'ControlNo', // foreign key on xTrainings table
             'ControlNo'  // local key on vwEmployee table
         );
