@@ -34,7 +34,7 @@ class NominatedEmployee extends Model
     ];
 
     protected $hidden = [
-        'created_at',
+   
         'updated_at',
         'id'
     ];
@@ -45,7 +45,8 @@ class NominatedEmployee extends Model
         'event_id' => 'integer',
         'event_schedule_id' => 'integer',
         'is_attended' => 'boolean',
-        'certificate_issued' => 'boolean'
+        'certificate_issued' => 'boolean',
+        'created_at' => 'date:F d, Y'
     ];
 
     public function getNominatedEmployeeIdAttribute()

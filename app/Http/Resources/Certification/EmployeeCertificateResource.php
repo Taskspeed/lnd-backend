@@ -21,7 +21,7 @@ class EmployeeCertificateResource extends JsonResource
             'title_name'            => $this->event?->title_name,
             'learning_intervention' => $this->event?->learning_intervention,
             'type_name' => $this->event?->schedule?->first()?->type_name,
-    
+           'certificate_date_release' => $this->created_at?->format('F d, Y'), // October 20, 2026
         ];
     }
 }

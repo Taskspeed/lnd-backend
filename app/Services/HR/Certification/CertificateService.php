@@ -4,6 +4,7 @@ namespace App\Services\HR\Certification;
 
 use App\Models\Employee\NominatedEmployee;
 use App\Models\RSP\vwEmployee;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class CertificateService
@@ -12,9 +13,9 @@ class CertificateService
     public function certificate(string $controlNo, ?string $search = null, int $perPage = 10)
     {
         $query = NominatedEmployee::with(['event' => function ($q) {
-            $q->with('schedule')->select('id', 'title_name', 'learning_intervention');
+            $q->with('schedule')->select('id', 'title_name', 'learning_intervention',);
         }])
-            ->select('id', 'event_id', 'control_no', 'full_name', 'nominate_status', 'certificate_issued')
+            ->select('id', 'event_id', 'control_no', 'full_name', 'nominate_status', 'certificate_issued', 'created_at')
             ->where('nominate_status', 'Approved')
             ->where('certificate_issued', true)
             ->where('control_no', $controlNo);
@@ -25,28 +26,38 @@ class CertificateService
             });
         }
 
+
+
         return $query->paginate($perPage)->withQueryString();
     }
 
 
     public function certificateRelease(int $perPage, Request $request)
     {
-        $controlNos = NominatedEmployee::where('nominate_status', 'Approved')
+        // pinakabagong created_at kada control_no
+        $latestReleases = NominatedEmployee::where('nominate_status', 'Approved')
             ->where('certificate_issued', true)
-            ->distinct()
-            ->pluck('control_no');
+            ->selectRaw('control_no, MAX(created_at) as latest_created_at')
+            ->groupBy('control_no')
+            ->pluck('latest_created_at', 'control_no'); // [control_no => date]
 
         $employees = vwEmployee::select('ControlNo', 'name', 'position', 'status')
-            ->whereIn('ControlNo', $controlNos)
+            ->whereIn('ControlNo', $latestReleases->keys())
             ->when($request->filled('search'), function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%');
             })
             ->orderBy('name')
             ->paginate($perPage);
 
-        $employees->through(function ($employee) {
+        $employees->through(function ($employee) use ($latestReleases) {
             $employee->photo_url = $employee->ControlNo
                 ? url("/api/event/employee/{$employee->ControlNo}/photo")
+                : null;
+
+            $latest = $latestReleases[$employee->ControlNo] ?? null;
+
+            $employee->certificate_date_release = $latest
+                ? Carbon::parse($latest)->format('F d, Y')
                 : null;
 
             return $employee;

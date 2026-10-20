@@ -52,8 +52,9 @@ class CertificateController extends Controller
     // ito na ang talagang nag-eemail
     public function send(int $nominatedEmployeeId)
     {
-        $nominee = NominatedEmployee::findOrFail($nominatedEmployeeId);
 
+        $nominee = NominatedEmployee::findOrFail($nominatedEmployeeId);
+       
         $nomineeEmail = xPersonalAddt::where('ControlNo', $nominee->control_no)->first();
 
         if (!$nomineeEmail || !$nomineeEmail->EmailAdd) {
@@ -65,6 +66,7 @@ class CertificateController extends Controller
         $pdfContent = Pdf::loadView('certificates.certificate', $data)
             ->setPaper('a4', 'landscape')
             ->output();
+        
 
         // 1. i-save sa storage + certificate table
         $certificate = $this->storeCertificate(
@@ -98,7 +100,10 @@ class CertificateController extends Controller
                 $data['dateIssued'],
             ));
 
-        $nominee->update(['certificate_issued' => true]);
+        $nominee->update([
+            'created_at'         => now(),
+            'certificate_issued' => true,
+        ]);
 
         return $this->successMessage($certificate, 'Certificate queued for sending', 200);
     }
