@@ -38,12 +38,6 @@ class EmployeeSubmissionService
                 'remarks' => $validated['remarks'] ?? null,
             ]);
 
-            // Log::info('submission control_no check', [
-            //     'before_update' => $originalControlNo,
-            //     'after_update'  => $submission->fresh()->control_no,
-            //     'auth_user'     => auth()->user()?->control_no,
-            // ]);
-
             return $submission;
         });
 
@@ -118,7 +112,7 @@ class EmployeeSubmissionService
                 $employeeFormSubmission->id
             )->first(),
 
-            'Level 1 Evaluation Instrument' => EvaluationInstrument::with(['facilitator', 'topic', 'feedback', 'venue'])->where(
+            'Level 1 Evaluation Instrument' => EvaluationInstrument::with(['facilitator', 'topic', 'feedback', 'venue_evaluation'])->where(
                 'employee_form_submission_id',
                 $employeeFormSubmission->id
             )->first(),
