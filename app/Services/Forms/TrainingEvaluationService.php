@@ -2,16 +2,23 @@
 
 namespace App\Services\Forms;
 
+use App\Models\Employee\NominatedEmployee;
 use App\Models\Event\Event;
 use App\Models\Event\EventSchedule;
 use App\Models\Forms\RSE\TrainingEvaluationSpeakers;
+use App\Models\RSP\vwEmployee;
+use App\Models\User;
+use App\Notifications\EmployeeSubmitFormNotification;
+use App\Traits\FormSubmittedNotification;
 use App\Traits\ResubmitsForm;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class TrainingEvaluationService
 
 {
     use ResubmitsForm;
+    use FormSubmittedNotification;
 
     private function formName()
     {
@@ -51,7 +58,6 @@ class TrainingEvaluationService
                 ]
             );
 
-            $speakerIds = [];
 
             foreach ($validated['speaker'] as $item) {
                 $trainingEvaluation->speakerEvaluation()->updateOrCreate(
@@ -67,10 +73,12 @@ class TrainingEvaluationService
                         'comments'            => $item['comments'] ?? null,
                     ]
                 );
-
-        
             }
 
+            // notification for admin form
+            if ($form_submit->wasRecentlyCreated) {
+                DB::afterCommit(fn() => $this->notifyHrAdmins($event, $event_schedule, $form_submit, $this->formName()));
+            }
 
             return $trainingEvaluation->load('speakerEvaluation');
         });

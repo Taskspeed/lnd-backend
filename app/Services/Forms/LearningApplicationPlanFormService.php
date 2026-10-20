@@ -15,6 +15,7 @@ use App\Models\Forms\LAP\ResourcesUtilized;
 use App\Models\Forms\LAP\SupervisoryCompetencie;
 use App\Models\Forms\LAP\TargetDateCompletion;
 use App\Models\Forms\LAP\TechnicalCompetencie;
+use App\Traits\FormSubmittedNotification;
 use App\Traits\ResubmitsForm;
 use Illuminate\Support\Facades\DB;
 
@@ -22,6 +23,8 @@ class LearningApplicationPlanFormService
 {
 
     use ResubmitsForm;
+    use FormSubmittedNotification;
+
     private function formName()
     {
         return 'Learning Application Plan';
@@ -146,6 +149,11 @@ class LearningApplicationPlanFormService
                 'within_3_months_after_training' => $validated['within_3_months_after_training'] ?? null,
             ]);
 
+            // notification for admin form
+            if ($form_submit->wasRecentlyCreated) {
+                DB::afterCommit(fn() => $this->notifyHrAdmins($event, $event_schedule, $form_submit, $this->formName()));
+            }
+
             return [
                 $learning_application_plan,
                 $foundation_competency,
@@ -264,7 +272,7 @@ class LearningApplicationPlanFormService
                     'office_department' => $validated['core_functions'] ?? null,
                     'city_government_organization' => $validated['support_functions'] ?? null,
                     'clients_stakeholders_general_public' => $validated['support_functions'] ?? null,
-                      'supervisors_managers' => $validated['supervisors_managers'] ?? null,
+                    'supervisors_managers' => $validated['supervisors_managers'] ?? null,
                 ]
 
             );

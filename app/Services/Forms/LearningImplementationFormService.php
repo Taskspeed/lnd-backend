@@ -9,6 +9,7 @@ use App\Models\Forms\LIR\CoreImplementation;
 use App\Models\Forms\LIR\LeadershipImplementation;
 use App\Models\Forms\LIR\LearningImplementationForm;
 use App\Models\Forms\LIR\TechinicalImplementation;
+use App\Traits\FormSubmittedNotification;
 use App\Traits\ResubmitsForm;
 use Illuminate\Support\Facades\DB;
 
@@ -16,14 +17,13 @@ class LearningImplementationFormService
 
 {
     use ResubmitsForm;
+    use FormSubmittedNotification;
 
     private function formName()
     {
 
         return 'Learning Implementation Report';
     }
-
-
 
     public function create(?array $validated)
     {
@@ -94,6 +94,11 @@ class LearningImplementationFormService
                 'process_management' => $validated['process_management'] ?? null,
             ]);
 
+            // notification for admin form
+            if ($form_submit->wasRecentlyCreated) {
+                DB::afterCommit(fn() => $this->notifyHrAdmins($event, $event_schedule, $form_submit, $this->formName()));
+            }
+
             return [
                 $learning_implementation,
                 $core_implementation,
@@ -103,6 +108,8 @@ class LearningImplementationFormService
             ];
         });
     }
+
+
     public function edit(int $learningImplementationFormId, ?array $validated)
     {
 

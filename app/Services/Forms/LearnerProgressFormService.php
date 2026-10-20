@@ -10,6 +10,7 @@ use App\Models\Forms\LPR\CoreProgress;
 use App\Models\Forms\LPR\LeadershipProgress;
 use App\Models\Forms\LPR\LearnerProgressForm;
 use App\Models\Forms\LPR\TechnicalProgress;
+use App\Traits\FormSubmittedNotification;
 use App\Traits\ResubmitsForm;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -19,6 +20,8 @@ class LearnerProgressFormService
 {
 
     use ResubmitsForm;
+    use FormSubmittedNotification;
+
     private function formName()
     {
         return 'Learner Progress Report';
@@ -96,7 +99,11 @@ class LearnerProgressFormService
                 'process_management' => $validated['process_management'] ?? null,
                 'attention_details' => $validated['attention_details'] ?? null,
             ]);
-
+            
+            // notification for admin form
+            if ($form_submit->wasRecentlyCreated) {
+                DB::afterCommit(fn() => $this->notifyHrAdmins($event, $event_schedule, $form_submit, $this->formName()));
+            }
             return [
                 $learnerForm,
                 $core_progress,

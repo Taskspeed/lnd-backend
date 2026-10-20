@@ -5,6 +5,7 @@ namespace App\Services\Forms;
 use App\Models\Event\Event;
 use App\Models\Event\EventSchedule;
 use App\Models\Forms\LES\EvaluationInstrument;
+use App\Traits\FormSubmittedNotification;
 use App\Traits\ResubmitsForm;
 use Illuminate\Support\Facades\DB;
 
@@ -13,6 +14,7 @@ class EvaluationInstrumentService
 
 
     use ResubmitsForm;
+    use FormSubmittedNotification;
 
     private function formName()
     {
@@ -78,6 +80,11 @@ class EvaluationInstrumentService
                     'highly_recommended' => $item['highly_recommended'] ?? false,
                     'not_a_priority'     => $item['not_a_priority'] ?? false,
                 ]);
+            }
+            
+            // notification for admin form
+            if ($form_submit->wasRecentlyCreated) {
+                DB::afterCommit(fn() => $this->notifyHrAdmins($event, $event_schedule, $form_submit, $this->formName()));
             }
 
             return [$evaluation, $form_submit];

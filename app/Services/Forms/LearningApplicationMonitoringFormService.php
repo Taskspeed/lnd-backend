@@ -9,97 +9,104 @@ use App\Models\Forms\LAMR\CoreMonitoring;
 use App\Models\Forms\LAMR\LeadershipMonitoring;
 use App\Models\Forms\LAMR\LearningApplicationMonitoringForm;
 use App\Models\Forms\LAMR\TechnicalMonitoring;
+use App\Traits\FormSubmittedNotification;
 use App\Traits\ResubmitsForm;
 use Illuminate\Support\Facades\DB;
 
 class LearningApplicationMonitoringFormService
 {
     use ResubmitsForm;
+    use FormSubmittedNotification;
 
     private function formName()
     {
         return 'Learning Application Monitoring Report';
     }
 
-   public function create(?array $validated)
-{
-    return DB::transaction(function () use ($validated) {
+    public function create(?array $validated)
+    {
+        return DB::transaction(function () use ($validated) {
 
-        $event = Event::with(['form' => function ($query) {
-            $query->where('form_name', $this->formName());
-        }])
-            ->where('id', $validated['event_id'] ?? null)
-            ->first();
+            $event = Event::with(['form' => function ($query) {
+                $query->where('form_name', $this->formName());
+            }])
+                ->where('id', $validated['event_id'] ?? null)
+                ->first();
 
-        if (!$event) {
-            throw new \Exception('Event not found.');
-        }
+            if (!$event) {
+                throw new \Exception('Event not found.');
+            }
 
-        if ($event->form->isEmpty()) {
-            throw new \Exception('This form is not available for this event.');
-        }
+            if ($event->form->isEmpty()) {
+                throw new \Exception('This form is not available for this event.');
+            }
 
-        $event_schedule = EventSchedule::where('id', $validated['event_schedule_id'] ?? null)
-            ->where('event_id', $event->id)
-            ->first();
+            $event_schedule = EventSchedule::where('id', $validated['event_schedule_id'] ?? null)
+                ->where('event_id', $event->id)
+                ->first();
 
-        if (!$event_schedule) {
-            throw new \Exception('Event schedule not found.');
-        }
+            if (!$event_schedule) {
+                throw new \Exception('Event schedule not found.');
+            }
 
-        $form_submit = $this->upsertSubmission($event, $event_schedule, $validated);
+            $form_submit = $this->upsertSubmission($event, $event_schedule, $validated);
 
-        $learning_application_form = LearningApplicationMonitoringForm::updateOrCreate(
-            ['employee_form_submission_id' => $form_submit->id],
-            [
-                'form_name' => $this->formName(),
-                'control_no' => $validated['control_no'],
-                'learner' => $validated['learner'] ?? null,
-                'lnd_attended' => $validated['lnd_attended'] ?? null,
-                'date_of_attendance' => $validated['date_of_attendance'] ?? null,
-                'competency_developed_acquired' => $validated['competency_developed_acquired'] ?? null,
-                'goals' => $validated['goals'] ?? null,
-                'performance_indicator' => $validated['performance_indicator'] ?? null,
-                'learning_strategies_applied' => $validated['learning_strategies_applied'] ?? null,
-                'required_resources' => $validated['required_resources'] ?? null,
-                'target_date_completion' => $validated['target_date_completion'] ?? null,
-                'status_as_of_v1' => $validated['status_as_of_v1'] ?? null,
-                'status_as_of_v2' => $validated['status_as_of_v2'] ?? null,
-            ]
-        );
+            $learning_application_form = LearningApplicationMonitoringForm::updateOrCreate(
+                ['employee_form_submission_id' => $form_submit->id],
+                [
+                    'form_name' => $this->formName(),
+                    'control_no' => $validated['control_no'],
+                    'learner' => $validated['learner'] ?? null,
+                    'lnd_attended' => $validated['lnd_attended'] ?? null,
+                    'date_of_attendance' => $validated['date_of_attendance'] ?? null,
+                    'competency_developed_acquired' => $validated['competency_developed_acquired'] ?? null,
+                    'goals' => $validated['goals'] ?? null,
+                    'performance_indicator' => $validated['performance_indicator'] ?? null,
+                    'learning_strategies_applied' => $validated['learning_strategies_applied'] ?? null,
+                    'required_resources' => $validated['required_resources'] ?? null,
+                    'target_date_completion' => $validated['target_date_completion'] ?? null,
+                    'status_as_of_v1' => $validated['status_as_of_v1'] ?? null,
+                    'status_as_of_v2' => $validated['status_as_of_v2'] ?? null,
+                ]
+            );
 
-        $fk = ['learning_application_monitoring_form_id' => $learning_application_form->id];
+            $fk = ['learning_application_monitoring_form_id' => $learning_application_form->id];
 
-        $core_monitoring = CoreMonitoring::updateOrCreate($fk, [
-            'delivering_service_excellence' => $validated['delivering_service_excellence'] ?? null,
-            'exemplifying_integrity' => $validated['exemplifying_integrity'] ?? null,
-            'interpersonal_skills' => $validated['interpersonal_skills'] ?? null,
-        ]);
+            $core_monitoring = CoreMonitoring::updateOrCreate($fk, [
+                'delivering_service_excellence' => $validated['delivering_service_excellence'] ?? null,
+                'exemplifying_integrity' => $validated['exemplifying_integrity'] ?? null,
+                'interpersonal_skills' => $validated['interpersonal_skills'] ?? null,
+            ]);
 
-        $leadership_monitoring = LeadershipMonitoring::updateOrCreate($fk, [
-            'managing_performance_coaching_results' => $validated['managing_performance_coaching_results'] ?? null,
-            'building_collaborative_inclusive_working_relationships' => $validated['building_collaborative_inclusive_working_relationships'] ?? null,
-            'thinking_strategically_creatively' => $validated['thinking_strategically_creatively'] ?? null,
-            'problem_solving_decision_making' => $validated['problem_solving_decision_making'] ?? null,
-        ]);
+            $leadership_monitoring = LeadershipMonitoring::updateOrCreate($fk, [
+                'managing_performance_coaching_results' => $validated['managing_performance_coaching_results'] ?? null,
+                'building_collaborative_inclusive_working_relationships' => $validated['building_collaborative_inclusive_working_relationships'] ?? null,
+                'thinking_strategically_creatively' => $validated['thinking_strategically_creatively'] ?? null,
+                'problem_solving_decision_making' => $validated['problem_solving_decision_making'] ?? null,
+            ]);
 
-        $technical_monitoring = TechnicalMonitoring::updateOrCreate($fk, [
-            'planning_organizing' => $validated['planning_organizing'] ?? null,
-            'monitoring_evaluation' => $validated['monitoring_evaluation'] ?? null,
-            'records_management' => $validated['records_management'] ?? null,
-            'partnering_networking' => $validated['partnering_networking'] ?? null,
-            'process_management' => $validated['process_management'] ?? null,
-        ]);
+            $technical_monitoring = TechnicalMonitoring::updateOrCreate($fk, [
+                'planning_organizing' => $validated['planning_organizing'] ?? null,
+                'monitoring_evaluation' => $validated['monitoring_evaluation'] ?? null,
+                'records_management' => $validated['records_management'] ?? null,
+                'partnering_networking' => $validated['partnering_networking'] ?? null,
+                'process_management' => $validated['process_management'] ?? null,
+            ]);
 
-        return [
-            $learning_application_form,
-            $core_monitoring,
-            $leadership_monitoring,
-            $technical_monitoring,
-            $form_submit,
-        ];
-    });
-}
+            // notification for admin form
+            if ($form_submit->wasRecentlyCreated) {
+                DB::afterCommit(fn() => $this->notifyHrAdmins($event, $event_schedule, $form_submit, $this->formName()));
+            }
+            
+            return [
+                $learning_application_form,
+                $core_monitoring,
+                $leadership_monitoring,
+                $technical_monitoring,
+                $form_submit,
+            ];
+        });
+    }
 
 
     public function edit(int $learningApplicationMonitoringFormId, ?array $validated)
