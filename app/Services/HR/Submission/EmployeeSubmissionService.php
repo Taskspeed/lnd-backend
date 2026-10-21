@@ -137,64 +137,73 @@ class EmployeeSubmissionService
 
     private const REQUIRED_APPROVALS = 6;
 
-    public function submitted(int $perPage, Request $request)
-    {
-        $list = NominatedEmployee::query()
-            ->where('nominate_status', 'Approved')
-            ->where('certificate_issued', 'false')
-            ->when($request->filled('search'), function ($q) use ($request) {
-                $q->where('full_name', 'like', '%' . $request->search . '%');
-            })
-            ->when($request->filled('event_schedule_id'), function ($q) use ($request) {
-                $q->where('event_schedule_id', $request->event_schedule_id);
-            })
-            ->whereHas('formSubmissions', function ($q) use ($request) {
-                $q->whereColumn('employee_form_submissions.event_id', 'nominated_employees.event_id')
-                    ->whereColumn(
-                        'employee_form_submissions.event_schedule_id',
-                        'nominated_employees.event_schedule_id'
-                    )
-                    ->when(
-                        $request->filled('event_schedule_id'),
-                        fn($q2) => $q2->where(
-                            'employee_form_submissions.event_schedule_id',
-                            $request->event_schedule_id
-                        )
-                    );
-            })
-            ->with(['formSubmissions' => function ($q) use ($request) {
-                $q->when(
-                    $request->filled('event_schedule_id'),
-                    fn($q2) => $q2->where('event_schedule_id', $request->event_schedule_id)
-                );
-            }])
-            ->orderBy('control_no')
-            ->paginate($perPage)
-            ->through(function ($nominee) {
-                $submissions = $nominee->formSubmissions
-                    ->where('event_id', $nominee->event_id)
-                    ->where('event_schedule_id', $nominee->event_schedule_id);
+  public function submitted(int $perPage, Request $request, int $scheduleId, ?string $office = null, ?string $formStatus = null, ?string $certificateStatus= null)
+{
+    $required = self::REQUIRED_APPROVALS;
 
-                $pending  = $submissions->where('status', 'Pending')->count();
-                $approved = $submissions->where('status', 'Approved')->count();
-                $returned = $submissions->where('status', 'Returned')->count();
+    // reusable na subquery para sa bilang ng approved forms
+    $approvedSub = fn ($q) => $q
+        ->whereColumn('employee_form_submissions.event_id', 'nominated_employees.event_id')
+        ->whereColumn('employee_form_submissions.event_schedule_id', 'nominated_employees.event_schedule_id')
+        ->where('status', 'Approved');
 
-                return [
-                    'control_no'            => $nominee->control_no,
-                    'full_name'             => $nominee->full_name,
-                    'event_id'              => $nominee->event_id,
-                    'nominated_employee_id' => $nominee->id,
-                    'event_schedule_id'     => (int) $nominee->event_schedule_id,
-                    'pending'               => $pending,
-                    'approved'              => $approved,
-                    'returned'              => $returned,
-                    'required_approvals'    => self::REQUIRED_APPROVALS,
-                    'certificate_status'    => $approved >= self::REQUIRED_APPROVALS
-                        ? 'Complete'
-                        : 'Incomplete',
-                ];
-            });
 
-        return $list;
-    }
+    $list = NominatedEmployee::query()
+        // base filters: laging susundin
+        ->where('nominate_status', 'Approved')
+        ->where('event_schedule_id', $scheduleId)
+
+        // optional filters
+        ->when($office, fn ($q) => $q->where('office', $office))
+        ->when($request->filled('search'), function ($q) use ($request) {
+            $q->where('full_name', 'like', '%' . $request->search . '%');
+        })
+
+        // form status: complete = may at least $required na approved forms
+        ->when($formStatus === 'complete', function ($q) use ($approvedSub, $required) {
+            $q->whereHas('formSubmissions', $approvedSub, '>=', $required);
+        })
+        ->when($formStatus === 'incomplete', function ($q) use ($approvedSub, $required) {
+            $q->whereHas('formSubmissions', $approvedSub, '<', $required);
+        })
+
+        // certificate: issued / pending
+        ->when($certificateStatus === 'issued', fn ($q) => $q->where('certificate_issued', true))
+        ->when($certificateStatus === 'pending', fn ($q) => $q->where('certificate_issued', false))
+
+        ->withCount([
+            'formSubmissions as pending_count' => fn ($q) => $q
+                ->whereColumn('employee_form_submissions.event_id', 'nominated_employees.event_id')
+                ->whereColumn('employee_form_submissions.event_schedule_id', 'nominated_employees.event_schedule_id')
+                ->where('status', 'Pending'),
+            'formSubmissions as approved_count' => $approvedSub,
+            'formSubmissions as returned_count' => fn ($q) => $q
+                ->whereColumn('employee_form_submissions.event_id', 'nominated_employees.event_id')
+                ->whereColumn('employee_form_submissions.event_schedule_id', 'nominated_employees.event_schedule_id')
+                ->where('status', 'Returned'),
+        ])
+        ->orderBy('control_no')
+        ->paginate($perPage)
+        ->withQueryString()
+        ->through(function ($nominee) use ($required) {
+            $approved = (int) $nominee->approved_count;
+
+            return [
+                'control_no'            => $nominee->control_no,
+                'full_name'             => $nominee->full_name,
+                'office'                => $nominee->office,
+                'event_id'              => $nominee->event_id,
+                'nominated_employee_id' => $nominee->id,
+                'event_schedule_id'     => (int) $nominee->event_schedule_id,
+                'pending'               => (int) $nominee->pending_count,
+                'approved'              => $approved,
+                'returned'              => (int) $nominee->returned_count,
+                'required_approvals'    => $required,
+                'form_status'           => $approved >= $required ? 'complete' : 'incomplete',
+                'certificate_issued'    => $nominee->certificate_issued ? 'issued' : 'pending',
+            ];
+        });
+
+    return $list;
+}
 }
