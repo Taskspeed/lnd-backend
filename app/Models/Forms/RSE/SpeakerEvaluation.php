@@ -21,6 +21,7 @@ class SpeakerEvaluation extends Model
         'communication',
         'practical_relevance',
         'over_all_rating',
+        'comments'
 
     ];
 

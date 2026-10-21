@@ -54,7 +54,7 @@ class TrainingEvaluationService
                     'date'                      => $validated['date'],
                     'venue'                     => $validated['venue'] ?? null,
                     'learning_service_provider' => $validated['learning_service_provider'] ?? null,
-                    'comments'                  => $validated['comments'] ?? null,
+                    // 'comments'                  => $validated['comments'] ?? null,
                 ]
             );
 
