@@ -67,6 +67,7 @@ class LearningApplicationMonitoringFormService
                     'target_date_completion' => $validated['target_date_completion'] ?? null,
                     'status_as_of_v1' => $validated['status_as_of_v1'] ?? null,
                     'status_as_of_v2' => $validated['status_as_of_v2'] ?? null,
+                    'remarks' => $validated['remarks'] ?? null,
                 ]
             );
 

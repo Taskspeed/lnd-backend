@@ -41,7 +41,7 @@ class LearningApplicationMonitoringFormRequest extends FormRequest
             'target_date_completion' => 'nullable|string',
             'status_as_of_v1' => 'nullable|string',
             'status_as_of_v2' => 'nullable|string',
-
+            'remarks' => 'nullable|string',
 
             // technical
             'planning_organizing'=> 'nullable|boolean',
