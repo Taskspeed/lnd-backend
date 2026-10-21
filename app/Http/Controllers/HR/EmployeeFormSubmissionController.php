@@ -5,14 +5,18 @@ namespace App\Http\Controllers\HR;
 use App\Http\Controllers\Controller;
 use App\Models\Employee\NominatedEmployee;
 use App\Models\Event\EmployeeFormSubmission;
+use App\Models\Event\Event;
+use App\Models\Event\EventSchedule;
 use App\Services\HR\Submission\EmployeeSubmissionService;
 use App\Traits\ApiResponseTrait;
+use App\Traits\FormatsDateRanges;
 use Illuminate\Http\Request;
 
 class EmployeeFormSubmissionController extends Controller
 {
 
     use ApiResponseTrait;
+    use FormatsDateRanges;
 
     protected EmployeeSubmissionService $employeeSubmissionService;
 
@@ -85,13 +89,81 @@ class EmployeeFormSubmissionController extends Controller
         }
     }
 
-  
-    public function listOfEmployeeSubmitted(Request $request)
+
+    public function listOfEmployeeSubmitted(Request $request, int $scheduleId)
     {
         $perPage = $request->input('per_page', 10);
+        $office  = $request->filled('office') ? trim($request->query('office')) : null; // optional
+        $formStatus        = $request->query('form_status');         // complete | incomplete
+        $certificateStatus = $request->query('certificate_issued');  // issued | pending
+        $data = $this->employeeSubmissionService->submitted($perPage, $request, $scheduleId, $office, $formStatus, $certificateStatus);
 
-        $data = $this->employeeSubmissionService->submitted($perPage,$request);
-        
         return $this->successMessage($data, 'list of employee form submitted', 200);
+    }
+
+
+    public function listOfEventParticipants(Request $request)
+    {
+        $perPage = min((int) $request->input('per_page', 10), 100);
+        $search  = trim((string) $request->input('search', ''));
+
+        $schedules = EventSchedule::select('id', 'event_id')
+            ->with(['event', 'scheduleDateTime'])
+            ->withCount([
+                'nominatedEmployee as participants_count' => fn($q) => $q->where('nominate_status', 'Approved'),
+                'nominatedEmployee as certificates_issued_count' => fn($q) => $q->where('certificate_issued', true),
+            ])
+            ->when($search !== '', function ($query) use ($search) {
+                $query->whereHas('event', function ($q) use ($search) {
+                    $q->where('title_name', 'like', "%{$search}%");
+                });
+            })
+            ->orderByDesc('id')
+            ->paginate($perPage)
+            ->withQueryString() // keeps per_page and search in the page links
+            ->through(function ($schedule) {
+                $schedule->schedule_date_range = $this->formatDateRanges($schedule->scheduleDateTime);
+                $schedule->unsetRelation('scheduleDateTime');
+                return $schedule;
+            });
+
+        return $this->successMessage($schedules, 'success fetch', 200);
+    }
+
+    // get the event information for submission
+    public function eventDetails(int $eventId, int $eventScheduleId)
+    {
+        $event = Event::with([
+            'form',
+            'schedule' => function ($query) use ($eventId, $eventScheduleId) {
+                $query->with([
+                    'speaker',
+                    'scheduleDateTime',
+                    'office',
+                    'eventCore',
+                    'eventTechnical',
+                    'eventLeadership',
+                ])
+                    ->where('event_id', $eventId)
+                    ->where('id', $eventScheduleId);
+            },
+        ])->find($eventId);
+
+        if (!$event) {
+            throw new \Exception('Event not found');
+        }
+
+        foreach ($event->schedule as $schedule) {
+            // Office counts: query lang ang counts, hindi na isasama ang buong nominated employees sa response
+            $counts = $schedule->nominatedEmployee()
+                ->selectRaw('office, COUNT(*) as total')
+                ->groupBy('office')
+                ->pluck('total', 'office');
+
+            foreach ($schedule->office as $office_row) {
+                $office_row->employee_nominated = (int) $counts->get($office_row->office_name, 0);
+            }
+        }
+        return $this->successMessage($event, 'Fetch Event schedule', 200);
     }
 }
