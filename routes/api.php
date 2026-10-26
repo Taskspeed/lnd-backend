@@ -307,7 +307,9 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
 
             Route::prefix('submission')->group(function () {
                 Route::put('/update/{employeeFormSubmissionId}', [EmployeeFormSubmissionController::class, 'update']); // approved or returned with remarks
-                Route::get('/list', [EmployeeFormSubmissionController::class, 'listOfEmployeeSubmitted']); // list of employee submitted
+                Route::get('/list/schedule/{scheduleId}', [EmployeeFormSubmissionController::class, 'listOfEmployeeSubmitted']); // list of employee submitted
+                Route::get('/event/participants', [EmployeeFormSubmissionController::class, 'listOfEventParticipants']); // list of employee submitted
+                Route::get('/event/{eventId}/schedule/{scheduleId}', [EmployeeFormSubmissionController::class, 'eventDetails']); // list of employee submitted
 
             });
 
