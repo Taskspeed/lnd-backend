@@ -54,6 +54,10 @@ class CertificateController extends Controller
     {
 
         $nominee = NominatedEmployee::findOrFail($nominatedEmployeeId);
+     
+                if ($nominee->certificate_issued) {
+                    return $this->errorMessage( "A certificate has already been issued to {$nominee->full_name}.", 422);
+                }
        
         $nomineeEmail = xPersonalAddt::where('ControlNo', $nominee->control_no)->first();
 
