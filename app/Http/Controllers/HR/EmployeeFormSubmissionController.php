@@ -156,6 +156,7 @@ class EmployeeFormSubmissionController extends Controller
         foreach ($event->schedule as $schedule) {
             // Office counts: query lang ang counts, hindi na isasama ang buong nominated employees sa response
             $counts = $schedule->nominatedEmployee()
+                ->where('nominate_status','Approved')
                 ->selectRaw('office, COUNT(*) as total')
                 ->groupBy('office')
                 ->pluck('total', 'office');
