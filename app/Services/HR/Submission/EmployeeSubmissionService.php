@@ -12,6 +12,7 @@ use App\Models\Forms\LPR\LearnerProgressForm;
 use App\Models\Forms\RSE\TrainingEvaluationSpeakers;
 use App\Models\RSP\vwEmployee;
 use App\Notifications\SubmissionStatusUpdated;
+use App\Traits\ResolvesOfficeAbbr;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +21,7 @@ use Illuminate\Support\Str;
 
 class EmployeeSubmissionService
 {
-
+     use ResolvesOfficeAbbr;
 
     public function updateSubmission(?array $validated, int $employeeFormSubmissionId)
     {
@@ -191,7 +192,10 @@ class EmployeeSubmissionService
             return [
                 'control_no'            => $nominee->control_no,
                 'full_name'             => $nominee->full_name,
+                'designation'             => $nominee->designation,
+                'status'             => $nominee->status,
                 'office'                => $nominee->office,
+                'office_abbr'           => $this->officeAbbr($nominee->office),
                 'event_id'              => $nominee->event_id,
                 'nominated_employee_id' => $nominee->id,
                 'event_schedule_id'     => (int) $nominee->event_schedule_id,

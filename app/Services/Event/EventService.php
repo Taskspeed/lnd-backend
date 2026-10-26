@@ -2,11 +2,13 @@
 
 namespace App\Services\Event;
 
+use App\Models\ARMS\Tblevent;
 use App\Models\Employee\NominatedEmployee;
 use App\Models\Event\Compentecy\EventCore;
 use App\Models\Event\Compentecy\EventLeadership;
 use App\Models\Event\Compentecy\EventTechnical;
 use App\Models\Event\Event;
+use App\Models\Event\EventAssessment;
 use App\Models\Event\EventDepartment;
 use App\Models\Event\EventEmployeeTag;
 use App\Models\Event\EventForm;
@@ -15,6 +17,7 @@ use App\Models\Event\EventScheduleDateTime;
 use App\Models\Event\EventSpeaker;
 use App\Traits\FormatsDateRanges;
 use App\Traits\SortsByScheduleStatus;
+use App\Traits\TimeFormat;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -24,7 +27,7 @@ class EventService
 {
     use FormatsDateRanges;
     use SortsByScheduleStatus;
-
+    use TimeFormat;
   
 
 
@@ -99,18 +102,23 @@ public function listOfEvent(array $filters = [])
             throw new \Exception('Event not found');
         }
 
-        $schedules = $this->paginateByScheduleStatus(
-            $event->schedule()
-                ->with('scheduleDateTime')
-                ->select('id', 'event_id', 'venue_name', 'mode_name', 'status', 'hours')
-                ->get(),
-            $perPage
-        )->through(function ($schedule) {
-            $schedule->schedule_date_range = $this->formatDateRanges($schedule->scheduleDateTime);
-            unset($schedule->scheduleDateTime);
+                $schedules = $this->paginateByScheduleStatus(
+                $event->schedule()
+                    ->select('id', 'event_id', 'venue_name', 'mode_name', 'status', 'hours')
+                    ->with('scheduleDateTime')
+                    ->withCount([
+                        // 'nominatedEmployee as participants_count',
+                        'nominatedEmployee as approved_count' => fn ($q) => $q->where('nominate_status', 'Approved'),
+                        'nominatedEmployee as pending_count' => fn ($q) => $q->where('nominate_status', 'Pending'),
+                    ])
+                    ->get(),
+                $perPage
+            )->through(function ($schedule) {
+                $schedule->schedule_date_range = $this->formatDateRanges($schedule->scheduleDateTime);
+                unset($schedule->scheduleDateTime);
 
-            return $schedule;
-        });
+                return $schedule;
+            });
 
         $event->setRelation('schedule', $schedules);
 
@@ -129,7 +137,8 @@ public function listOfEvent(array $filters = [])
                     'nominatedEmployee', // buo pa rin, para sa count per office
                     'eventCore',
                     'eventTechnical',
-                    'eventLeadership'
+                    'eventLeadership',
+                    'eventAssessment'
                 ])
                     ->where('event_id', $eventId)
                     ->where('id', $eventScheduleId);
@@ -162,83 +171,143 @@ public function listOfEvent(array $filters = [])
 
         return $event;
     }
-
-    // create event
+   // create event
     public function create(?array $validated)
     {
+        Log::info('EventService@create called', [
+            'sync_to_arms' => $validated['sync_to_arms'] ?? 'NO KEY',
+            'has_datetime' => !empty($validated['DateTime']),
+        ]);
 
         return DB::transaction(function () use ($validated) {
 
-            // check if the title_name of event are already create
-
+            // check if the event title already exists
             $event_title_name_exist = Event::where('title_name', $validated['title_name'])->first();
 
             if ($event_title_name_exist) {
-                throw new \Exception('Event name are already exist not allow to create new. please add new schedule');
+                throw new \Exception('Event name already exists, not allowed to create a new one. Please add a new schedule.');
             }
 
             $event = Event::create([
-                'title_name'   => $validated['title_name'] ?? null,
-                // 'intervention'   => $validated['intervention'] ?? null,
+                'title_name' => $validated['title_name'] ?? null,
             ]);
-
 
             if (!$event) {
                 throw new \Exception('Failed to create event');
             }
 
             $schedule = EventSchedule::create([
-                'event_id' => $event->id,
-                'venue_name'   => $validated['venue_name'] ?? null,
-                'mode_name'    => $validated['mode_name'] ?? null,
-                'qualifications'  => $validated['qualifications'] ?? null,
-                'hours'  => $validated['hours'] ?? null,
-                'fee'  => $validated['fee'] ?? null,
-                'source_name'  => $validated['source_name'] ?? null,
-                'type_name'    => $validated['type_name'] ?? null,
-                'category_name'    => $validated['category_name'] ?? null,
-                'conducted_by'    => $validated['conducted_by'] ?? null,
-                'learning_intervention'    => $validated['learning_intervention'] ?? null,
-                'status'       => 'Created',
+                'event_id'              => $event->id,
+                'venue_name'            => $validated['venue_name'] ?? null,
+                'mode_name'             => $validated['mode_name'] ?? null,
+                'qualifications'        => $validated['qualifications'] ?? null,
+                'hours'                 => $validated['hours'] ?? null,
+                'fee'                   => $validated['fee'] ?? null,
+                'source_name'           => $validated['source_name'] ?? null,
+                'type_name'             => $validated['type_name'] ?? null,
+                'category_name'         => $validated['category_name'] ?? null,
+                'conducted_by'          => $validated['conducted_by'] ?? null,
+                'learning_intervention' => $validated['learning_intervention'] ?? null,
+                'status'                => 'Created',
+                'sync_to_arms'          => $validated['sync_to_arms'] ?? false,
             ]);
 
+            // ---------- save into ARMS (Tblevent) ----------
+            if (!empty($validated['sync_to_arms'])) {
+                Log::info('ARMS sync started', ['title' => $validated['title_name']]);
+
+                $savedCount = 0;
+
+                foreach ($validated['DateTime'] ?? [] as $dateTime) {
+
+                    // one row for morning, one row for afternoon (only if it has a value)
+                    foreach ([['morning_in', 'morning_out'], ['afternoon_in', 'afternoon_out']] as [$in, $out]) {
+
+                        if (empty($dateTime[$in]) && empty($dateTime[$out])) {
+                            continue;
+                        }
+
+                        $slot = $in === 'morning_in' ? 'morning' : 'afternoon';
+
+                        try {
+                            $armsEvent = Tblevent::create([
+                                'Event_name'   => $validated['title_name'],
+                                'Event_date'   => $dateTime['schedule_date'] ?? null,
+                                'Event_from'   => $this->toTime24($dateTime[$in] ?? null),
+                                'Event_to'     => $this->toTime24($dateTime[$out] ?? null),
+                                'Event_venue'  => $validated['venue_name'] ?? null,
+                                'userid'       => 0,
+                                'date_created' => now()->format('Y-m-d H:i:s'),
+                            ]);
+
+                            if ($armsEvent->exists) {
+                                $savedCount++;
+                                Log::info('ARMS event saved', [
+                                    'id'   => $armsEvent->getKey(),
+                                    'date' => $dateTime['schedule_date'] ?? null,
+                                    'slot' => $slot,
+                                ]);
+                            } else {
+                                Log::warning('ARMS event NOT saved', [
+                                    'date' => $dateTime['schedule_date'] ?? null,
+                                    'slot' => $slot,
+                                ]);
+                            }
+                        } catch (\Throwable $e) {
+                            Log::error('ARMS event failed', [
+                                'error' => $e->getMessage(),
+                                'date'  => $dateTime['schedule_date'] ?? null,
+                                'slot'  => $slot,
+                            ]);
+                            throw $e; // rollback the whole transaction
+                        }
+                    }
+                }
+
+                Log::info('ARMS sync finished', ['rows_saved' => $savedCount]);
+            }
+            // ---------- end ARMS ----------
 
             EventCore::create([
-                'event_schedule_id' => $schedule->id,
-                'delivering_service_excellence'   => $validated['delivering_service_excellence'] ?? false,
-                'exemplifying_integrity'    => $validated['exemplifying_integrity'] ?? false,
-                'interpersonal_skills'  => $validated['interpersonal_skills'] ?? false,
+                'event_schedule_id'             => $schedule->id,
+                'delivering_service_excellence' => $validated['delivering_service_excellence'] ?? false,
+                'exemplifying_integrity'        => $validated['exemplifying_integrity'] ?? false,
+                'interpersonal_skills'          => $validated['interpersonal_skills'] ?? false,
             ]);
 
             EventTechnical::create([
-                'event_schedule_id' => $schedule->id,
+                'event_schedule_id'     => $schedule->id,
                 'planning_organizing'   => $validated['planning_organizing'] ?? false,
-                'monitoring_evaluation'    => $validated['monitoring_evaluation'] ?? false,
-                'records_management'  => $validated['records_management'] ?? false,
-                'partnering_networking'  => $validated['partnering_networking'] ?? false,
-                'process_management'  => $validated['process_management'] ?? false,
-                'attention_details'  => $validated['attention_details'] ?? false,
-
-
+                'monitoring_evaluation' => $validated['monitoring_evaluation'] ?? false,
+                'records_management'    => $validated['records_management'] ?? false,
+                'partnering_networking' => $validated['partnering_networking'] ?? false,
+                'process_management'    => $validated['process_management'] ?? false,
+                'attention_details'     => $validated['attention_details'] ?? false,
             ]);
+
             EventLeadership::create([
-                'event_schedule_id' => $schedule->id,
-                'managing_performance_coaching_results'   => $validated['managing_performance_coaching_results'] ?? false,
-                'building_collaborative_inclusive_working_relationships'    => $validated['building_collaborative_inclusive_working_relationships'] ?? false,
-                'thinking_strategically_creatively'  => $validated['thinking_strategically_creatively'] ?? false,
-                'problem_solving_decision_making'  => $validated['problem_solving_decision_making'] ?? false,
-
+                'event_schedule_id'                                      => $schedule->id,
+                'managing_performance_coaching_results'                  => $validated['managing_performance_coaching_results'] ?? false,
+                'building_collaborative_inclusive_working_relationships' => $validated['building_collaborative_inclusive_working_relationships'] ?? false,
+                'thinking_strategically_creatively'                      => $validated['thinking_strategically_creatively'] ?? false,
+                'problem_solving_decision_making'                        => $validated['problem_solving_decision_making'] ?? false,
             ]);
 
 
-            foreach ($validated['employee'] as $emp) {
+                EventAssessment::create([
+                'event_schedule_id'                                      => $schedule->id,
+                'pre_test_assessment'                  => $validated['pre_test_assessment'] ?? Null,
+                'post_test_assessment' => $validated['post_test_assessment'] ?? Null,
+      
+            ]);
+            foreach ($validated['employee'] ?? [] as $emp) {
                 EventEmployeeTag::create([
                     'event_schedule_id' => $schedule->id,
-                    'name'       => $emp['name'] ?? null,
-                    'control_no' => $emp['control_no'] ?? null,
-                    'office'     => $emp['office'] ?? null,
-                    'position'   => $emp['position'] ?? null,
-                    'status'     => $emp['status'] ?? null,
+                    'name'              => $emp['name'] ?? null,
+                    'control_no'        => $emp['control_no'] ?? null,
+                    'office'            => $emp['office'] ?? null,
+                    'position'          => $emp['position'] ?? null,
+                    'status'            => $emp['status'] ?? null,
                 ]);
             }
 
@@ -251,13 +320,13 @@ public function listOfEvent(array $filters = [])
 
             foreach ($validated['office'] ?? [] as $office) {
                 EventDepartment::create([
-                    'event_schedule_id'  => $schedule->id,
-                    'office_name' => $office['office_name'] ?? null,
-                    'number_of_attendees'       => $office['number_of_attendees'] ?? 0,
+                    'event_schedule_id'   => $schedule->id,
+                    'office_name'         => $office['office_name'] ?? null,
+                    'number_of_attendees' => $office['number_of_attendees'] ?? 0,
                 ]);
             }
 
-            // Notify office admins ng bawat kasamang office
+            // Notify office admins of each included office
             $officeNames = collect($validated['office'] ?? [])->pluck('office_name')->filter();
 
             if ($officeNames->isNotEmpty()) {
@@ -270,37 +339,33 @@ public function listOfEvent(array $filters = [])
                         $admin->notify(new \App\Notifications\EventCreated($event, $schedule));
                     }
                 } else {
-                    Log::info("No office admins found for offices: " . $officeNames->implode(', '));
+                    Log::info('No office admins found for offices: ' . $officeNames->implode(', '));
                 }
             }
 
             foreach ($validated['speaker'] ?? [] as $speaker) {
                 EventSpeaker::create([
-                    'event_schedule_id'  => $schedule->id,
-                    'speaker_name' => $speaker['speaker_name'] ?? null,
-                    'position' => $speaker['position'] ?? null,
-                    'agency' => $speaker['agency'] ?? null,
+                    'event_schedule_id' => $schedule->id,
+                    'speaker_name'      => $speaker['speaker_name'] ?? null,
+                    'position'          => $speaker['position'] ?? null,
+                    'agency'            => $speaker['agency'] ?? null,
                 ]);
             }
 
             foreach ($validated['DateTime'] ?? [] as $dateTime) {
                 EventScheduleDateTime::create([
-                    'event_schedule_id'  => $schedule->id,
-                    'schedule_date' => $dateTime['schedule_date'] ?? null,
-                    // 'time_in' => $dateTime['time_in'] ?? null,
-                    // 'time_out' => $dateTime['time_out'] ?? null,
-                    'morning_in' => $dateTime['morning_in'] ?? null,
-                    'morning_out' => $dateTime['morning_out'] ?? null,
-                    'afternoon_in' => $dateTime['afternoon_in'] ?? null,
-                    'afternoon_out' => $dateTime['afternoon_out'] ?? null,
-
+                    'event_schedule_id' => $schedule->id,
+                    'schedule_date'     => $dateTime['schedule_date'] ?? null,
+                    'morning_in'        => $dateTime['morning_in'] ?? null,
+                    'morning_out'       => $dateTime['morning_out'] ?? null,
+                    'afternoon_in'      => $dateTime['afternoon_in'] ?? null,
+                    'afternoon_out'     => $dateTime['afternoon_out'] ?? null,
                 ]);
             }
 
             return $event->load(['form', 'schedule']);
         });
     }
-
 
     public function delete(int $eventId)
     {
