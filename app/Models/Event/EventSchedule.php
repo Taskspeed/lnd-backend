@@ -25,20 +25,26 @@ class EventSchedule extends Model
         'hours',
         'qualifications',
         'fee',
-         'type_name',
+        'type_name',
         'source_name',
         'category_name',
         'conducted_by',
-        'learning_intervention'
+        'learning_intervention',
+        'sync_to_arms'
     ];
 
     protected $casts = [
         'event_id' => 'integer',
-       'hours'  => 'integer',
+        'hours'  => 'integer',
+        'participants_count' => 'integer',
+        'certificates_issued_count' => 'integer',
+        'sync_to_arms' => 'boolean',
+        'approved_count' => 'integer',
+        'pending_count' => 'integer'
     ];
 
-    protected $appends = ['scheduleId','computedStatus'];
-    protected $hidden = ['id', 'created_at', 'updated_at','status'];
+    protected $appends = ['scheduleId', 'computedStatus'];
+    protected $hidden = ['id', 'created_at', 'updated_at', 'status'];
 
     public function getComputedStatusAttribute()
     {
@@ -87,29 +93,39 @@ class EventSchedule extends Model
         return $this->hasMany(NominatedEmployee::class);
     }
 
-     public function event()
+    public function event()
     {
         return $this->belongsTo(Event::class);
     }
 
     // competency
-    public function eventCore(){
+    public function eventCore()
+    {
 
         return $this->hasMany(EventCore::class);
     }
 
-    public function eventTechnical(){
+    public function eventTechnical()
+    {
 
         return $this->hasMany(EventTechnical::class);
     }
 
-    public function eventLeadership(){
-        
+    public function eventLeadership()
+    {
+
         return $this->hasMany(EventLeadership::class);
     }
 
-      public function employeeTag(){
-        
+    public function employeeTag()
+    {
+
         return $this->hasMany(EventEmployeeTag::class);
+    }
+    
+    public function eventAssessment()
+    {
+
+        return $this->hasMany(EventAssessment::class);
     }
 }

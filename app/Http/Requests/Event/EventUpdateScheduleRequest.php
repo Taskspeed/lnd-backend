@@ -35,6 +35,9 @@ class EventUpdateScheduleRequest extends FormRequest
             'category_name' => 'nullable|string',
             'conducted_by' => 'nullable|string',
             'learning_intervention' => 'nullable|string',
+            'sync_to_arms' => 'nullable|boolean',
+            'pre_test_assessment' => 'nullable|url',
+            'post_test_assessment' => 'nullable|url',
 
             //schedule Date and time 
             'DateTime' => 'nullable|array',

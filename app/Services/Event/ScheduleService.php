@@ -2,21 +2,25 @@
 
 namespace App\Services\Event;
 
+use App\Models\ARMS\Tblevent;
 use App\Models\Event\Compentecy\EventCore;
 use App\Models\Event\Compentecy\EventLeadership;
 use App\Models\Event\Compentecy\EventTechnical;
 use App\Models\Event\Event;
+use App\Models\Event\EventAssessment;
 use App\Models\Event\EventDepartment;
 use App\Models\Event\EventEmployeeTag;
 use App\Models\Event\EventSchedule;
 use App\Models\Event\EventScheduleDateTime;
 use App\Models\Event\EventSpeaker;
+use App\Traits\TimeFormat;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ScheduleService
 {
+         use TimeFormat;
     public function addSchedule(?array $validated)
     {
 
@@ -35,10 +39,10 @@ class ScheduleService
                 'conducted_by'    => $validated['conducted_by'] ?? null,
                 'status'       => 'Created',
                 'learning_intervention'    => $validated['learning_intervention'] ?? null,
+                'sync_to_arms'    => $validated['sync_to_arms'] ??  false,
             ]);
             
             $event  = Event::find($validated['event_id']);
-
 
             EventCore::create([
                 'event_schedule_id' => $schedule->id,
@@ -64,6 +68,14 @@ class ScheduleService
                 'building_collaborative_inclusive_working_relationships'    => $validated['building_collaborative_inclusive_working_relationships'] ?? false,
                 'thinking_strategically_creatively'  => $validated['thinking_strategically_creatively'] ?? false,
                 'problem_solving_decision_making'  => $validated['problem_solving_decision_making'] ?? false,
+
+            ]);
+
+            EventAssessment::create([
+                'event_schedule_id' => $schedule->id,
+                'pre_test_assessment'   => $validated['pre_test_assessment'] ?? Null,
+                'post_test_assessment'    => $validated['post_test_assessment'] ?? Null,
+             
 
             ]);
 
@@ -126,6 +138,53 @@ class ScheduleService
                 ]);
             }
 
+
+            // ---------- ARMS sync (last, after everything else succeeded) ----------
+            if (!empty($validated['sync_to_arms'])) {
+                Log::info('ARMS sync started', ['title' => $event->title_name]);
+
+                $savedCount = 0;
+
+                foreach ($validated['DateTime'] ?? [] as $dateTime) {
+                    foreach ([['morning_in', 'morning_out'], ['afternoon_in', 'afternoon_out']] as [$in, $out]) {
+
+                        if (empty($dateTime[$in]) && empty($dateTime[$out])) {
+                            continue;
+                        }
+
+                        $slot = $in === 'morning_in' ? 'morning' : 'afternoon';
+
+                        try {
+                            $armsEvent = Tblevent::create([
+                                'Event_name'   => $event->title_name,
+                                'Event_date'   => $dateTime['schedule_date'] ?? null,
+                                'Event_from'   => $this->toTime24($dateTime[$in] ?? null),
+                                'Event_to'     => $this->toTime24($dateTime[$out] ?? null),
+                                'Event_venue'  => $validated['venue_name'] ?? null,
+                                'userid'       => 0,
+                                'date_created' => now()->format('Y-m-d H:i:s'),
+                                 'event_schedule_id' =>   $schedule->id,
+                            ]);
+
+                            $savedCount++;
+                            Log::info('ARMS event saved', [
+                                'id'   => $armsEvent->getKey(),
+                                'date' => $dateTime['schedule_date'] ?? null,
+                                'slot' => $slot,
+                            ]);
+                        } catch (\Throwable $e) {
+                            Log::error('ARMS event failed', [
+                                'error' => $e->getMessage(),
+                                'date'  => $dateTime['schedule_date'] ?? null,
+                                'slot'  => $slot,
+                            ]);
+                            throw $e; // rollback
+                        }
+                    }
+                }
+
+                Log::info('ARMS sync finished', ['rows_saved' => $savedCount]);
+            }
             return $schedule->load(['office', 'speaker', 'scheduleDateTime']);
         });
     }
@@ -152,7 +211,7 @@ class ScheduleService
                 'category_name'    => $validated['category_name'] ?? null,
                 'conducted_by'    => $validated['conducted_by'] ?? null,
                 'learning_intervention'    => $validated['learning_intervention'] ?? null,
-                // 'status'       => 'Created',
+                'sync_to_arms'    => $validated['sync_to_arms'] ??  false,
             ]);
             
             $schedule->employeeTag()->delete();
@@ -200,6 +259,12 @@ class ScheduleService
                 'thinking_strategically_creatively'  => $validated['thinking_strategically_creatively'] ?? false,
                 'problem_solving_decision_making'  => $validated['problem_solving_decision_making'] ?? false,
              ]);
+                $schedule->eventAssessment()->delete();
+               EventAssessment::create([
+                'event_schedule_id' => $schedule->id,
+                'pre_test_assessment'   => $validated['pre_test_assessment'] ?? Null,
+                'post_test_assessment'   => $validated['post_test_assessment'] ?? Null,
+            ]);
 
             $schedule->office()->delete();
 
@@ -279,7 +344,7 @@ class ScheduleService
 
     public function eventViewSchedule(int $scheduleId){
 
-    $schedule  = EventSchedule::with(['speaker','eventCore','eventTechnical','eventLeaderShip','scheduleDateTime','office','employeeTag',])->find($scheduleId);
+    $schedule  = EventSchedule::with(['speaker','eventCore','eventTechnical','eventLeaderShip','scheduleDateTime','office','eventAssessment','employeeTag',])->find($scheduleId);
 
      if(!$scheduleId){
         throw new \Exception('Schedule are not found');
