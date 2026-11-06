@@ -50,6 +50,10 @@ class EventCreateRequest extends FormRequest
             'DateTime.*.morning_out' => 'nullable|date_format:h:i A',
             'DateTime.*.afternoon_in' => 'nullable|date_format:h:i A',
             'DateTime.*.afternoon_out' => 'nullable|date_format:h:i A',
+            'DateTime.*.speakers'               => ['nullable', 'array'],
+            'DateTime.*.speakers.*.speaker_name' => ['required', 'string', 'max:255'],
+            'DateTime.*.speakers.*.position'     => ['nullable', 'string', 'max:255'],
+            'DateTime.*.speakers.*.agency'       => ['nullable', 'string', 'max:255'],
 
 
 
@@ -59,11 +63,11 @@ class EventCreateRequest extends FormRequest
             'office.*.office_name' => 'nullable|string',
             'office.*.number_of_attendees' => 'nullable|integer',
 
-            // speaker 
-            'speaker' => 'nullable|array',
-            'speaker.*.speaker_name' => 'nullable|string',
-            'speaker.*.position' => 'nullable|string',
-            'speaker.*.agency' => 'nullable|string',
+            // // speaker 
+            // 'speaker' => 'nullable|array',
+            // 'speaker.*.speaker_name' => 'nullable|string',
+            // 'speaker.*.position' => 'nullable|string',
+            // 'speaker.*.agency' => 'nullable|string',
 
 
             // competency 

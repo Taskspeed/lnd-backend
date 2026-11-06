@@ -42,13 +42,14 @@ class EventUpdateScheduleRequest extends FormRequest
             //schedule Date and time 
             'DateTime' => 'nullable|array',
             'DateTime.*.schedule_date' => 'nullable|date_format:Y-m-d',
-            // 'DateTime.*.time_in' => 'nullable|date_format:h:i A',
-            // 'DateTime.*.time_out' => 'nullable|date_format:h:i A',
             'DateTime.*.morning_in' => 'nullable|date_format:h:i A',
             'DateTime.*.morning_out' => 'nullable|date_format:h:i A',
             'DateTime.*.afternoon_in' => 'nullable|date_format:h:i A',
             'DateTime.*.afternoon_out' => 'nullable|date_format:h:i A',
-
+            'DateTime.*.speakers'               => ['nullable', 'array'],
+            'DateTime.*.speakers.*.speaker_name' => ['required', 'string', 'max:255'],
+            'DateTime.*.speakers.*.position'     => ['nullable', 'string', 'max:255'],
+            'DateTime.*.speakers.*.agency'       => ['nullable', 'string', 'max:255'],
 
 
 
@@ -56,11 +57,11 @@ class EventUpdateScheduleRequest extends FormRequest
             'office' => 'nullable|array',
             'office.*.office_name' => 'nullable|string',
             'office.*.number_of_attendees' => 'nullable|integer',
-            // speaker 
-            'speaker' => 'nullable|array',
-            'speaker.*.speaker_name' => 'nullable|string',
-            'speaker.*.position' => 'nullable|string',
-            'speaker.*.agency' => 'nullable|string',
+            // // speaker 
+            // 'speaker' => 'nullable|array',
+            // 'speaker.*.speaker_name' => 'nullable|string',
+            // 'speaker.*.position' => 'nullable|string',
+            // 'speaker.*.agency' => 'nullable|string',
 
 
             // competency 
