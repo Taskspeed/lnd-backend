@@ -50,4 +50,9 @@ class EventScheduleDateTime extends Model
     {
         return $this->belongsTo(EventSchedule::class);
     }
+
+    public function speakers()
+{
+    return $this->hasMany(EventSpeaker::class, 'schedule_date_time_id');
+}
 }

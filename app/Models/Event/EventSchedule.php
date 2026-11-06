@@ -84,10 +84,10 @@ class EventSchedule extends Model
     {
         return  $this->hasMany(EventDepartment::class);
     }
-    public function speaker()
-    {
-        return  $this->hasMany(EventSpeaker::class);
-    }
+    // public function speaker()
+    // {
+    //     return  $this->hasMany(EventSpeaker::class);
+    // }
     public function nominatedEmployee()
     {
         return $this->hasMany(NominatedEmployee::class);
