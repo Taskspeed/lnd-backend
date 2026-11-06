@@ -1,13 +1,14 @@
 <?php
 
+use App\Http\Controllers\Arms\EmployeeScheduleController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Erms\Certificate\CertificateController as CertificateCertificateController;
 use App\Http\Controllers\Erms\Documents\DocumentController;
 use App\Http\Controllers\Erms\EmployeeEventController;
 use App\Http\Controllers\Erms\Form\EmployeeEvalautionInstrumentController;
 use App\Http\Controllers\Erms\Form\EmployeeLearnerProgressFormController;
-use App\Http\Controllers\Erms\Form\EmployeeLearningApplicationMonitoringFormController;
 
+use App\Http\Controllers\Erms\Form\EmployeeLearningApplicationMonitoringFormController;
 use App\Http\Controllers\Erms\Form\EmployeeLearningApplicationPlanFormController;
 use App\Http\Controllers\Erms\Form\EmployeeLearningImplementationFormController;
 use App\Http\Controllers\Erms\Form\EmployeeTrainingEvaluationController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\Event\Library\EventTypeController;
 use App\Http\Controllers\Event\Library\EventVenueController;
 use App\Http\Controllers\Event\ScheduleController;
 use App\Http\Controllers\File\ExcelController;
+use App\Http\Controllers\File\PDFController;
 use App\Http\Controllers\HR\CertificateController;
 use App\Http\Controllers\HR\DashboardController;
 use App\Http\Controllers\HR\EmployeeAttendanceController;
@@ -29,18 +31,19 @@ use App\Http\Controllers\HR\OfficeEmployeeController;
 use App\Http\Controllers\Mobile\EventAttendanceController;
 use App\Http\Controllers\Mobile\QR\ScanController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Office\BpmController;
 use App\Http\Controllers\Office\DashboardController as OfficeDashboardController;
 use App\Http\Controllers\Office\EmployeeController;
 use App\Http\Controllers\Office\EventController as OfficeEventController;
 use App\Http\Controllers\Office\NominationFormController;
 use App\Http\Controllers\Office\OfficeController;
-use App\Http\Controllers\File\PDFController;
-use App\Http\Controllers\ReportController;;
 
+use App\Http\Controllers\ReportController;;
 use App\Http\Controllers\User\PermissionController;
 use App\Http\Controllers\User\RoleController;
 use App\Http\Controllers\User\UserController;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -63,7 +66,9 @@ Route::prefix('certification')->group(function () {
 
 
 
-
+   Route::prefix('arms')->group(function () {
+        Route::get('/event/employee/{eventScheduleId}', [EmployeeScheduleController::class, 'employeeScheduleEvent']); // list of employee for 
+    });
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -191,6 +196,16 @@ Route::middleware(['auth:sanctum', 'role:office_admin'])->group(function () {
         Route::prefix('form')->group(function () {
             Route::get('/inhouse-nomination/{eventId}/{eventScheduleId}', [NominationFormController::class, 'inHouseNomination']);
         });
+
+      Route::prefix('bpm')->group(function () {
+           
+            Route::get('/list', [BpmController::class, 'getListBpm']);
+            Route::post('/store', [BpmController::class, 'storeBpm']);
+            Route::get('/view/{bpmDateId}', [BpmController::class, 'viewBpm']);
+            Route::delete('/delete/{bpmDateId}', [BpmController::class, 'deleteBpm']);
+            Route::post('/edit/{bpmDateId}', [BpmController::class, 'updateBpm']);
+        });
+  
     });
 });
 
@@ -217,6 +232,14 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
             Route::get('attendance/{eventId}/{eventScheduleId}/{scheduleDateTimeId}', [PDFController::class, 'attendanceSheet']);
             Route::get('nomination/{eventId}/{eventScheduleId}/', [PDFController::class, 'nomination']);
         });
+
+          Route::prefix('bpm')->group(function () {
+            Route::get('/submitted', [BpmController::class, 'bpmSubmittedByOffice']);
+            Route::get('/view/{bpmDateId}', [BpmController::class, 'viewBpm']);
+
+        });
+
+
     });
 
 
@@ -346,7 +369,7 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
 
     Route::prefix('excel')->group(function () {
         Route::get('/agency-learning-development', [ExcelController::class, 'agencyLearningDevelopmentMonitoringReport']); // list of employee for 
-
-
     });
+
+  
 });
