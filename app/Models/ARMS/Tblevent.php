@@ -20,7 +20,13 @@ class Tblevent extends Model
         'Event_venue',
         'userid',
         'date_created',
-        'event_schedule_id'
+        'event_schedule_id',
+        'is_lnd_event'
      ]; 
+
+     protected $casts = [
+       'event_schedule_id' => 'integer',
+          'is_lnd_event' => 'boolean',
+     ];
 
 }
