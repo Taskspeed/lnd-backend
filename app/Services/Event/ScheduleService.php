@@ -20,7 +20,8 @@ use Illuminate\Support\Facades\Log;
 
 class ScheduleService
 {
-         use TimeFormat;
+    use TimeFormat;
+
     public function addSchedule(?array $validated)
     {
 
@@ -41,7 +42,7 @@ class ScheduleService
                 'learning_intervention'    => $validated['learning_intervention'] ?? null,
                 'sync_to_arms'    => $validated['sync_to_arms'] ??  false,
             ]);
-            
+
             $event  = Event::find($validated['event_id']);
 
             EventCore::create([
@@ -75,7 +76,7 @@ class ScheduleService
                 'event_schedule_id' => $schedule->id,
                 'pre_test_assessment'   => $validated['pre_test_assessment'] ?? Null,
                 'post_test_assessment'    => $validated['post_test_assessment'] ?? Null,
-             
+
 
             ]);
 
@@ -95,13 +96,35 @@ class ScheduleService
                 EventDepartment::create([
                     'event_schedule_id'  => $schedule->id,
                     'office_name' => $office['office_name'],
-                     'number_of_attendees'       => $office['number_of_attendees'] ?? 0,
+                    'number_of_attendees'       => $office['number_of_attendees'] ?? 0,
                 ]);
             }
 
-             // Notify office admins ng bawat kasamang office
-            $officeNames = collect($validated['office'] ?? [])->pluck('office_name')->filter();
             
+
+            foreach ($validated['DateTime'] ?? [] as $dt) {
+                $dateTime = EventScheduleDateTime::create([
+                    'event_schedule_id' => $schedule->id,
+                    'schedule_date'     => $dt['schedule_date'] ?? null,
+                    'morning_in'        => $dt['morning_in'] ?? null,
+                    'morning_out'       => $dt['morning_out'] ?? null,
+                    'afternoon_in'      => $dt['afternoon_in'] ?? null,
+                    'afternoon_out'     => $dt['afternoon_out'] ?? null,
+                ]);
+
+                foreach ($dt['speakers'] ?? [] as $speaker) {
+                    $dateTime->speakers()->create([
+                        'speaker_name' => $speaker['speaker_name'] ?? null,
+                        'position'     => $speaker['position'] ?? null,
+                        'agency'       => $speaker['agency'] ?? null,
+                    ]);
+                }
+            }
+
+
+            // Notify office admins ng bawat kasamang office
+            $officeNames = collect($validated['office'] ?? [])->pluck('office_name')->filter();
+
             if ($officeNames->isNotEmpty()) {
                 $officeAdmins = \App\Models\User::whereIn('office', $officeNames)
                     ->role('office_admin')
@@ -117,31 +140,12 @@ class ScheduleService
             }
 
 
-            foreach ($validated['speaker'] ?? [] as $speaker) {
-                EventSpeaker::create([
-                    'event_schedule_id'  => $schedule->id,
-                    'speaker_name' => $speaker['speaker_name'],
-                    'position' => $speaker['position'],
-                    'agency' => $speaker['agency'],
-                ]);
-            }
-
-            foreach ($validated['DateTime'] ?? [] as $dateTime) {
-                EventScheduleDateTime::create([
-                    'event_schedule_id'  => $schedule->id,
-                    'schedule_date' => $dateTime['schedule_date'] ?? null,
-                    'morning_in' => $dateTime['morning_in'] ?? null,
-                    'morning_out' => $dateTime['morning_out'] ?? null,
-                    'afternoon_in' => $dateTime['afternoon_in'] ?? null,
-                    'afternoon_out' => $dateTime['afternoon_out'] ?? null,
-
-                ]);
-            }
+           
 
 
             // ---------- ARMS sync (last, after everything else succeeded) ----------
             if (!empty($validated['sync_to_arms'])) {
-                Log::info('ARMS sync started', ['title' => $event->title_name]);
+                // Log::info('ARMS sync started', ['title' => $event->title_name]);
 
                 $savedCount = 0;
 
@@ -162,22 +166,23 @@ class ScheduleService
                                 'Event_to'     => $this->toTime24($dateTime[$out] ?? null),
                                 'Event_venue'  => $validated['venue_name'] ?? null,
                                 'userid'       => 0,
+                                'is_lnd_event'  => true,
                                 'date_created' => now()->format('Y-m-d H:i:s'),
-                                 'event_schedule_id' =>   $schedule->id,
+                                'event_schedule_id' =>   $schedule->id,
                             ]);
 
                             $savedCount++;
-                            Log::info('ARMS event saved', [
-                                'id'   => $armsEvent->getKey(),
-                                'date' => $dateTime['schedule_date'] ?? null,
-                                'slot' => $slot,
-                            ]);
+                            // Log::info('ARMS event saved', [
+                            //     'id'   => $armsEvent->getKey(),
+                            //     'date' => $dateTime['schedule_date'] ?? null,
+                            //     'slot' => $slot,
+                            // ]);
                         } catch (\Throwable $e) {
-                            Log::error('ARMS event failed', [
-                                'error' => $e->getMessage(),
-                                'date'  => $dateTime['schedule_date'] ?? null,
-                                'slot'  => $slot,
-                            ]);
+                            // Log::error('ARMS event failed', [
+                            //     'error' => $e->getMessage(),
+                            //     'date'  => $dateTime['schedule_date'] ?? null,
+                            //     'slot'  => $slot,
+                            // ]);
                             throw $e; // rollback
                         }
                     }
@@ -185,7 +190,7 @@ class ScheduleService
 
                 Log::info('ARMS sync finished', ['rows_saved' => $savedCount]);
             }
-            return $schedule->load(['office', 'speaker', 'scheduleDateTime']);
+            return $schedule->load(['office',  'scheduleDateTime']);
         });
     }
 
@@ -213,7 +218,7 @@ class ScheduleService
                 'learning_intervention'    => $validated['learning_intervention'] ?? null,
                 'sync_to_arms'    => $validated['sync_to_arms'] ??  false,
             ]);
-            
+
             $schedule->employeeTag()->delete();
 
             foreach ($validated['employee'] as $emp) {
@@ -237,7 +242,7 @@ class ScheduleService
                 'interpersonal_skills'  => $validated['interpersonal_skills'] ?? false,
             ]);
 
-             $schedule->eventTechnical()->delete();
+            $schedule->eventTechnical()->delete();
 
             EventTechnical::create([
                 'event_schedule_id' => $schedule->id,
@@ -258,9 +263,9 @@ class ScheduleService
                 'building_collaborative_inclusive_working_relationships'    => $validated['building_collaborative_inclusive_working_relationships'] ?? false,
                 'thinking_strategically_creatively'  => $validated['thinking_strategically_creatively'] ?? false,
                 'problem_solving_decision_making'  => $validated['problem_solving_decision_making'] ?? false,
-             ]);
-                $schedule->eventAssessment()->delete();
-               EventAssessment::create([
+            ]);
+            $schedule->eventAssessment()->delete();
+            EventAssessment::create([
                 'event_schedule_id' => $schedule->id,
                 'pre_test_assessment'   => $validated['pre_test_assessment'] ?? Null,
                 'post_test_assessment'   => $validated['post_test_assessment'] ?? Null,
@@ -276,31 +281,64 @@ class ScheduleService
                 ]);
             }
 
-            $schedule->speaker()->delete();
-
-            foreach ($validated['speaker'] ?? [] as $speaker) {
-                EventSpeaker::create([
-                    'event_schedule_id' => $schedule->id,
-                    'speaker_name'      => $speaker['speaker_name'],
-                    'agency'      => $speaker['agency'],
-                    'position'      => $speaker['position'],
-                ]);
-            }
-
+            $dateTimeIds = $schedule->scheduleDateTime()->pluck('id');
+            EventSpeaker::whereIn('schedule_date_time_id', $dateTimeIds)->delete();
             $schedule->scheduleDateTime()->delete();
 
-            foreach ($validated['DateTime'] ?? [] as $dateTime) {
-                EventScheduleDateTime::create([
+
+            foreach ($validated['DateTime'] ?? [] as $dt) {
+                $dateTime = EventScheduleDateTime::create([
                     'event_schedule_id' => $schedule->id,
-                    'schedule_date'     => $dateTime['schedule_date'] ?? null,
-                    'morning_in' => $dateTime['morning_in'] ?? null,
-                    'morning_out' => $dateTime['morning_out'] ?? null,
-                    'afternoon_in' => $dateTime['afternoon_in'] ?? null,
-                    'afternoon_out' => $dateTime['afternoon_out'] ?? null,
+                    'schedule_date'     => $dt['schedule_date'] ?? null,
+                    'morning_in'        => $dt['morning_in'] ?? null,
+                    'morning_out'       => $dt['morning_out'] ?? null,
+                    'afternoon_in'      => $dt['afternoon_in'] ?? null,
+                    'afternoon_out'     => $dt['afternoon_out'] ?? null,
                 ]);
+
+                foreach ($dt['speakers'] ?? [] as $speaker) {
+                    $dateTime->speakers()->create([
+                        'speaker_name' => $speaker['speaker_name'] ?? null,
+                        'position'     => $speaker['position'] ?? null,
+                        'agency'       => $speaker['agency'] ?? null,
+                    ]);
+                }
             }
 
-            return $schedule->load(['office', 'speaker', 'scheduleDateTime']);
+            // ---------- ARMS sync (huling hakbang) ----------
+            $event = Event::find($schedule->event_id);
+
+            Tblevent::query()->getConnection()->transaction(function () use ($schedule, $event, $validated) {
+
+                // Burahin muna ang lumang ARMS rows ng schedule na ito
+                Tblevent::where('event_schedule_id', $schedule->id)->delete();
+
+                // Kung naka-on ang sync, gumawa ng bago mula sa bagong dates/times
+                if (!empty($validated['sync_to_arms'])) {
+                    foreach ($validated['DateTime'] ?? [] as $dt) {
+                        foreach ([['morning_in', 'morning_out'], ['afternoon_in', 'afternoon_out']] as [$in, $out]) {
+
+                            if (empty($dt[$in]) && empty($dt[$out])) {
+                                continue;
+                            }
+
+                            Tblevent::create([
+                                'Event_name'        => $event->title_name,
+                                'Event_date'        => $dt['schedule_date'] ?? null,
+                                'Event_from'        => $this->toTime24($dt[$in] ?? null),
+                                'Event_to'          => $this->toTime24($dt[$out] ?? null),
+                                'Event_venue'       => $validated['venue_name'] ?? null,
+                                'userid'            => 0,
+                                'is_lnd_event'      => true,
+                                'date_created'      => now()->format('Y-m-d H:i:s'),
+                                'event_schedule_id' => $schedule->id,
+                            ]);
+                        }
+                    }
+                }
+            });
+
+            return $schedule->load(['office', 'scheduleDateTime.speakers']);
         });
     }
 
@@ -332,7 +370,7 @@ class ScheduleService
             }
 
             $event->office()->delete();
-            $event->speaker()->delete();
+            // $event->speaker()->delete();
             $event->scheduleDateTime()->delete();
             $event->nominatedEmployee()->delete();
 
@@ -342,15 +380,17 @@ class ScheduleService
         });
     }
 
-    public function eventViewSchedule(int $scheduleId){
+    public function eventViewSchedule(int $scheduleId)
+    {
 
-    $schedule  = EventSchedule::with(['speaker','eventCore','eventTechnical','eventLeaderShip','scheduleDateTime','office','eventAssessment','employeeTag',])->find($scheduleId);
+        $schedule  = EventSchedule::with(['eventCore', 'eventTechnical', 'eventLeaderShip', 'office', 'eventAssessment', 'employeeTag', 'scheduleDateTime' => function ($query) {
+            $query->with('speakers');
+        },])->find($scheduleId);
 
-     if(!$scheduleId){
-        throw new \Exception('Schedule are not found');
+        if (!$scheduleId) {
+            throw new \Exception('Schedule are not found');
+        }
 
-     }
-
-    return $schedule;
+        return $schedule;
     }
 }
