@@ -16,6 +16,7 @@ use App\Models\Event\EventSchedule;
 use App\Models\Event\EventScheduleDateTime;
 use App\Models\Event\EventSpeaker;
 use App\Traits\FormatsDateRanges;
+use App\Traits\ResolvesOfficeAbbr;
 use App\Traits\SortsByScheduleStatus;
 use App\Traits\TimeFormat;
 use Carbon\Carbon;
@@ -28,72 +29,80 @@ class EventService
     use FormatsDateRanges;
     use SortsByScheduleStatus;
     use TimeFormat;
-  
+    use ResolvesOfficeAbbr;
 
 
-public function listOfEvent(array $filters = [])
-{
-    $search   = trim($filters['search'] ?? '');
-    $statuses = $filters['status'] ?? [];
-    $perPage  = $filters['per_page'] ?? 10;
-    $today    = now()->toDateString();
+    public function listOfEvent(array $filters = [])
+    {
+        $search   = trim($filters['search'] ?? '');
+        $statuses = $filters['status'] ?? [];
+        $perPage  = $filters['per_page'] ?? 10;
+        $today    = now()->toDateString();
 
-    $events = Event::query()
-        ->with(['schedule.scheduleDateTime'])
+        $events = Event::query()
+            ->with(['schedule.scheduleDateTime'])
 
-        // SEARCH (title)
-        ->when($search !== '', fn($q) => $q->where('title', 'like', "%{$search}%"))
+            // SEARCH (title)
+            ->when($search !== '', fn($q) => $q->where('title', 'like', "%{$search}%"))
 
-        // STATUS: ang event ay match kung may AT LEAST ONE schedule na pasok sa status
-        ->when(!empty($statuses), function ($q) use ($statuses, $today) {
-            $q->whereHas('schedule', function ($schedule) use ($statuses, $today) {
-                $schedule->where(function ($sq) use ($statuses, $today) {
-                    foreach ($statuses as $status) {
-                        match ($status) {
-                            // lahat ng dates ay nasa future
-                            'up-coming' => $sq->orWhere(function ($c) use ($today) {
-                                $c->whereHas('scheduleDateTime')
-                                  ->whereDoesntHave('scheduleDateTime',
-                                      fn($d) => $d->whereDate('schedule_date', '<=', $today));
-                            }),
+            // STATUS: ang event ay match kung may AT LEAST ONE schedule na pasok sa status
+            ->when(!empty($statuses), function ($q) use ($statuses, $today) {
+                $q->whereHas('schedule', function ($schedule) use ($statuses, $today) {
+                    $schedule->where(function ($sq) use ($statuses, $today) {
+                        foreach ($statuses as $status) {
+                            match ($status) {
+                                // lahat ng dates ay nasa future
+                                'up-coming' => $sq->orWhere(function ($c) use ($today) {
+                                    $c->whereHas('scheduleDateTime')
+                                        ->whereDoesntHave(
+                                            'scheduleDateTime',
+                                            fn($d) => $d->whereDate('schedule_date', '<=', $today)
+                                        );
+                                }),
 
-                            // may date na <= today AT may date na >= today (sa iisang schedule)
-                            'ongoing' => $sq->orWhere(function ($c) use ($today) {
-                                $c->whereHas('scheduleDateTime',
-                                      fn($d) => $d->whereDate('schedule_date', '<=', $today))
-                                  ->whereHas('scheduleDateTime',
-                                      fn($d) => $d->whereDate('schedule_date', '>=', $today));
-                            }),
+                                // may date na <= today AT may date na >= today (sa iisang schedule)
+                                'ongoing' => $sq->orWhere(function ($c) use ($today) {
+                                    $c->whereHas(
+                                        'scheduleDateTime',
+                                        fn($d) => $d->whereDate('schedule_date', '<=', $today)
+                                    )
+                                        ->whereHas(
+                                            'scheduleDateTime',
+                                            fn($d) => $d->whereDate('schedule_date', '>=', $today)
+                                        );
+                                }),
 
-                            // lahat ng dates ay nasa past
-                            'complete' => $sq->orWhere(function ($c) use ($today) {
-                                $c->whereHas('scheduleDateTime')
-                                  ->whereDoesntHave('scheduleDateTime',
-                                      fn($d) => $d->whereDate('schedule_date', '>=', $today));
-                            }),
-                        };
-                    }
+                                // lahat ng dates ay nasa past
+                                'complete' => $sq->orWhere(function ($c) use ($today) {
+                                    $c->whereHas('scheduleDateTime')
+                                        ->whereDoesntHave(
+                                            'scheduleDateTime',
+                                            fn($d) => $d->whereDate('schedule_date', '>=', $today)
+                                        );
+                                }),
+                            };
+                        }
+                    });
                 });
-            });
-        })
+            })
 
-        ->latest('id')
-        ->paginate($perPage)
-        ->withQueryString();
+            ->latest('id')
+            ->paginate($perPage)
+            ->withQueryString();
 
-    // Format per schedule, tapos itago yung raw scheduleDateTime
-    $events->through(function ($event) {
-        foreach ($event->schedule as $schedule) {
-            $schedule->schedule_date_range = $this->formatDateRanges($schedule->scheduleDateTime);
-            $schedule->unsetRelation('scheduleDateTime');
-        }
+        // Format per schedule, tapos itago yung raw scheduleDateTime
+        $events->through(function ($event) {
+            foreach ($event->schedule as $schedule) {
+                $schedule->schedule_date_range = $this->formatDateRanges($schedule->scheduleDateTime);
+                $schedule->unsetRelation('scheduleDateTime');
+            }
 
-        return $event;
-    });
+            return $event;
+        });
 
-    return $events;
-}
- 
+        return $events;
+    }
+
     public function show(int $eventId, int $perPage = 10)
     {
         $event = Event::with('form')->find($eventId);
@@ -102,43 +111,46 @@ public function listOfEvent(array $filters = [])
             throw new \Exception('Event not found');
         }
 
-                $schedules = $this->paginateByScheduleStatus(
-                $event->schedule()
-                    ->select('id', 'event_id', 'venue_name', 'mode_name', 'status', 'hours')
-                    ->with('scheduleDateTime')
-                    ->withCount([
-                        // 'nominatedEmployee as participants_count',
-                        'nominatedEmployee as approved_count' => fn ($q) => $q->where('nominate_status', 'Approved'),
-                        'nominatedEmployee as pending_count' => fn ($q) => $q->where('nominate_status', 'Pending'),
-                    ])
-                    ->get(),
-                $perPage
-            )->through(function ($schedule) {
-                $schedule->schedule_date_range = $this->formatDateRanges($schedule->scheduleDateTime);
-                unset($schedule->scheduleDateTime);
+        $schedules = $this->paginateByScheduleStatus(
+            $event->schedule()
+                ->select('id', 'event_id', 'venue_name', 'mode_name', 'status', 'hours')
+                ->with('scheduleDateTime')
+                ->withCount([
+                    // 'nominatedEmployee as participants_count',
+                    'nominatedEmployee as approved_count' => fn($q) => $q->where('nominate_status', 'Approved'),
+                    'nominatedEmployee as pending_count' => fn($q) => $q->where('nominate_status', 'Pending'),
+                ])
+                ->get(),
+            $perPage
+        )->through(function ($schedule) {
+            $schedule->schedule_date_range = $this->formatDateRanges($schedule->scheduleDateTime);
+            unset($schedule->scheduleDateTime);
 
-                return $schedule;
-            });
+            return $schedule;
+        });
 
         $event->setRelation('schedule', $schedules);
 
         return $event;
     }
-    
-    public function nominatedEmployee(int $eventId, int $eventScheduleId, int $perPage = 10, ?string $office = null)
+
+    public function nominatedEmployee(int $eventId, int $eventScheduleId, int $perPage = 10, ?string $office = null ,?string $status = null)
     {
         $event = Event::with([
             'form',
             'schedule' => function ($query) use ($eventId, $eventScheduleId) {
                 $query->with([
-                    'speaker',
-                    'scheduleDateTime',
+            
+                
                     'office',
                     'nominatedEmployee', // buo pa rin, para sa count per office
                     'eventCore',
                     'eventTechnical',
                     'eventLeadership',
-                    'eventAssessment'
+                    'eventAssessment',
+                    'scheduleDateTime' => function($query){
+                        $query->with('speakers');
+                    },
                 ])
                     ->where('event_id', $eventId)
                     ->where('id', $eventScheduleId);
@@ -149,35 +161,55 @@ public function listOfEvent(array $filters = [])
             throw new \Exception('Event not found');
         }
 
-        foreach ($event->schedule as $schedule) {
-            // Counts per office: HINDI apektado ng filter
-            $counts = $schedule->nominatedEmployee
-                ->groupBy('office')
-                ->map->count();
+    foreach ($event->schedule as $schedule) {
+    $counts = $schedule->nominatedEmployee
+        ->groupBy('office')
+        ->map->count();
 
-            foreach ($schedule->office as $office_row) {
-                $office_row->employee_nominated = $counts->get($office_row->office_name, 0);
-            }
+    foreach ($schedule->office as $office_row) {
+        $office_row->employee_nominated = $counts->get($office_row->office_name, 0);
+        $office_row->office_abbr = $this->officeAbbr($office_row->office_name);
+    }
 
-            // Paginated list para sa table: dito lang ang filter
-            $schedule->setRelation(
-                'nominatedEmployee',
-                NominatedEmployee::where('event_schedule_id', $schedule->id)
-                    ->when($office, fn($q) => $q->where('office', $office))
-                    ->paginate($perPage)
-                    ->withQueryString() // para dala ng pagination links ang ?office=...
-            );
-        }
+    // Base query: office filter lang
+    $base = NominatedEmployee::where('event_schedule_id', $schedule->id)
+        ->when($office, fn ($q) => $q->where('office', $office));
+
+    // Stats: isang query, hindi apektado ng status filter
+    $statusCounts = (clone $base)
+        ->selectRaw('nominate_status, COUNT(*) as aggregate')
+        ->groupBy('nominate_status')
+        ->pluck('aggregate', 'nominate_status');
+
+    $schedule->nomination_stats = [
+        'total'       => (int) $statusCounts->sum(),
+        'approved'    => (int) ($statusCounts['Approved'] ?? 0),
+        'pending'     => (int) ($statusCounts['Pending'] ?? 0),
+        'disapproved' => (int) ($statusCounts['Disapproved'] ?? 0),
+    ];
+
+    // Table: office + status filter
+    $paginator = (clone $base)
+        ->when($status, fn ($q) => $q->where('nominate_status', $status))
+        ->paginate($perPage)
+        ->withQueryString();
+
+    $paginator->getCollection()->each(function ($row) {
+        $row->office_abbr = $this->officeAbbr($row->office);
+    });
+
+    $schedule->setRelation('nominatedEmployee', $paginator);
+}
 
         return $event;
     }
-   // create event
+    // create event
     public function create(?array $validated)
     {
-        Log::info('EventService@create called', [
-            'sync_to_arms' => $validated['sync_to_arms'] ?? 'NO KEY',
-            'has_datetime' => !empty($validated['DateTime']),
-        ]);
+        // Log::info('EventService@create called', [
+        //     'sync_to_arms' => $validated['sync_to_arms'] ?? 'NO KEY',
+        //     'has_datetime' => !empty($validated['DateTime']),
+        // ]);
 
         return DB::transaction(function () use ($validated) {
 
@@ -236,35 +268,36 @@ public function listOfEvent(array $filters = [])
                                 'Event_from'   => $this->toTime24($dateTime[$in] ?? null),
                                 'Event_to'     => $this->toTime24($dateTime[$out] ?? null),
                                 'Event_venue'  => $validated['venue_name'] ?? null,
+                                'is_lnd_event'  => true,
                                 'userid'       => 0,
                                 'date_created' => now()->format('Y-m-d H:i:s'),
                             ]);
 
                             if ($armsEvent->exists) {
                                 $savedCount++;
-                                Log::info('ARMS event saved', [
-                                    'id'   => $armsEvent->getKey(),
-                                    'date' => $dateTime['schedule_date'] ?? null,
-                                    'slot' => $slot,
-                                ]);
+                                // Log::info('ARMS event saved', [
+                                //     'id'   => $armsEvent->getKey(),
+                                //     'date' => $dateTime['schedule_date'] ?? null,
+                                //     'slot' => $slot,
+                                // ]);
                             } else {
-                                Log::warning('ARMS event NOT saved', [
-                                    'date' => $dateTime['schedule_date'] ?? null,
-                                    'slot' => $slot,
-                                ]);
+                                // Log::warning('ARMS event NOT saved', [
+                                //     'date' => $dateTime['schedule_date'] ?? null,
+                                //     'slot' => $slot,
+                                // ]);
                             }
                         } catch (\Throwable $e) {
-                            Log::error('ARMS event failed', [
-                                'error' => $e->getMessage(),
-                                'date'  => $dateTime['schedule_date'] ?? null,
-                                'slot'  => $slot,
-                            ]);
+                            // Log::error('ARMS event failed', [
+                            //     'error' => $e->getMessage(),
+                            //     'date'  => $dateTime['schedule_date'] ?? null,
+                            //     'slot'  => $slot,
+                            // ]);
                             throw $e; // rollback the whole transaction
                         }
                     }
                 }
 
-                Log::info('ARMS sync finished', ['rows_saved' => $savedCount]);
+                // Log::info('ARMS sync finished', ['rows_saved' => $savedCount]);
             }
             // ---------- end ARMS ----------
 
@@ -294,11 +327,11 @@ public function listOfEvent(array $filters = [])
             ]);
 
 
-                EventAssessment::create([
+            EventAssessment::create([
                 'event_schedule_id'                                      => $schedule->id,
                 'pre_test_assessment'                  => $validated['pre_test_assessment'] ?? Null,
                 'post_test_assessment' => $validated['post_test_assessment'] ?? Null,
-      
+
             ]);
             foreach ($validated['employee'] ?? [] as $emp) {
                 EventEmployeeTag::create([
@@ -325,6 +358,25 @@ public function listOfEvent(array $filters = [])
                     'number_of_attendees' => $office['number_of_attendees'] ?? 0,
                 ]);
             }
+            
+            foreach ($validated['DateTime'] ?? [] as $dt) {
+                $dateTime = EventScheduleDateTime::create([
+                    'event_schedule_id' => $schedule->id,
+                    'schedule_date'     => $dt['schedule_date'] ?? null,
+                    'morning_in'        => $dt['morning_in'] ?? null,
+                    'morning_out'       => $dt['morning_out'] ?? null,
+                    'afternoon_in'      => $dt['afternoon_in'] ?? null,
+                    'afternoon_out'     => $dt['afternoon_out'] ?? null,
+                ]);
+
+                foreach ($dt['speakers'] ?? [] as $speaker) {
+                    $dateTime->speakers()->create([
+                        'speaker_name' => $speaker['speaker_name'] ?? null,
+                        'position'     => $speaker['position'] ?? null,
+                        'agency'       => $speaker['agency'] ?? null,
+                    ]);
+                }
+            }
 
             // Notify office admins of each included office
             $officeNames = collect($validated['office'] ?? [])->pluck('office_name')->filter();
@@ -343,25 +395,7 @@ public function listOfEvent(array $filters = [])
                 }
             }
 
-            foreach ($validated['speaker'] ?? [] as $speaker) {
-                EventSpeaker::create([
-                    'event_schedule_id' => $schedule->id,
-                    'speaker_name'      => $speaker['speaker_name'] ?? null,
-                    'position'          => $speaker['position'] ?? null,
-                    'agency'            => $speaker['agency'] ?? null,
-                ]);
-            }
 
-            foreach ($validated['DateTime'] ?? [] as $dateTime) {
-                EventScheduleDateTime::create([
-                    'event_schedule_id' => $schedule->id,
-                    'schedule_date'     => $dateTime['schedule_date'] ?? null,
-                    'morning_in'        => $dateTime['morning_in'] ?? null,
-                    'morning_out'       => $dateTime['morning_out'] ?? null,
-                    'afternoon_in'      => $dateTime['afternoon_in'] ?? null,
-                    'afternoon_out'     => $dateTime['afternoon_out'] ?? null,
-                ]);
-            }
 
             return $event->load(['form', 'schedule']);
         });
