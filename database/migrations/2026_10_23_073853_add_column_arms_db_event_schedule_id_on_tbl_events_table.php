@@ -13,13 +13,15 @@ return new class extends Migration
         {
             Schema::connection('ARMS_DB')->table('tblevents', function (Blueprint $table) {
                 $table->unsignedBigInteger('event_schedule_id')->nullable();
+                 $table->boolean('is_lnd_event')->default(false);
             });
         }
 
         public function down(): void
         {
             Schema::connection('ARMS_DB')->table('tblevents', function (Blueprint $table) {
-                $table->dropColumn('event_schedule_id');
+                $table->dropColumn(['event_schedule_id','is_lnd_event']);
+                
             });
         }
 };
