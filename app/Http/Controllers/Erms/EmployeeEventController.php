@@ -57,7 +57,7 @@ class EmployeeEventController extends Controller
 
             $query->with(['schedule' => function ($query) use ($eventScheduleId) {
 
-                $query->where('id', $eventScheduleId)->with(['scheduleDateTime']);
+                $query->where('id', $eventScheduleId)->with(['scheduleDateTime','eventAssessment']);
             }]);
         }])
             ->select('event_id', 'control_no', 'office')
