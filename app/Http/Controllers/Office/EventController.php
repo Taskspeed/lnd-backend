@@ -70,7 +70,9 @@ class EventController extends Controller
     {
         $user = Auth::user();
 
-        $event = EventSchedule::with(['event', 'scheduleDateTime', 'eventCore', 'eventTechnical', 'eventLeadership', 'speaker', 'employeeTag' => function ($query) use ($user, $scheduleId) {
+        $event = EventSchedule::with(['event', 'scheduleDateTime' => function($query){
+            $query->with('speakers');
+        }, 'eventCore', 'eventTechnical', 'eventLeadership','employeeTag' => function ($query) use ($user, $scheduleId) {
             $query->select('id', 'event_schedule_id', 'control_no', 'name', 'office', 'position', 'status')->where('office', $user->office)->where('event_schedule_id', $scheduleId)->get();
         }, 'office' => function ($query) use ($user) {
             $query->select('id', 'event_schedule_id', 'office_name')->where('office_name', $user->office);
