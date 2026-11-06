@@ -127,6 +127,20 @@ return [
             'encrypt'  => env('SECOND_DB_ENCRYPT', 'false'),
         ],
 
+           'ARMS_DB' => [
+            'driver'   => 'mysql',
+            'host'     => env('ARMS_HOST', 'localhost'),
+            'port'     => env('ARMS_PORT', '1433'),
+            'database' => env('ARMS_DATABASE', 'laravel'),
+            'username' => env('ARMS_USERNAME', ''),
+            'password' => env('ARMS_PASSWORD', ''),
+            'charset'  => 'utf8',
+            'prefix'   => '',
+            'prefix_indexes' => true,
+            'trust_server_certificate' => env('ARMS_TRUST_SERVER_CERTIFICATE', 'true'),
+            'encrypt'  => env('ARMS_ENCRYPT', 'false'),
+        ],
+
     ],
 
     /*
