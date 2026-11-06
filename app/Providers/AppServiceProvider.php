@@ -6,9 +6,13 @@ use App\Models\Employee\NominatedEmployee;
 use App\Models\RSP\vwEmployee;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
-
+use Illuminate\Console\Events\CommandStarting;
+use Illuminate\Support\Facades\Event;
+use Symfony\Component\Console\Helper\QuestionHelper;
+use Symfony\Component\Console\Question\Question;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -32,6 +36,38 @@ class AppServiceProvider extends ServiceProvider
         $this->connectNetworkShareImagePDS(); // 10.0.1.35 - open share, no credentials
 
         Relation::morphMap(['employee' => NominatedEmployee::class]);
+ if ($this->app->runningInConsole()) {
+        Event::listen(CommandStarting::class, function (CommandStarting $event) {
+            $dangerous = ['migrate:fresh', 'migrate:refresh', 'migrate:reset', 'migrate:rollback', 'db:wipe'];
+
+            if (! in_array($event->command, $dangerous, true)) {
+                return;
+            }
+
+            if (! $event->input->isInteractive()) {
+                $event->output->writeln('<error>Bawal ito sa non-interactive mode.</error>');
+                exit(1);
+            }
+
+            $guardPassword = 'Millan2026';
+
+            $connection = $event->input->getParameterOption('--database') ?: config('database.default');
+            $dbName     = config("database.connections.{$connection}.database");
+
+            $event->output->writeln("<error>Wag gamitin ang command na ito pwede ma apektohan ang ibang database naka connect sa LND project '{$event->command}' ang database '{$dbName}' ({$connection}).</error>");
+
+            $question = (new Question('Password: '))
+                ->setHidden(true)
+                ->setHiddenFallback(true);
+
+            $typed = (string) (new QuestionHelper())->ask($event->input, $event->output, $question);
+
+            if (! hash_equals($guardPassword, $typed)) {
+                $event->output->writeln('<error>Incorrect password please contact the developer for this concern</error>');
+                exit(1);
+            }
+        });
+    }
     }
 
     // ✅ Clean separate method
