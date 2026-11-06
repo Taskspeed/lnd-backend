@@ -137,7 +137,7 @@ class EmployeeFormSubmissionController extends Controller
             'form',
             'schedule' => function ($query) use ($eventId, $eventScheduleId) {
                 $query->with([
-                    'speaker',
+                    // 'speaker',
                     'scheduleDateTime',
                     'office',
                     'eventCore',
