@@ -12,6 +12,11 @@ class vwEmployee extends Model
     protected $connection = 'second_db';
     protected $table = 'vwEmployee';
 
+
+    protected $casts = [
+        'sg' => 'integer'
+    ];
+
     public function xTraining()
     {
         return $this->hasMany(

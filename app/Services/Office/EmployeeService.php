@@ -86,7 +86,7 @@ class EmployeeService
             return $nominees;
         });
     }
-    
+
     protected function notifyHrAdmins(array $nominees, Authenticatable $user): void
     {
         try {
@@ -156,15 +156,16 @@ class EmployeeService
     }
 
     // for nomination
-    public function employeeListForNomination(string $trainingName, Authenticatable $user)
+    public function employeeListForNomination(string $trainingName, Authenticatable $user, ?int $sgFrom = null, ?int $sgTo = null)
     {
-
         $employee = vwEmployee::with(['xTraining' => function ($query) use ($trainingName) {
             $query->select('ControlNo', 'training', 'Dates', 'NumHours', 'Conductor', 'DateFrom', 'DateTo', 'Type')
                 ->where('training', $trainingName);
         }])
-            ->select('ControlNo', 'name', 'office', 'position', 'status','sg')
+            ->select('ControlNo', 'name', 'office', 'position', 'status', 'sg')
             ->where('office', $user->office)
+            ->when($sgFrom !== null, fn($q) => $q->where('sg', '>=', $sgFrom))
+            ->when($sgTo !== null, fn($q) => $q->where('sg', '<=', $sgTo))
             ->get()
             ->map(function ($emp) {
                 $emp->trainingCount = $emp->xTraining->count();
@@ -172,10 +173,9 @@ class EmployeeService
                 return $emp;
             });
 
-
         return $employee;
     }
-
+    
     public function editReason(array $validated, int $nominatedEmployeeId)
     {
 

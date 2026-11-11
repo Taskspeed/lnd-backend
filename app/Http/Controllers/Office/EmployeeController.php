@@ -30,7 +30,9 @@ class EmployeeController extends Controller
         try {
             $user = Auth::user();
             $trainingName = $request->query('training_name');
-            $result = $this->employeeService->employeeListForNomination($trainingName, $user);
+            $sgFrom = $request->filled('sg_from') ? (int) $request->query('sg_from') : null;
+            $sgTo = $request->filled('sg_to') ? (int) $request->query('sg_to') : null;
+            $result = $this->employeeService->employeeListForNomination($trainingName, $user,$sgFrom, $sgTo);
 
             return $this->successMessage($result, 'Success fetch employee list for nomination', 200);
         } catch (\Throwable $e) {
