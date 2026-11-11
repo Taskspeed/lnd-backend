@@ -76,6 +76,7 @@ class ScheduleService
                 'event_schedule_id' => $schedule->id,
                 'pre_test_assessment'   => $validated['pre_test_assessment'] ?? Null,
                 'post_test_assessment'    => $validated['post_test_assessment'] ?? Null,
+                'is_assessment_open' => $validated['is_assessment_open'] ?? false,
 
 
             ]);
@@ -265,10 +266,12 @@ class ScheduleService
                 'problem_solving_decision_making'  => $validated['problem_solving_decision_making'] ?? false,
             ]);
             $schedule->eventAssessment()->delete();
+
             EventAssessment::create([
                 'event_schedule_id' => $schedule->id,
                 'pre_test_assessment'   => $validated['pre_test_assessment'] ?? Null,
                 'post_test_assessment'   => $validated['post_test_assessment'] ?? Null,
+                'is_assessment_open' => $validated['is_assessment_open'] ?? false,
             ]);
 
             $schedule->office()->delete();

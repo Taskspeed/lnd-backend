@@ -39,6 +39,8 @@ class EventCreateRequest extends FormRequest
 
             'pre_test_assessment' => 'nullable|url',
             'post_test_assessment' => 'nullable|url',
+            'is_assessment_open' => 'nullable|boolean',
+
             // form for event
             'form' => 'nullable|array',
             'form.*.form_name' => 'nullable|string',

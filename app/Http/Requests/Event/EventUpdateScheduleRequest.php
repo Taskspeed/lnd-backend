@@ -38,6 +38,7 @@ class EventUpdateScheduleRequest extends FormRequest
             'sync_to_arms' => 'nullable|boolean',
             'pre_test_assessment' => 'nullable|url',
             'post_test_assessment' => 'nullable|url',
+            'is_assessment_open' => 'nullable|boolean',
 
             //schedule Date and time 
             'DateTime' => 'nullable|array',

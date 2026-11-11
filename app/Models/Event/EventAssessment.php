@@ -13,7 +13,8 @@ class EventAssessment extends Model
     protected $fillable = [
         'event_schedule_id',
         'pre_test_assessment',
-        'post_test_assessment'
+        'post_test_assessment',
+        'is_assessment_open'
     ];
 
 
@@ -24,7 +25,8 @@ class EventAssessment extends Model
     }
 
     protected $casts = [
-        'event_schedule_id' => 'integer'
+        'event_schedule_id' => 'integer',
+        'is_assessment_open' => 'boolean'
     ];
 
     protected $hidden = [
