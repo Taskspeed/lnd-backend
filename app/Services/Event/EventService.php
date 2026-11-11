@@ -12,6 +12,7 @@ use App\Models\Event\EventAssessment;
 use App\Models\Event\EventDepartment;
 use App\Models\Event\EventEmployeeTag;
 use App\Models\Event\EventForm;
+use App\Models\Event\EventFormSchedule;
 use App\Models\Event\EventSchedule;
 use App\Models\Event\EventScheduleDateTime;
 use App\Models\Event\EventSpeaker;
@@ -148,133 +149,133 @@ class EventService
 
     //     return $events;
     // }
-public function listOfEvent(array $filters = [])
-{
-    $search   = trim($filters['search'] ?? '');
-    $year     = !empty($filters['year'])  ? (int) $filters['year']  : null;
-    $month    = !empty($filters['month']) ? (int) $filters['month'] : null;
-    $statuses = $filters['status'] ?? [];
-    $perPage  = $filters['per_page'] ?? 10;
-    $today    = now()->toDateString();
+    public function listOfEvent(array $filters = [])
+    {
+        $search   = trim($filters['search'] ?? '');
+        $year     = !empty($filters['year'])  ? (int) $filters['year']  : null;
+        $month    = !empty($filters['month']) ? (int) $filters['month'] : null;
+        $statuses = $filters['status'] ?? [];
+        $perPage  = $filters['per_page'] ?? 10;
+        $today    = now()->toDateString();
 
-    // Get table and key names from the relationships, so nothing is hardcoded
-    $eventRel      = (new Event)->schedule();
-    $scheduleModel = $eventRel->getRelated();
-    $dateRel       = $scheduleModel->scheduleDateTime();
-    $dateModel     = $dateRel->getRelated();
+        // Get table and key names from the relationships, so nothing is hardcoded
+        $eventRel      = (new Event)->schedule();
+        $scheduleModel = $eventRel->getRelated();
+        $dateRel       = $scheduleModel->scheduleDateTime();
+        $dateModel     = $dateRel->getRelated();
 
-    $scheduleTable   = $scheduleModel->getTable();
-    $dateTable       = $dateModel->getTable();
-    $scheduleKey     = $scheduleModel->getQualifiedKeyName();      // schedules.id
-    $scheduleEventFk = $eventRel->getQualifiedForeignKeyName();    // schedules.event_id
-    $eventKey        = $eventRel->getQualifiedParentKeyName();     // events.id
-    $dateFk          = $dateRel->getQualifiedForeignKeyName();     // dates.schedule_id
-    $dateCol         = DB::getQueryGrammar()->wrap($dateModel->qualifyColumn('schedule_date'));
+        $scheduleTable   = $scheduleModel->getTable();
+        $dateTable       = $dateModel->getTable();
+        $scheduleKey     = $scheduleModel->getQualifiedKeyName();      // schedules.id
+        $scheduleEventFk = $eventRel->getQualifiedForeignKeyName();    // schedules.event_id
+        $eventKey        = $eventRel->getQualifiedParentKeyName();     // events.id
+        $dateFk          = $dateRel->getQualifiedForeignKeyName();     // dates.schedule_id
+        $dateCol         = DB::getQueryGrammar()->wrap($dateModel->qualifyColumn('schedule_date'));
 
-    // ID of the event's LATEST schedule (latest schedule_date; tie-breaker: highest id)
-    $latestScheduleId = DB::table($scheduleTable)
-        ->join($dateTable, $dateFk, '=', $scheduleKey)
-        ->whereColumn($scheduleEventFk, $eventKey)
-        ->groupBy($scheduleKey)
-        ->orderByRaw("MAX($dateCol) DESC")
-        ->orderByDesc($scheduleKey)
-        ->limit(1)
-        ->select($scheduleKey);
+        // ID of the event's LATEST schedule (latest schedule_date; tie-breaker: highest id)
+        $latestScheduleId = DB::table($scheduleTable)
+            ->join($dateTable, $dateFk, '=', $scheduleKey)
+            ->whereColumn($scheduleEventFk, $eventKey)
+            ->groupBy($scheduleKey)
+            ->orderByRaw("MAX($dateCol) DESC")
+            ->orderByDesc($scheduleKey)
+            ->limit(1)
+            ->select($scheduleKey);
 
-    // Latest schedule date of the event, used for ordering the list
-    $latestDate = DB::table($scheduleTable)
-        ->join($dateTable, $dateFk, '=', $scheduleKey)
-        ->whereColumn($scheduleEventFk, $eventKey)
-        ->selectRaw("MAX($dateCol)");
+        // Latest schedule date of the event, used for ordering the list
+        $latestDate = DB::table($scheduleTable)
+            ->join($dateTable, $dateFk, '=', $scheduleKey)
+            ->whereColumn($scheduleEventFk, $eventKey)
+            ->selectRaw("MAX($dateCol)");
 
-    $events = Event::query()
-        ->with(['schedule.scheduleDateTime'])
+        $events = Event::query()
+            ->with(['schedule.scheduleDateTime'])
 
-        // SEARCH (title)
-        ->when($search !== '', fn($q) => $q->where('title', 'like', "%{$search}%"))
+            // SEARCH (title)
+            ->when($search !== '', fn($q) => $q->where('title', 'like', "%{$search}%"))
 
-        // YEAR / MONTH: both must match the SAME date row
-        ->when($year || $month, function ($q) use ($year, $month) {
-            $q->whereHas('schedule.scheduleDateTime', function ($d) use ($year, $month) {
-                $d->when($year,  fn($x) => $x->whereYear('schedule_date', $year))
-                  ->when($month, fn($x) => $x->whereMonth('schedule_date', $month));
-            });
-        })
+            // YEAR / MONTH: both must match the SAME date row
+            ->when($year || $month, function ($q) use ($year, $month) {
+                $q->whereHas('schedule.scheduleDateTime', function ($d) use ($year, $month) {
+                    $d->when($year,  fn($x) => $x->whereYear('schedule_date', $year))
+                        ->when($month, fn($x) => $x->whereMonth('schedule_date', $month));
+                });
+            })
 
-        // STATUS: based only on the event's LATEST schedule
-        ->when(!empty($statuses), function ($q) use ($statuses, $today, $latestScheduleId) {
-            $q->whereHas('schedule', function ($schedule) use ($statuses, $today, $latestScheduleId) {
+            // STATUS: based only on the event's LATEST schedule
+            ->when(!empty($statuses), function ($q) use ($statuses, $today, $latestScheduleId) {
+                $q->whereHas('schedule', function ($schedule) use ($statuses, $today, $latestScheduleId) {
 
-                $schedule->whereIn($schedule->getModel()->getQualifiedKeyName(), $latestScheduleId);
+                    $schedule->whereIn($schedule->getModel()->getQualifiedKeyName(), $latestScheduleId);
 
-                $schedule->where(function ($sq) use ($statuses, $today) {
-                    foreach ($statuses as $status) {
-                        match ($status) {
-                            // all dates are in the future
-                            'up-coming' => $sq->orWhere(function ($c) use ($today) {
-                                $c->whereHas('scheduleDateTime')
-                                    ->whereDoesntHave(
+                    $schedule->where(function ($sq) use ($statuses, $today) {
+                        foreach ($statuses as $status) {
+                            match ($status) {
+                                // all dates are in the future
+                                'up-coming' => $sq->orWhere(function ($c) use ($today) {
+                                    $c->whereHas('scheduleDateTime')
+                                        ->whereDoesntHave(
+                                            'scheduleDateTime',
+                                            fn($d) => $d->whereDate('schedule_date', '<=', $today)
+                                        );
+                                }),
+
+                                // has a date <= today AND a date >= today
+                                'ongoing' => $sq->orWhere(function ($c) use ($today) {
+                                    $c->whereHas(
                                         'scheduleDateTime',
                                         fn($d) => $d->whereDate('schedule_date', '<=', $today)
-                                    );
-                            }),
+                                    )
+                                        ->whereHas(
+                                            'scheduleDateTime',
+                                            fn($d) => $d->whereDate('schedule_date', '>=', $today)
+                                        );
+                                }),
 
-                            // has a date <= today AND a date >= today
-                            'ongoing' => $sq->orWhere(function ($c) use ($today) {
-                                $c->whereHas(
-                                    'scheduleDateTime',
-                                    fn($d) => $d->whereDate('schedule_date', '<=', $today)
-                                )
-                                    ->whereHas(
-                                        'scheduleDateTime',
-                                        fn($d) => $d->whereDate('schedule_date', '>=', $today)
-                                    );
-                            }),
-
-                            // all dates are in the past
-                            'complete' => $sq->orWhere(function ($c) use ($today) {
-                                $c->whereHas('scheduleDateTime')
-                                    ->whereDoesntHave(
-                                        'scheduleDateTime',
-                                        fn($d) => $d->whereDate('schedule_date', '>=', $today)
-                                    );
-                            }),
-                        };
-                    }
+                                // all dates are in the past
+                                'complete' => $sq->orWhere(function ($c) use ($today) {
+                                    $c->whereHas('scheduleDateTime')
+                                        ->whereDoesntHave(
+                                            'scheduleDateTime',
+                                            fn($d) => $d->whereDate('schedule_date', '>=', $today)
+                                        );
+                                }),
+                            };
+                        }
+                    });
                 });
-            });
-        })
+            })
 
-        // ORDER: event with the latest schedule date comes first
-        ->orderByDesc($latestDate)
-        ->orderByDesc('events.id')
+            // ORDER: event with the latest schedule date comes first
+            ->orderByDesc($latestDate)
+            ->orderByDesc('events.id')
 
-        ->paginate($perPage)
-        ->withQueryString();
+            ->paginate($perPage)
+            ->withQueryString();
 
-    // Format per schedule, then hide the raw scheduleDateTime
-    $events->through(function ($event) {
-        // within each event, latest schedule first (Nov before Oct)
-        $sorted = $event->schedule
-            ->sortByDesc(fn($s) => $s->scheduleDateTime->max('schedule_date') ?? '')
-            ->values();
+        // Format per schedule, then hide the raw scheduleDateTime
+        $events->through(function ($event) {
+            // within each event, latest schedule first (Nov before Oct)
+            $sorted = $event->schedule
+                ->sortByDesc(fn($s) => $s->scheduleDateTime->max('schedule_date') ?? '')
+                ->values();
 
-        $event->setRelation('schedule', $sorted);
+            $event->setRelation('schedule', $sorted);
 
-        foreach ($event->schedule as $schedule) {
-            $schedule->schedule_date_range = $this->formatDateRanges($schedule->scheduleDateTime);
-            $schedule->unsetRelation('scheduleDateTime');
-        }
+            foreach ($event->schedule as $schedule) {
+                $schedule->schedule_date_range = $this->formatDateRanges($schedule->scheduleDateTime);
+                $schedule->unsetRelation('scheduleDateTime');
+            }
 
-        return $event;
-    });
+            return $event;
+        });
 
-    return $events;
-}
+        return $events;
+    }
 
     public function show(int $eventId, int $perPage = 10)
     {
-        $event = Event::with('form')->find($eventId);
+        $event = Event::find($eventId);
 
         if (!$event) {
             throw new \Exception('Event not found');
@@ -306,10 +307,9 @@ public function listOfEvent(array $filters = [])
     public function nominatedEmployee(int $eventId, int $eventScheduleId, int $perPage = 10, ?string $office = null, ?string $status = null)
     {
         $event = Event::with([
-            'form',
+      
             'schedule' => function ($query) use ($eventId, $eventScheduleId) {
                 $query->with([
-
 
                     'office',
                     'nominatedEmployee', // buo pa rin, para sa count per office
@@ -375,11 +375,7 @@ public function listOfEvent(array $filters = [])
     // create event
     public function create(?array $validated)
     {
-        // Log::info('EventService@create called', [
-        //     'sync_to_arms' => $validated['sync_to_arms'] ?? 'NO KEY',
-        //     'has_datetime' => !empty($validated['DateTime']),
-        // ]);
-
+   
         return DB::transaction(function () use ($validated) {
 
             // check if the event title already exists
@@ -411,6 +407,10 @@ public function listOfEvent(array $filters = [])
                 'learning_intervention' => $validated['learning_intervention'] ?? null,
                 'status'                => 'Created',
                 'sync_to_arms'          => $validated['sync_to_arms'] ?? false,
+                'form_open_date'          => $validated['form_open_date'] ?? null,
+                'form_due_date'          => $validated['form_due_date'] ?? null,
+                'sg_from'   => $validated['sg_from'] ?? 0,
+                'sg_to'  => $validated['sg_to'] ?? 0,
             ]);
 
             // ---------- save into ARMS (Tblevent) ----------
@@ -517,11 +517,11 @@ public function listOfEvent(array $filters = [])
 
             foreach ($validated['form'] ?? [] as $form) {
                 EventForm::create([
-                    'event_id'  => $event->id,
+                    'event_schedule_id'  => $schedule->id,
                     'form_name' => $form['form_name'] ?? null,
-                 
                 ]);
             }
+
 
             foreach ($validated['office'] ?? [] as $office) {
                 EventDepartment::create([
@@ -569,7 +569,7 @@ public function listOfEvent(array $filters = [])
 
 
 
-            return $event->load(['form', 'schedule']);
+            return $event->load(['schedule']);
         });
     }
 
@@ -611,12 +611,13 @@ public function listOfEvent(array $filters = [])
     public function details(int $eventId, int $eventScheduleId)
     {
         $event = Event::with([
-            'form',
+          
             'schedule' => function ($query) use ($eventId, $eventScheduleId) {
                 $query->with([
                     'speaker',
                     'scheduleDateTime',
                     'office',
+                    'form',
                 ])
                     ->where('event_id', $eventId)
                     ->where('id', $eventScheduleId);

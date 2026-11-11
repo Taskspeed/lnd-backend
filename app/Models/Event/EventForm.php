@@ -12,13 +12,13 @@ class EventForm extends Model
 
 
     protected $fillable = [
-        'event_id',
+        'event_schedule_id',
         'form_name'
     ];
     protected $appends = ['formId'];
     protected $hidden = ['id','created_at','updated_at'];
     protected $casts = [ 
-           'event_id' => 'integer',
+           'event_schedule_id' => 'integer',
     ];
 
     public function getFormIdAttribute()

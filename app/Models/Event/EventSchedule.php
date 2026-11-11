@@ -7,6 +7,7 @@ use App\Models\Employee\NominatedEmployee;
 use App\Models\Event\Compentecy\EventCore;
 use App\Models\Event\Compentecy\EventLeadership;
 use App\Models\Event\Compentecy\EventTechnical;
+use App\Models\Event\EventForm;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Database\Eloquent\Model;
@@ -30,7 +31,11 @@ class EventSchedule extends Model
         'category_name',
         'conducted_by',
         'learning_intervention',
-        'sync_to_arms'
+        'sync_to_arms',
+        'form_open_date',
+        'form_due_date',
+        'sg_from',
+        'sg_to'
     ];
 
     protected $casts = [
@@ -40,7 +45,9 @@ class EventSchedule extends Model
         'certificates_issued_count' => 'integer',
         'sync_to_arms' => 'boolean',
         'approved_count' => 'integer',
-        'pending_count' => 'integer'
+        'pending_count' => 'integer',
+        'sg_to' => 'integer',
+        'sg_from' => 'integer'
     ];
 
     protected $appends = ['scheduleId', 'computedStatus'];
@@ -122,10 +129,16 @@ class EventSchedule extends Model
 
         return $this->hasMany(EventEmployeeTag::class);
     }
-    
+
     public function eventAssessment()
     {
 
         return $this->hasMany(EventAssessment::class);
     }
+    
+    public function form()
+    {
+        return  $this->hasMany(EventForm::class);
+    }
+ 
 }

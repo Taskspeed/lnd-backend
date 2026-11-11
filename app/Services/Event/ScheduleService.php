@@ -10,6 +10,7 @@ use App\Models\Event\Event;
 use App\Models\Event\EventAssessment;
 use App\Models\Event\EventDepartment;
 use App\Models\Event\EventEmployeeTag;
+use App\Models\Event\EventForm;
 use App\Models\Event\EventSchedule;
 use App\Models\Event\EventScheduleDateTime;
 use App\Models\Event\EventSpeaker;
@@ -41,6 +42,10 @@ class ScheduleService
                 'status'       => 'Created',
                 'learning_intervention'    => $validated['learning_intervention'] ?? null,
                 'sync_to_arms'    => $validated['sync_to_arms'] ??  false,
+                'form_open_date'          => $validated['form_open_date'] ?? null,
+                'form_due_date'          => $validated['form_due_date'] ?? null,
+                'sg_from'   => $validated['sg_from'] ?? 0,
+                'sg_to'  => $validated['sg_to'] ?? 0,
             ]);
 
             $event  = Event::find($validated['event_id']);
@@ -101,7 +106,13 @@ class ScheduleService
                 ]);
             }
 
-            
+            foreach ($validated['form'] ?? [] as $form) {
+                EventForm::create([
+                    'event_schedule_id'  => $schedule->id,
+                    'form_name' => $form['form_name'] ?? null,
+                ]);
+            }
+
 
             foreach ($validated['DateTime'] ?? [] as $dt) {
                 $dateTime = EventScheduleDateTime::create([
@@ -141,7 +152,7 @@ class ScheduleService
             }
 
 
-           
+
 
 
             // ---------- ARMS sync (last, after everything else succeeded) ----------
@@ -189,7 +200,7 @@ class ScheduleService
                     }
                 }
 
-                Log::info('ARMS sync finished', ['rows_saved' => $savedCount]);
+                // Log::info('ARMS sync finished', ['rows_saved' => $savedCount]);
             }
             return $schedule->load(['office',  'scheduleDateTime']);
         });
@@ -218,6 +229,10 @@ class ScheduleService
                 'conducted_by'    => $validated['conducted_by'] ?? null,
                 'learning_intervention'    => $validated['learning_intervention'] ?? null,
                 'sync_to_arms'    => $validated['sync_to_arms'] ??  false,
+                'form_open_date'          => $validated['form_open_date'] ?? null,
+                'form_due_date'          => $validated['form_due_date'] ?? null,
+                'sg_from'   => $validated['sg_from'] ?? 0,
+                'sg_to'  => $validated['sg_to'] ?? 0,
             ]);
 
             $schedule->employeeTag()->delete();
@@ -273,6 +288,15 @@ class ScheduleService
                 'post_test_assessment'   => $validated['post_test_assessment'] ?? Null,
                 'is_assessment_open' => $validated['is_assessment_open'] ?? false,
             ]);
+
+            $schedule->form()->delete();
+
+            foreach ($validated['form'] ?? [] as $form) {
+                EventForm::create([
+                    'event_schedule_id'  => $schedule->id,
+                    'form_name' => $form['form_name'] ?? null,
+                ]);
+            }
 
             $schedule->office()->delete();
 
@@ -386,7 +410,7 @@ class ScheduleService
     public function eventViewSchedule(int $scheduleId)
     {
 
-        $schedule  = EventSchedule::with(['eventCore', 'eventTechnical', 'eventLeaderShip', 'office', 'eventAssessment', 'employeeTag', 'scheduleDateTime' => function ($query) {
+        $schedule  = EventSchedule::with(['eventCore', 'eventTechnical', 'eventLeaderShip', 'office', 'form', 'eventAssessment', 'employeeTag', 'scheduleDateTime' => function ($query) {
             $query->with('speakers');
         },])->find($scheduleId);
 

@@ -40,7 +40,13 @@ class EventAddScheduleRequest extends FormRequest
             
             'pre_test_assessment' => 'nullable|url',
             'post_test_assessment' => 'nullable|url',
-            'is_assessment_open' => 'nullable|boolean',
+           'is_assessment_open' => 'nullable|boolean',
+
+            'form_open_date' => 'nullable|date_format:Y-m-d h:i A',
+            'form_due_date' => 'nullable|date_format:Y-m-d h:i A',
+
+            'sg_from'  => 'nullable|integer',
+            'sg_to'  => 'nullable|integer',
 
             // form for event
             'form' => 'nullable|array',

@@ -2,8 +2,6 @@
 
 namespace App\Models\Event;
 
-use App\Models\Employee\NominatedEmployee;
-use App\Models\Event\EventForm;
 use Illuminate\Database\Eloquent\Model;
 
 class Event extends Model
@@ -14,9 +12,7 @@ class Event extends Model
 
     protected $fillable = [
         'title_name',
-        // 'type_name',
-        // 'source_name',
-        // 'category_name'
+  
 
     ];
     protected $casts = [
@@ -32,10 +28,6 @@ class Event extends Model
         return $this->id;
     }
 
-    public function form()
-    {
-        return  $this->hasMany(EventForm::class);
-    }
  
      public function schedule()
     {
