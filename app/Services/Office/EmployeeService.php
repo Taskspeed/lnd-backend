@@ -237,26 +237,41 @@ public function create(?array $validated, Authenticatable $user)
     }
 
     // for nomination
-    public function employeeListForNomination(string $trainingName, Authenticatable $user, ?int $sgFrom = null, ?int $sgTo = null)
-    {
-        $employee = vwEmployee::with(['xTraining' => function ($query) use ($trainingName) {
+ public function employeeListForNomination(
+    string $trainingName,
+    Authenticatable $user,
+    ?int $sgFrom = null,
+    ?int $sgTo = null
+) {
+    // sg_from lang = iisang SG; sg_to lang = iisang SG din
+    if ($sgFrom !== null && $sgTo === null) {
+        $sgTo = $sgFrom;
+    } elseif ($sgFrom === null && $sgTo !== null) {
+        $sgFrom = $sgTo;
+    }
+
+    // kung baliktad ang pagkakalagay, ayusin
+    if ($sgFrom !== null && $sgTo !== null && $sgFrom > $sgTo) {
+        [$sgFrom, $sgTo] = [$sgTo, $sgFrom];
+    }
+
+    return vwEmployee::with(['xTraining' => function ($query) use ($trainingName) {
             $query->select('ControlNo', 'training', 'Dates', 'NumHours', 'Conductor', 'DateFrom', 'DateTo', 'Type')
                 ->where('training', $trainingName);
         }])
-            ->select('ControlNo', 'name', 'office', 'position', 'status', 'sg')
-            ->where('office', $user->office)
-            ->when($sgFrom !== null, fn($q) => $q->where('sg', '>=', $sgFrom))
-            ->when($sgTo !== null, fn($q) => $q->where('sg', '<=', $sgTo))
-            ->get()
-            ->map(function ($emp) {
-                $emp->trainingCount = $emp->xTraining->count();
-                $emp->isAlreadyTrained = $emp->trainingCount > 0;
-                return $emp;
-            });
-
-        return $employee;
-    }
-    
+        ->select('ControlNo', 'name', 'office', 'position', 'status', 'sg')
+        ->where('office', $user->office)
+        ->when(
+            $sgFrom !== null && $sgTo !== null,
+            fn ($q) => $q->whereBetween('sg', [$sgFrom, $sgTo])
+        )
+        ->get()
+        ->map(function ($emp) {
+            $emp->trainingCount = $emp->xTraining->count();
+            $emp->isAlreadyTrained = $emp->trainingCount > 0;
+            return $emp;
+        });
+}
     public function editReason(array $validated, int $nominatedEmployeeId)
     {
 

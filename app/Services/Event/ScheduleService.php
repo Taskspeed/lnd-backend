@@ -44,8 +44,8 @@ class ScheduleService
                 'sync_to_arms'    => $validated['sync_to_arms'] ??  false,
                 'form_open_date'          => $validated['form_open_date'] ?? null,
                 'form_due_date'          => $validated['form_due_date'] ?? null,
-                'sg_from'   => $validated['sg_from'] ?? 0,
-                'sg_to'  => $validated['sg_to'] ?? 0,
+                'sg_from'   => $validated['sg_from'] ?? null,
+                'sg_to'  => $validated['sg_to'] ?? null,
             ]);
 
             $event  = Event::find($validated['event_id']);
@@ -231,8 +231,8 @@ class ScheduleService
                 'sync_to_arms'    => $validated['sync_to_arms'] ??  false,
                 'form_open_date'          => $validated['form_open_date'] ?? null,
                 'form_due_date'          => $validated['form_due_date'] ?? null,
-                'sg_from'   => $validated['sg_from'] ?? 0,
-                'sg_to'  => $validated['sg_to'] ?? 0,
+                'sg_from'   => $validated['sg_from'] ?? null,
+                'sg_to'  => $validated['sg_to'] ?? null,
             ]);
 
             $schedule->employeeTag()->delete();
