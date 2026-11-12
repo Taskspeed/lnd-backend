@@ -17,75 +17,156 @@ use Illuminate\Support\Facades\Notification;
 
 class EmployeeService
 {
-    public function create(?array $validated, Authenticatable $user)
-    {
-        $employees = $validated['employee'];
 
-        // 1. Check for duplicates within the submitted request itself
-        $seen = [];
-        foreach ($employees as $entry) {
-            $key = $entry['event_schedule_id'] . '-' . $entry['control_no'];
-            if (isset($seen[$key])) {
-                throw new \Exception(
-                    "Duplicate entry in request: control_no {$entry['control_no']} for event_schedule_id {$entry['event_schedule_id']} was submitted more than once.",
-                    422
-                );
-            }
-            $seen[$key] = true;
+public function create(?array $validated, Authenticatable $user)
+{
+    $employees = $validated['employee'];
+
+    // 0. Kunin muna ang employee data para magamit ang pangalan sa error messages
+    $controlNos = array_column($employees, 'control_no');
+
+    $employeeData = vwEmployee::whereIn('ControlNo', $controlNos)
+        ->get()
+        ->keyBy('ControlNo');
+
+    // pangalan ng employee; control_no lang ang fallback kung wala talaga sa view
+    $nameOf = fn ($controlNo) => $employeeData->get($controlNo)?->name ?? $controlNo;
+
+    // 1. Employee na wala sa vwEmployee
+    foreach ($employees as $entry) {
+        if (!$employeeData->has($entry['control_no'])) {
+            throw new \Exception("Employee with control_no {$entry['control_no']} not found.", 404);
         }
+    }
 
-        // 2. Check for duplicates already existing in the database (bulk check)
-        $existing = NominatedEmployee::where(function ($query) use ($employees) {
-            foreach ($employees as $entry) {
-                $query->orWhere(function ($q) use ($entry) {
-                    $q->where('event_schedule_id', $entry['event_schedule_id'])
-                        ->where('control_no', $entry['control_no']);
-                });
-            }
-        })->get(['event_schedule_id', 'control_no']);
-
-        if ($existing->isNotEmpty()) {
-            $first = $existing->first();
+    // 2. Duplicates sa mismong request
+    $seen = [];
+    foreach ($employees as $entry) {
+        $key = $entry['event_schedule_id'] . '-' . $entry['control_no'];
+        if (isset($seen[$key])) {
             throw new \Exception(
-                "Employee with control_no {$first->control_no} is already nominated for this schedule.",
+                "{$nameOf($entry['control_no'])} was submitted more than once for this schedule.",
                 422
             );
         }
-
-        // 3. Insert inside a transaction
-        return DB::transaction(function () use ($employees, $user) {
-            $controlNos = array_column($employees, 'control_no');
-
-            $employeeData = vwEmployee::whereIn('ControlNo', $controlNos)
-                ->get()
-                ->keyBy('ControlNo');
-
-            $nominees = [];
-            foreach ($employees as $entry) {
-                $data = $employeeData->get($entry['control_no']);
-
-                if (!$data) {
-                    throw new \Exception("Employee with control_no {$entry['control_no']} not found.", 404);
-                }
-
-                $nominees[] = NominatedEmployee::create([
-                    'event_id'          => $entry['event_id'],
-                    'control_no'        => $entry['control_no'],
-                    'designation'       => $data->position ?? null,
-                    'status'            => $data->status ?? null,
-                    'full_name'         => $data->name ?? null,
-                    'sg'                => $data->sg ?? null,
-                    'level'             => $data->level ?? null,
-                    'office'            => $user->office ?? null,
-                    'nominate_reason'   => $entry['nominate_reason'] ?? null,
-                    'event_schedule_id' => $entry['event_schedule_id'],
-                    'nominate_status'   => 'Pending', // default pending
-                ]);
-            }
-            $this->notifyHrAdmins($nominees, $user);
-            return $nominees;
-        });
+        $seen[$key] = true;
     }
+
+    // 3. Duplicates na nasa database (bulk check)
+    $existing = NominatedEmployee::where(function ($query) use ($employees) {
+        foreach ($employees as $entry) {
+            $query->orWhere(function ($q) use ($entry) {
+                $q->where('event_schedule_id', $entry['event_schedule_id'])
+                    ->where('control_no', $entry['control_no']);
+            });
+        }
+    })->get(['event_schedule_id', 'control_no', 'full_name']);
+
+    if ($existing->isNotEmpty()) {
+        $names = $existing
+            ->map(fn ($e) => $e->full_name ?? $nameOf($e->control_no))
+            ->unique()
+            ->implode(', ');
+
+        throw new \Exception("Already nominated for this schedule: {$names}.", 422);
+    }
+
+    // 4. Insert sa loob ng transaction
+    return DB::transaction(function () use ($employees, $employeeData, $user) {
+        $nominees = [];
+
+        foreach ($employees as $entry) {
+            $data = $employeeData->get($entry['control_no']);
+
+            $nominees[] = NominatedEmployee::create([
+                'event_id'          => $entry['event_id'],
+                'control_no'        => $entry['control_no'],
+                'designation'       => $data->position ?? null,
+                'status'            => $data->status ?? null,
+                'full_name'         => $data->name ?? null,
+                'sg'                => $data->sg ?? null,
+                'level'             => $data->level ?? null,
+                'office'            => $user->office ?? null,
+                'nominate_reason'   => $entry['nominate_reason'] ?? null,
+                'event_schedule_id' => $entry['event_schedule_id'],
+                'nominate_status'   => 'Pending',
+            ]);
+        }
+
+        $this->notifyHrAdmins($nominees, $user);
+
+        return $nominees;
+    });
+}
+    // public function create(?array $validated, Authenticatable $user)
+    // {
+    //     $employees = $validated['employee'];
+
+    //     // 1. Check for duplicates within the submitted request itself
+    //     $seen = [];
+    //     foreach ($employees as $entry) {
+    //         $key = $entry['event_schedule_id'] . '-' . $entry['control_no'];
+    //         if (isset($seen[$key])) {
+    //             throw new \Exception(
+    //                 "Duplicate entry in request: control_no {$entry['control_no']} for event_schedule_id {$entry['event_schedule_id']} was submitted more than once.",
+    //                 422
+    //             );
+    //         }
+    //         $seen[$key] = true;
+    //     }
+
+    //     // 2. Check for duplicates already existing in the database (bulk check)
+    //     $existing = NominatedEmployee::where(function ($query) use ($employees) {
+    //         foreach ($employees as $entry) {
+    //             $query->orWhere(function ($q) use ($entry) {
+    //                 $q->where('event_schedule_id', $entry['event_schedule_id'])
+    //                     ->where('control_no', $entry['control_no']);
+    //             });
+    //         }
+    //     })->get(['event_schedule_id', 'control_no']);
+
+    //     if ($existing->isNotEmpty()) {
+    //         $first = $existing->first();
+    //         throw new \Exception(
+    //             "Employee with control_no {$first->control_no} is already nominated for this schedule.",
+    //             422
+    //         );
+    //     }
+
+    //     // 3. Insert inside a transaction
+    //     return DB::transaction(function () use ($employees, $user) {
+    //         $controlNos = array_column($employees, 'control_no');
+
+    //         $employeeData = vwEmployee::whereIn('ControlNo', $controlNos)
+    //             ->get()
+    //             ->keyBy('ControlNo');
+
+    //         $nominees = [];
+    //         foreach ($employees as $entry) {
+    //             $data = $employeeData->get($entry['control_no']);
+
+    //             if (!$data) {
+    //                 throw new \Exception("Employee with control_no {$entry['control_no']} not found.", 404);
+    //             }
+
+    //             $nominees[] = NominatedEmployee::create([
+    //                 'event_id'          => $entry['event_id'],
+    //                 'control_no'        => $entry['control_no'],
+    //                 'designation'       => $data->position ?? null,
+    //                 'status'            => $data->status ?? null,
+    //                 'full_name'         => $data->name ?? null,
+    //                 'sg'                => $data->sg ?? null,
+    //                 'level'             => $data->level ?? null,
+    //                 'office'            => $user->office ?? null,
+    //                 'nominate_reason'   => $entry['nominate_reason'] ?? null,
+    //                 'event_schedule_id' => $entry['event_schedule_id'],
+    //                 'nominate_status'   => 'Pending', // default pending
+    //             ]);
+    //         }
+    //         $this->notifyHrAdmins($nominees, $user);
+    //         return $nominees;
+    //     });
+    // }
 
     protected function notifyHrAdmins(array $nominees, Authenticatable $user): void
     {
