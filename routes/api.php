@@ -39,6 +39,7 @@ use App\Http\Controllers\Office\NominationFormController;
 use App\Http\Controllers\Office\OfficeController;
 
 use App\Http\Controllers\ReportController;;
+
 use App\Http\Controllers\User\PermissionController;
 use App\Http\Controllers\User\RoleController;
 use App\Http\Controllers\User\UserController;
@@ -66,9 +67,9 @@ Route::prefix('certification')->group(function () {
 
 
 
-   Route::prefix('arms')->group(function () {
-        Route::get('/event/employee/{eventScheduleId}', [EmployeeScheduleController::class, 'employeeScheduleEvent']); // list of employee for 
-    });
+Route::prefix('arms')->group(function () {
+    Route::get('/event/employee/{eventScheduleId}', [EmployeeScheduleController::class, 'employeeScheduleEvent']); // list of employee for 
+});
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -153,12 +154,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('notifications')->group(function () {
             Route::get('controlno/{controlNo}', [NotificationController::class, 'ermsNotification'])->withoutMiddleware(['auth:sanctum']);
             Route::put('/{id}/read', [NotificationController::class, 'ermsMarkAsRead'])->withoutMiddleware(['auth:sanctum']);
+            Route::get('/unread/count', [NotificationController::class, 'ermsunreadCount'])->withoutMiddleware(['auth:sanctum']);
         });
     });
 
     Route::prefix('notifications')->group(function () {
         Route::get('/', [NotificationController::class, 'index']);
-        Route::put('/{id}/read', [NotificationController::class, 'markAsRead']);
+        Route::put('{controlNo}/{id}/read', [NotificationController::class, 'markAsRead']);
+        Route::get('{controlNo}/unread/count', [NotificationController::class, 'unreadCount']);
     });
 
     Route::prefix('employee')->group(function () {
@@ -197,15 +200,14 @@ Route::middleware(['auth:sanctum', 'role:office_admin'])->group(function () {
             Route::get('/inhouse-nomination/{eventId}/{eventScheduleId}', [NominationFormController::class, 'inHouseNomination']);
         });
 
-      Route::prefix('bpm')->group(function () {
-           
+        Route::prefix('bpm')->group(function () {
+
             Route::get('/list', [BpmController::class, 'getListBpm']);
             Route::post('/store', [BpmController::class, 'storeBpm']);
             Route::get('/view/{bpmDateId}', [BpmController::class, 'viewBpm']);
             Route::delete('/delete/{bpmDateId}', [BpmController::class, 'deleteBpm']);
             Route::post('/edit/{bpmDateId}', [BpmController::class, 'updateBpm']);
         });
-  
     });
 });
 
@@ -233,13 +235,10 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
             Route::get('nomination/{eventId}/{eventScheduleId}/', [PDFController::class, 'nomination']);
         });
 
-          Route::prefix('bpm')->group(function () {
+        Route::prefix('bpm')->group(function () {
             Route::get('/submitted', [BpmController::class, 'bpmSubmittedByOffice']);
             Route::get('/view/{bpmDateId}', [BpmController::class, 'viewBpm']);
-
         });
-
-
     });
 
 
@@ -323,10 +322,16 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
 
         Route::prefix('employee')->group(function () {
             Route::put('/nomination/approval/{nominatedEmployeeId}', [NominatedEmployeeController::class, 'update']);
-            Route::get('/information/{nominatedEmployeeId}', [NominatedEmployeeController::class, 'show']);
+            Route::get('/information/{nominatedEmployeeId}', [NominatedEmployeeController::class, 'show'])->withoutMiddleware([
+                'auth:sanctum',
+                'role:hr_admin'
+            ]);
             Route::get('/list/forms/', [EmployeeFormSubmissionController::class, 'index']);
             Route::get('/forms', [EmployeeFormSubmissionController::class, 'show']);
-            Route::get('/{controlNo}/photo', [EmployeeController::class, 'photo']);
+            Route::get('/{controlNo}/photo', [EmployeeController::class, 'photo'])->withoutMiddleware([
+                'auth:sanctum',
+                'role:hr_admin'
+            ]);
 
             Route::prefix('submission')->group(function () {
                 Route::put('/update/{employeeFormSubmissionId}', [EmployeeFormSubmissionController::class, 'update']); // approved or returned with remarks
@@ -370,6 +375,4 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
     Route::prefix('excel')->group(function () {
         Route::get('/agency-learning-development', [ExcelController::class, 'agencyLearningDevelopmentMonitoringReport']); // list of employee for 
     });
-
-  
 });

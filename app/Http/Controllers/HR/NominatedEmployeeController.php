@@ -72,8 +72,9 @@ class NominatedEmployeeController extends Controller
      */
     public function update(Request $request, int $nominatedEmployeeId)
     {
-        $validated = $request->validate([
-            'nominate_status' => 'required|string|in:Approved,Disapproved',
+          $validated = $request->validate([
+        'nominate_status'    => 'required|string|in:Approved,Disapproved',
+        'nomination_remarks' => 'required_if:nominate_status,Disapproved|nullable|string',
         ]);
 
         $employee = NominatedEmployee::find($nominatedEmployeeId);
@@ -83,7 +84,8 @@ class NominatedEmployeeController extends Controller
         }
 
         $employee->update([
-            'nominate_status' => $validated['nominate_status'],
+            'nominate_status'    => $validated['nominate_status'],
+            'nomination_remarks' => $validated['nomination_remarks'] ?? null,
         ]);
 
         // Palaging i-notify ang office admin(s) ng office ng employee

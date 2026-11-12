@@ -29,7 +29,8 @@ class NominatedEmployee extends Model
         'event_schedule_id',
         'nominate_reason',
         'nominate_status',
-        'certificate_issued'
+        'certificate_issued',
+        'nomination_remarks'
 
     ];
 
