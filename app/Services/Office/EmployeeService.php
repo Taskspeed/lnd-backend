@@ -5,10 +5,12 @@ namespace App\Services\Office;
 use App\Models\Employee\NominatedEmployee;
 use App\Models\Event\Event;
 use App\Models\Event\EventSchedule;
+use App\Models\Event\EventScheduleDateTime;
 use App\Models\RSP\vwEmployee;
 use App\Models\RSP\xPersonal;
 use App\Models\User;
 use App\Notifications\EmployeesNominatedNotification;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
@@ -18,86 +20,139 @@ use Illuminate\Support\Facades\Notification;
 class EmployeeService
 {
 
-public function create(?array $validated, Authenticatable $user)
-{
-    $employees = $validated['employee'];
+    public function create(?array $validated, Authenticatable $user)
+    {
+        $employees = $validated['employee'];
 
-    // 0. Kunin muna ang employee data para magamit ang pangalan sa error messages
-    $controlNos = array_column($employees, 'control_no');
+        // 0. Kunin muna ang employee data para magamit ang pangalan sa error messages
+        $controlNos = array_column($employees, 'control_no');
 
-    $employeeData = vwEmployee::whereIn('ControlNo', $controlNos)
-        ->get()
-        ->keyBy('ControlNo');
+        $employeeData = vwEmployee::whereIn('ControlNo', $controlNos)
+            ->get()
+            ->keyBy('ControlNo');
 
-    // pangalan ng employee; control_no lang ang fallback kung wala talaga sa view
-    $nameOf = fn ($controlNo) => $employeeData->get($controlNo)?->name ?? $controlNo;
+        // pangalan ng employee; control_no lang ang fallback kung wala talaga sa view
+        $nameOf = fn($controlNo) => $employeeData->get($controlNo)?->name ?? $controlNo;
 
-    // 1. Employee na wala sa vwEmployee
-    foreach ($employees as $entry) {
-        if (!$employeeData->has($entry['control_no'])) {
-            throw new \Exception("Employee with control_no {$entry['control_no']} not found.", 404);
+        // 1. Employee na wala sa vwEmployee
+        foreach ($employees as $entry) {
+            if (!$employeeData->has($entry['control_no'])) {
+                throw new \Exception("Employee with control_no {$entry['control_no']} not found.", 404);
+            }
         }
-    }
 
-    // 2. Duplicates sa mismong request
-    $seen = [];
-    foreach ($employees as $entry) {
-        $key = $entry['event_schedule_id'] . '-' . $entry['control_no'];
-        if (isset($seen[$key])) {
-            throw new \Exception(
-                "{$nameOf($entry['control_no'])} was submitted more than once for this schedule.",
-                422
+        // 2. Duplicates sa mismong request
+        $seen = [];
+
+        foreach ($employees as $entry) {
+            $key = $entry['event_schedule_id'] . '-' . $entry['control_no'];
+            if (isset($seen[$key])) {
+                throw new \Exception(
+                    "{$nameOf($entry['control_no'])} was submitted more than once for this schedule.",
+                    422
+                );
+            }
+            $seen[$key] = true;
+        }
+
+        // 3. Duplicates na nasa database (bulk check)
+        $existing = NominatedEmployee::where(function ($query) use ($employees) {
+            foreach ($employees as $entry) {
+                $query->orWhere(function ($q) use ($entry) {
+                    $q->where('event_schedule_id', $entry['event_schedule_id'])
+                        ->where('control_no', $entry['control_no']);
+                });
+            }
+        })->get(['event_schedule_id', 'control_no', 'full_name']);
+
+        if ($existing->isNotEmpty()) {
+            $names = $existing
+                ->map(fn($e) => $e->full_name ?? $nameOf($e->control_no))
+                ->unique()
+                ->implode(', ');
+
+            throw new \Exception("Already nominated for this schedule: {$names}.", 422);
+        }
+
+        // prevent nominate employee same schedule date 
+
+        // 4. Bawal ma-nominate kung may Pending/Approved nomination na siya sa ibang schedule na pareho ang petsa
+
+        // petsa ng bawat schedule na ino-nominate-an (Y-m-d)
+        $scheduleIds = collect($employees)->pluck('event_schedule_id')->unique()->values();
+
+        $datesBySchedule = EventScheduleDateTime::whereIn('event_schedule_id', $scheduleIds)
+            ->toBase() // walang casts, para string ang schedule_date
+            ->get(['event_schedule_id', 'schedule_date'])
+            ->groupBy('event_schedule_id')
+            ->map(
+                fn($rows) => $rows
+                    ->map(fn($r) => Carbon::parse($r->schedule_date)->toDateString())
+                    ->unique()
+                    ->values()
             );
-        }
-        $seen[$key] = true;
-    }
-
-    // 3. Duplicates na nasa database (bulk check)
-    $existing = NominatedEmployee::where(function ($query) use ($employees) {
-        foreach ($employees as $entry) {
-            $query->orWhere(function ($q) use ($entry) {
-                $q->where('event_schedule_id', $entry['event_schedule_id'])
-                    ->where('control_no', $entry['control_no']);
-            });
-        }
-    })->get(['event_schedule_id', 'control_no', 'full_name']);
-
-    if ($existing->isNotEmpty()) {
-        $names = $existing
-            ->map(fn ($e) => $e->full_name ?? $nameOf($e->control_no))
-            ->unique()
-            ->implode(', ');
-
-        throw new \Exception("Already nominated for this schedule: {$names}.", 422);
-    }
-
-    // 4. Insert sa loob ng transaction
-    return DB::transaction(function () use ($employees, $employeeData, $user) {
-        $nominees = [];
 
         foreach ($employees as $entry) {
-            $data = $employeeData->get($entry['control_no']);
+            $dates = $datesBySchedule->get($entry['event_schedule_id'], collect());
 
-            $nominees[] = NominatedEmployee::create([
-                'event_id'          => $entry['event_id'],
-                'control_no'        => $entry['control_no'],
-                'designation'       => $data->position ?? null,
-                'status'            => $data->status ?? null,
-                'full_name'         => $data->name ?? null,
-                'sg'                => $data->sg ?? null,
-                'level'             => $data->level ?? null,
-                'office'            => $user->office ?? null,
-                'nominate_reason'   => $entry['nominate_reason'] ?? null,
-                'event_schedule_id' => $entry['event_schedule_id'],
-                'nominate_status'   => 'Pending',
-            ]);
+            if ($dates->isEmpty()) {
+                continue;
+            }
+
+            $conflict = NominatedEmployee::with(['event', 'eventSchedule.scheduleDateTime'])
+                ->where('control_no', $entry['control_no'])
+                ->where('event_schedule_id', '!=', $entry['event_schedule_id'])
+                ->whereIn('nominate_status', ['Pending', 'Approved'])
+                ->whereHas('eventSchedule.scheduleDateTime', function ($q) use ($dates) {
+                    $q->whereIn(DB::raw('CAST(schedule_date AS DATE)'), $dates->all());
+                })
+                ->first();
+
+            if ($conflict) {
+                // kunin ang mismong petsang nag-conflict para malinaw ang message
+                $conflictDates = $conflict->eventSchedule->scheduleDateTime
+                    ->map(fn($d) => Carbon::parse($d->getRawOriginal('schedule_date'))->toDateString())
+                    ->intersect($dates)
+                    ->map(fn($d) => Carbon::parse($d)->format('F d, Y'))
+                    ->implode(', ');
+
+                $eventTitle = $conflict->event->title_name ?? 'another event';
+
+                throw new \Exception(
+                    "{$nameOf($entry['control_no'])} is already nominated ({$conflict->nominate_status}) "
+                        . "for \"{$eventTitle}\" on {$conflictDates}. An employee cannot attend two events on the same date.",
+                    422
+                );
+            }
         }
 
-        $this->notifyHrAdmins($nominees, $user);
+        // 5. Insert sa loob ng transaction
+        return DB::transaction(function () use ($employees, $employeeData, $user) {
+            $nominees = [];
 
-        return $nominees;
-    });
-}
+            foreach ($employees as $entry) {
+                $data = $employeeData->get($entry['control_no']);
+
+                $nominees[] = NominatedEmployee::create([
+                    'event_id'          => $entry['event_id'],
+                    'control_no'        => $entry['control_no'],
+                    'designation'       => $data->position ?? null,
+                    'status'            => $data->status ?? null,
+                    'full_name'         => $data->name ?? null,
+                    'sg'                => $data->sg ?? null,
+                    'level'             => $data->level ?? null,
+                    'office'            => $user->office ?? null,
+                    'nominate_reason'   => $entry['nominate_reason'] ?? null,
+                    'event_schedule_id' => $entry['event_schedule_id'],
+                    'nominate_status'   => 'Pending',
+                ]);
+            }
+
+            $this->notifyHrAdmins($nominees, $user);
+
+            return $nominees;
+        });
+    }
     // public function create(?array $validated, Authenticatable $user)
     // {
     //     $employees = $validated['employee'];
@@ -237,41 +292,41 @@ public function create(?array $validated, Authenticatable $user)
     }
 
     // for nomination
- public function employeeListForNomination(
-    string $trainingName,
-    Authenticatable $user,
-    ?int $sgFrom = null,
-    ?int $sgTo = null
-) {
-    // sg_from lang = iisang SG; sg_to lang = iisang SG din
-    if ($sgFrom !== null && $sgTo === null) {
-        $sgTo = $sgFrom;
-    } elseif ($sgFrom === null && $sgTo !== null) {
-        $sgFrom = $sgTo;
-    }
+    public function employeeListForNomination(
+        string $trainingName,
+        Authenticatable $user,
+        ?int $sgFrom = null,
+        ?int $sgTo = null
+    ) {
+        // sg_from lang = iisang SG; sg_to lang = iisang SG din
+        if ($sgFrom !== null && $sgTo === null) {
+            $sgTo = $sgFrom;
+        } elseif ($sgFrom === null && $sgTo !== null) {
+            $sgFrom = $sgTo;
+        }
 
-    // kung baliktad ang pagkakalagay, ayusin
-    if ($sgFrom !== null && $sgTo !== null && $sgFrom > $sgTo) {
-        [$sgFrom, $sgTo] = [$sgTo, $sgFrom];
-    }
+        // kung baliktad ang pagkakalagay, ayusin
+        if ($sgFrom !== null && $sgTo !== null && $sgFrom > $sgTo) {
+            [$sgFrom, $sgTo] = [$sgTo, $sgFrom];
+        }
 
-    return vwEmployee::with(['xTraining' => function ($query) use ($trainingName) {
+        return vwEmployee::with(['xTraining' => function ($query) use ($trainingName) {
             $query->select('ControlNo', 'training', 'Dates', 'NumHours', 'Conductor', 'DateFrom', 'DateTo', 'Type')
                 ->where('training', $trainingName);
         }])
-        ->select('ControlNo', 'name', 'office', 'position', 'status', 'sg')
-        ->where('office', $user->office)
-        ->when(
-            $sgFrom !== null && $sgTo !== null,
-            fn ($q) => $q->whereBetween('sg', [$sgFrom, $sgTo])
-        )
-        ->get()
-        ->map(function ($emp) {
-            $emp->trainingCount = $emp->xTraining->count();
-            $emp->isAlreadyTrained = $emp->trainingCount > 0;
-            return $emp;
-        });
-}
+            ->select('ControlNo', 'name', 'office', 'position', 'status', 'sg')
+            ->where('office', $user->office)
+            ->when(
+                $sgFrom !== null && $sgTo !== null,
+                fn($q) => $q->whereBetween('sg', [$sgFrom, $sgTo])
+            )
+            ->get()
+            ->map(function ($emp) {
+                $emp->trainingCount = $emp->xTraining->count();
+                $emp->isAlreadyTrained = $emp->trainingCount > 0;
+                return $emp;
+            });
+    }
     public function editReason(array $validated, int $nominatedEmployeeId)
     {
 
