@@ -19,6 +19,7 @@ use App\Http\Controllers\Event\Library\EventSourceController;
 use App\Http\Controllers\Event\Library\EventTitleController;
 use App\Http\Controllers\Event\Library\EventTypeController;
 use App\Http\Controllers\Event\Library\EventVenueController;
+use App\Http\Controllers\Event\Library\SpeakerController;
 use App\Http\Controllers\Event\ScheduleController;
 use App\Http\Controllers\File\ExcelController;
 use App\Http\Controllers\File\PDFController;
@@ -36,14 +37,15 @@ use App\Http\Controllers\Office\DashboardController as OfficeDashboardController
 use App\Http\Controllers\Office\EmployeeController;
 use App\Http\Controllers\Office\EventController as OfficeEventController;
 use App\Http\Controllers\Office\NominationFormController;
+
 use App\Http\Controllers\Office\OfficeController;
 
 use App\Http\Controllers\ReportController;;
-
 use App\Http\Controllers\User\PermissionController;
 use App\Http\Controllers\User\RoleController;
 use App\Http\Controllers\User\UserController;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -160,8 +162,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('notifications')->group(function () {
         Route::get('/', [NotificationController::class, 'index']);
-        Route::put('{controlNo}/{id}/read', [NotificationController::class, 'markAsRead']);
-        Route::get('{controlNo}/unread/count', [NotificationController::class, 'unreadCount']);
+        Route::put('/{id}/read', [NotificationController::class, 'markAsRead']);
+        Route::get('/unread/count', [NotificationController::class, 'unreadCount']);
     });
 
     Route::prefix('employee')->group(function () {
@@ -300,6 +302,17 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
         Route::put('/update/{venueId}', [EventVenueController::class, 'update']);
         Route::delete('/delete/{venueId}', [EventVenueController::class, 'destroy']);
     });
+
+
+    Route::prefix('speaker')->group(function () {
+        Route::get('/', [SpeakerController::class, 'index']);
+        Route::get('/show/{speakerId}', [SpeakerController::class, 'show']);
+        Route::post('/store', [SpeakerController::class, 'store']);
+        Route::put('/update/{speakerId}', [SpeakerController::class, 'update']);
+        Route::delete('/delete/{speakerId}', [SpeakerController::class, 'destroy']);
+    });
+
+
 
 
     Route::prefix('event')->group(function () {
