@@ -9,22 +9,22 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::table('event_assessments', function (Blueprint $table) {
+    // public function up(): void
+    // {
+    //     Schema::table('event_assessments', function (Blueprint $table) {
     
-              $table->boolean('is_assessment_open')->default(false);
-        });
-    }
+    //           $table->boolean('is_assessment_open')->default(false);
+    //     });
+    // }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::table('event_assessments', function (Blueprint $table) {
-            //
-            $table->dropColumn('is_assessment_open');
-        });
-    }
+    // /**
+    //  * Reverse the migrations.
+    //  */
+    // public function down(): void
+    // {
+    //     Schema::table('event_assessments', function (Blueprint $table) {
+    //         //
+    //         $table->dropColumn('is_assessment_open');
+    //     });
+    // }
 };
