@@ -4,6 +4,7 @@ namespace App\Services\Event;
 
 use App\Models\ARMS\Tblevent;
 use App\Models\Employee\NominatedEmployee;
+use App\Models\Event\Assessment\Assessment;
 use App\Models\Event\Compentecy\EventCore;
 use App\Models\Event\Compentecy\EventLeadership;
 use App\Models\Event\Compentecy\EventTechnical;
@@ -307,7 +308,7 @@ class EventService
     public function nominatedEmployee(int $eventId, int $eventScheduleId, int $perPage = 10, ?string $office = null, ?string $status = null)
     {
         $event = Event::with([
-      
+
             'schedule' => function ($query) use ($eventId, $eventScheduleId) {
                 $query->with([
 
@@ -316,7 +317,7 @@ class EventService
                     'eventCore',
                     'eventTechnical',
                     'eventLeadership',
-                    'eventAssessment',
+                    // 'eventAssessment',
                     'scheduleDateTime' => function ($query) {
                         $query->with('speakers');
                     },
@@ -375,7 +376,7 @@ class EventService
     // create event
     public function create(?array $validated)
     {
-   
+
         return DB::transaction(function () use ($validated) {
 
             // check if the event title already exists
@@ -411,6 +412,7 @@ class EventService
                 'form_due_date'          => $validated['form_due_date'] ?? null,
                 'sg_from'   => $validated['sg_from'] ?? null,
                 'sg_to'  => $validated['sg_to'] ?? null,
+                'is_assessment_open' => $form['is_assessment_open'] ?? false,
             ]);
 
             // ---------- save into ARMS (Tblevent) ----------
@@ -497,13 +499,6 @@ class EventService
             ]);
 
 
-            EventAssessment::create([
-                'event_schedule_id'                                      => $schedule->id,
-                'pre_test_assessment'                  => $validated['pre_test_assessment'] ?? Null,
-                'post_test_assessment' => $validated['post_test_assessment'] ?? Null,
-                'is_assessment_open' => $form['is_assessment_open'] ?? false,
-
-            ]);
             foreach ($validated['employee'] ?? [] as $emp) {
                 EventEmployeeTag::create([
                     'event_schedule_id' => $schedule->id,
@@ -550,6 +545,34 @@ class EventService
                 }
             }
 
+
+            // Pre-test / Post-test assessments (max 1 each per schedule)
+            foreach ($validated['assessment'] ?? [] as $a) {
+                $assessment = Assessment::create([
+                    'event_schedule_id' => $schedule->id,
+                    'type'              => $a['type'],            // pre_test | post_test
+                    'title'             => $a['title'] ?? null,
+                    'passing_score'     => $a['passing_score'] ?? 0,
+                ]);
+
+                foreach ($a['questions'] ?? [] as $index => $q) {
+                    $question = $assessment->questions()->create([
+                        'question'      => $q['question'],
+                        'question_type' => $q['question_type'],
+                        'points'        => $q['points'] ?? 0,
+                        'sort_order'    => $index + 1,
+                    ]);
+
+                    foreach ($q['options'] ?? [] as $option) {
+                        $question->options()->create([
+                            'option_text' => $option['option_text'],
+                            'is_correct'  => $option['is_correct'] ?? false,
+                        ]);
+                    }
+                }
+            }
+
+
             // Notify office admins of each included office
             $officeNames = collect($validated['office'] ?? [])->pluck('office_name')->filter();
 
@@ -566,6 +589,8 @@ class EventService
                     Log::info('No office admins found for offices: ' . $officeNames->implode(', '));
                 }
             }
+
+
 
 
 
@@ -611,7 +636,7 @@ class EventService
     public function details(int $eventId, int $eventScheduleId)
     {
         $event = Event::with([
-          
+
             'schedule' => function ($query) use ($eventId, $eventScheduleId) {
                 $query->with([
                     'speaker',

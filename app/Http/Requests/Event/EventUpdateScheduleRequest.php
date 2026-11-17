@@ -36,8 +36,7 @@ class EventUpdateScheduleRequest extends FormRequest
             'conducted_by' => 'nullable|string',
             'learning_intervention' => 'nullable|string',
             'sync_to_arms' => 'nullable|boolean',
-            'pre_test_assessment' => 'nullable|url',
-            'post_test_assessment' => 'nullable|url',
+    
            'is_assessment_open' => 'nullable|boolean',
 
             'form_open_date' => 'nullable|date_format:Y-m-d h:i A',
@@ -59,7 +58,13 @@ class EventUpdateScheduleRequest extends FormRequest
             'DateTime.*.speakers.*.agency'       => ['nullable', 'string', 'max:255'],
 
 
+       
+            
+            // form for event
+            'form' => 'nullable|array',
+            'form.*.form_name' => 'nullable|string',
 
+            
             // office 
             'office' => 'nullable|array',
             'office.*.office_name' => 'nullable|string',
@@ -99,6 +104,23 @@ class EventUpdateScheduleRequest extends FormRequest
             'employee.*.office' => 'nullable|string',
             'employee.*.name' => 'nullable|string',
             'employee.*.status' => 'nullable|string',
+
+            
+            // assessment
+        'assessment'                  => ['nullable', 'array', 'max:10'],
+        // 'assessment.*.type'           => ['required_with:assessment', 'in:pre_test,post_test', 'distinct'],
+        'assessment.*.type'         => ['nullable', 'string', 'max:255'],
+        'assessment.*.title'          => ['nullable', 'string', 'max:255'],
+        'assessment.*.passing_score'  => ['nullable', 'integer', 'min:0'],
+
+        'assessment.*.questions'                         => ['nullable', 'array', 'min:1'],
+        'assessment.*.questions.*.question'              => ['required', 'string'],
+        'assessment.*.questions.*.question_type'         => ['required', 'string'],
+        'assessment.*.questions.*.points'                => ['nullable', 'integer', 'min:0'],
+        'assessment.*.questions.*.options'               => ['nullable', 'array'],
+        'assessment.*.questions.*.options.*.option_text' => ['required', 'string'],
+        'assessment.*.questions.*.options.*.is_correct'  => ['nullable', 'boolean'],
+
 
 
         ];

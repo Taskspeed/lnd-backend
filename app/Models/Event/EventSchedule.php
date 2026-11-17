@@ -4,6 +4,7 @@ namespace App\Models\Event;
 
 use App\Casts\TimeFormatCast;
 use App\Models\Employee\NominatedEmployee;
+use App\Models\Event\Assessment\Assessment;
 use App\Models\Event\Compentecy\EventCore;
 use App\Models\Event\Compentecy\EventLeadership;
 use App\Models\Event\Compentecy\EventTechnical;
@@ -35,7 +36,8 @@ class EventSchedule extends Model
         'form_open_date',
         'form_due_date',
         'sg_from',
-        'sg_to'
+        'sg_to',
+         'is_assessment_open'
     ];
 
     protected $casts = [
@@ -47,7 +49,9 @@ class EventSchedule extends Model
         'approved_count' => 'integer',
         'pending_count' => 'integer',
         'sg_to' => 'integer',
-        'sg_from' => 'integer'
+        'sg_from' => 'integer',
+        //  'form_open_date' => 'immutable_datetime',
+         'is_assessment_open'=> 'boolean',
     ];
 
     protected $appends = ['scheduleId', 'computedStatus'];
@@ -130,15 +134,17 @@ class EventSchedule extends Model
         return $this->hasMany(EventEmployeeTag::class);
     }
 
-    public function eventAssessment()
-    {
+    // public function eventAssessment()
+    // {
 
-        return $this->hasMany(EventAssessment::class);
-    }
+    //     return $this->hasMany(EventAssessment::class);
+    // }
     
     public function form()
     {
         return  $this->hasMany(EventForm::class);
     }
+
+    public function assessments() { return $this->hasMany(Assessment::class); }
  
 }

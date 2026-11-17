@@ -34,5 +34,7 @@ class Event extends Model
         return  $this->hasMany(EventSchedule::class);
     }
 
+  
+
     
 }

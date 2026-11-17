@@ -12,6 +12,7 @@ use App\Http\Controllers\Erms\Form\EmployeeLearningApplicationMonitoringFormCont
 use App\Http\Controllers\Erms\Form\EmployeeLearningApplicationPlanFormController;
 use App\Http\Controllers\Erms\Form\EmployeeLearningImplementationFormController;
 use App\Http\Controllers\Erms\Form\EmployeeTrainingEvaluationController;
+use App\Http\Controllers\Event\AssessmentController;
 use App\Http\Controllers\Event\EventController;
 use App\Http\Controllers\Event\Library\EventCategoryController;
 use App\Http\Controllers\Event\Library\EventModeController;
@@ -40,11 +41,13 @@ use App\Http\Controllers\Office\NominationFormController;
 
 use App\Http\Controllers\Office\OfficeController;
 
+use App\Http\Controllers\Print\FormPdfController;
 use App\Http\Controllers\ReportController;;
 use App\Http\Controllers\User\PermissionController;
 use App\Http\Controllers\User\RoleController;
 use App\Http\Controllers\User\UserController;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -106,6 +109,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('learner-progress')->group(function () {
             // Route::get('/{learnerProgressFormId}', [EmployeeLearnerProgressFormController::class, 'show'])->withoutMiddleware(['auth:sanctum']);
             Route::post('/store', [EmployeeLearnerProgressFormController::class, 'store'])->withoutMiddleware(['auth:sanctum']);
+            Route::put('/upload/supporting/image/{learnerProgressFormId}', [EmployeeLearnerProgressFormController::class, 'upload'])->withoutMiddleware(['auth:sanctum']);
             // Route::put('/update/{learnerProgressFormId}', [EmployeeLearnerProgressFormController::class, 'update'])->withoutMiddleware(['auth:sanctum']);
             Route::delete('/delete/{learnerProgressFormId}', [EmployeeLearnerProgressFormController::class, 'destroy'])->withoutMiddleware(['auth:sanctum']);
         });
@@ -113,6 +117,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('learning-application-monitoring')->group(function () {
             // Route::get('/{learningMonitoringFormId}', [EmployeeLearningApplicationMonitoringFormController::class, 'show'])->withoutMiddleware(['auth:sanctum']);
             Route::post('/store', [EmployeeLearningApplicationMonitoringFormController::class, 'store'])->withoutMiddleware(['auth:sanctum']);
+            Route::put('/upload/supporting/image/{learningMonitoringFormId}', [EmployeeLearningApplicationMonitoringFormController::class, 'upload'])->withoutMiddleware(['auth:sanctum']);
+
             // Route::put('/update/{learningMonitoringFormId}', [EmployeeLearningApplicationMonitoringFormController::class, 'update'])->withoutMiddleware(['auth:sanctum']);
             Route::delete('/delete/{learningMonitoringFormId}', [EmployeeLearningApplicationMonitoringFormController::class, 'destroy'])->withoutMiddleware(['auth:sanctum']);
         });
@@ -158,6 +164,12 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::put('/{id}/read', [NotificationController::class, 'ermsMarkAsRead'])->withoutMiddleware(['auth:sanctum']);
             Route::get('/unread/count', [NotificationController::class, 'ermsunreadCount'])->withoutMiddleware(['auth:sanctum']);
         });
+
+        
+        Route::prefix('print')->group(function () {
+        Route::get('/form-submissions/{submissionId}/pdf/learner-progress',[FormPdfController::class, 'learnerProgress'])->withoutMiddleware(['auth:sanctum']);
+        });
+
     });
 
     Route::prefix('notifications')->group(function () {
@@ -315,7 +327,7 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
 
 
 
-    Route::prefix('event')->group(function () {
+    Route::prefix('event')->group(function () { 
         Route::get('/index', [EventController::class, 'index']);
         Route::post('/store', [EventController::class, 'store']);
         Route::put('/edit/{eventId}', [EventController::class, 'edit']);
@@ -364,6 +376,14 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
                 Route::get('/file/{document}', [DocumentController::class, 'viewFile']);
             });
         });
+
+
+          Route::prefix('assessment')->group(function () {
+
+                Route::get('/{assessmentId}', [AssessmentController::class, 'getAssessment']);
+                Route::get('print/{assessmentId}', [AssessmentController::class, 'printAssessment']);
+
+            });
     });
 
 

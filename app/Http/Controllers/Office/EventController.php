@@ -75,7 +75,7 @@ class EventController extends Controller
         }, 'eventCore', 'eventTechnical', 'eventLeadership','employeeTag' => function ($query) use ($user, $scheduleId) {
             $query->select('id', 'event_schedule_id', 'control_no', 'name', 'office', 'position', 'status')->where('office', $user->office)->where('event_schedule_id', $scheduleId)->get();
         }, 'office' => function ($query) use ($user) {
-            $query->select('id', 'event_schedule_id', 'office_name')->where('office_name', $user->office);
+            $query->select('id', 'event_schedule_id', 'office_name','number_of_attendees')->where('office_name', $user->office);
         }])->find($scheduleId);
 
 
