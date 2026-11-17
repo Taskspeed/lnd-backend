@@ -3,6 +3,7 @@
 namespace App\Services\Event;
 
 use App\Models\ARMS\Tblevent;
+use App\Models\Event\Assessment\Assessment;
 use App\Models\Event\Compentecy\EventCore;
 use App\Models\Event\Compentecy\EventLeadership;
 use App\Models\Event\Compentecy\EventTechnical;
@@ -46,6 +47,7 @@ class ScheduleService
                 'form_due_date'          => $validated['form_due_date'] ?? null,
                 'sg_from'   => $validated['sg_from'] ?? null,
                 'sg_to'  => $validated['sg_to'] ?? null,
+                'is_assessment_open' => $form['is_assessment_open'] ?? false,
             ]);
 
             $event  = Event::find($validated['event_id']);
@@ -77,14 +79,7 @@ class ScheduleService
 
             ]);
 
-            EventAssessment::create([
-                'event_schedule_id' => $schedule->id,
-                'pre_test_assessment'   => $validated['pre_test_assessment'] ?? Null,
-                'post_test_assessment'    => $validated['post_test_assessment'] ?? Null,
-                'is_assessment_open' => $validated['is_assessment_open'] ?? false,
-
-
-            ]);
+        
 
             foreach ($validated['employee'] as $emp) {
                 EventEmployeeTag::create([
@@ -133,6 +128,32 @@ class ScheduleService
                 }
             }
 
+            // Pre-test / Post-test assessments (max 1 each per schedule)
+            foreach ($validated['assessment'] ?? [] as $a) {
+                $assessment = Assessment::create([
+                    'event_schedule_id' => $schedule->id,
+                    'type'              => $a['type'],            // pre_test | post_test
+                    'title'             => $a['title'] ?? null,
+                    'passing_score'     => $a['passing_score'] ?? 0,
+                ]);
+
+                foreach ($a['questions'] ?? [] as $index => $q) {
+                    $question = $assessment->questions()->create([
+                        'question'      => $q['question'],
+                        'question_type' => $q['question_type'],
+                        'points'        => $q['points'] ?? 0,
+                        'sort_order'    => $index + 1,
+                    ]);
+
+                    foreach ($q['options'] ?? [] as $option) {
+                        $question->options()->create([
+                            'option_text' => $option['option_text'],
+                            'is_correct'  => $option['is_correct'] ?? false,
+                        ]);
+                    }
+                }
+            }
+
 
             // Notify office admins ng bawat kasamang office
             $officeNames = collect($validated['office'] ?? [])->pluck('office_name')->filter();
@@ -150,9 +171,6 @@ class ScheduleService
                     Log::info("No office admins found for offices: " . $officeNames->implode(', '));
                 }
             }
-
-
-
 
 
             // ---------- ARMS sync (last, after everything else succeeded) ----------
@@ -233,6 +251,7 @@ class ScheduleService
                 'form_due_date'          => $validated['form_due_date'] ?? null,
                 'sg_from'   => $validated['sg_from'] ?? null,
                 'sg_to'  => $validated['sg_to'] ?? null,
+                 'is_assessment_open' => $form['is_assessment_open'] ?? false,
             ]);
 
             $schedule->employeeTag()->delete();
@@ -280,14 +299,44 @@ class ScheduleService
                 'thinking_strategically_creatively'  => $validated['thinking_strategically_creatively'] ?? false,
                 'problem_solving_decision_making'  => $validated['problem_solving_decision_making'] ?? false,
             ]);
-            $schedule->eventAssessment()->delete();
 
-            EventAssessment::create([
-                'event_schedule_id' => $schedule->id,
-                'pre_test_assessment'   => $validated['pre_test_assessment'] ?? Null,
-                'post_test_assessment'   => $validated['post_test_assessment'] ?? Null,
-                'is_assessment_open' => $validated['is_assessment_open'] ?? false,
-            ]);
+    
+
+            $keepIds = [];
+
+            foreach ($validated['assessment'] ?? [] as $a) {
+                $assessment = Assessment::updateOrCreate(
+                    ['id' => $a['id'] ?? null, 'event_schedule_id' => $schedule->id],
+                    [
+                        'type'          => $a['type'],
+                        'title'         => $a['title'] ?? null,
+                        'passing_score' => $a['passing_score'] ?? 0,
+                    ]
+                );
+                $keepIds[] = $assessment->id;
+
+                // questions at options lang ang ire-rebuild
+                $assessment->questions()->delete();
+
+                foreach ($a['questions'] ?? [] as $index => $q) {
+                    $question = $assessment->questions()->create([
+                        'question'      => $q['question'],
+                        'question_type' => $q['question_type'],
+                        'points'        => $q['points'] ?? 0,
+                        'sort_order'    => $index + 1,
+                    ]);
+
+                    foreach ($q['options'] ?? [] as $option) {
+                        $question->options()->create([
+                            'option_text' => $option['option_text'],
+                            'is_correct'  => $option['is_correct'] ?? false,
+                        ]);
+                    }
+                }
+            }
+
+            // tanggalin lang ang mga assessment na inalis ng user
+            $schedule->assessments()->whereNotIn('id', $keepIds)->delete();
 
             $schedule->form()->delete();
 
@@ -410,7 +459,7 @@ class ScheduleService
     public function eventViewSchedule(int $scheduleId)
     {
 
-        $schedule  = EventSchedule::with(['eventCore', 'eventTechnical', 'eventLeaderShip', 'office', 'form', 'eventAssessment', 'employeeTag', 'scheduleDateTime' => function ($query) {
+        $schedule  = EventSchedule::with(['eventCore', 'eventTechnical', 'eventLeaderShip', 'office', 'form', 'employeeTag','assessments', 'scheduleDateTime' => function ($query) {
             $query->with('speakers');
         },])->find($scheduleId);
 
