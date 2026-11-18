@@ -11,11 +11,11 @@ class SpeakerEmployment extends Model
 
     protected $fillable = [
         'speaker_id',
-
         'position',
         'office',
         'employment_type',
         'salary_grade',
+        'agency'
     ];
 
     protected $casts = [

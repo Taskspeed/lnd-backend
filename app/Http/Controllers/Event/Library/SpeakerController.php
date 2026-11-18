@@ -5,162 +5,70 @@ namespace App\Http\Controllers\Event\Library;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Event\EventAddSpeakerRequest;
 use App\Http\Requests\Event\EventUpdateSpeakerRequest;
+use App\Models\Event\EventSpeaker;
 use App\Models\Event\Library\Speaker;
+use App\Services\Event\Library\SpeakerService;
 use App\Traits\ApiResponseTrait;
+use App\Traits\FormatsDateRanges;
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Concerns\FormatsMessages;
 
 class SpeakerController extends Controller
 {
     //
 
     use ApiResponseTrait;
+    use FormatsDateRanges;
+
+    protected SpeakerService $speakerService;
+    public function __construct(SpeakerService $speakerService)
+    {
+        $this->speakerService = $speakerService;
+    }
 
     public function index()
     {
-        $speaker = Speaker::select('id', 'first_name', 'middle_name', 'last_name', 'gender')->with('employment', function ($query) {
-            $query->select('id', 'speaker_id', 'agency', 'position', 'employment_type');
-        })->get();
-
-
-        return $this->successMessage($speaker, 'Fetch list Speaker successfully', 201);
+        return $this->successMessage(
+            $this->speakerService->listSpeakers(),
+            'Fetch list Speaker successfully',
+            201
+        );
     }
 
     public function store(EventAddSpeakerRequest $request)
     {
-        $photoPath = null; // nasa labas ng try para magamit sa catch
-
         try {
-            $validated = $request->validated();
+            $speaker = $this->speakerService->storeSpeaker(
+                $request->validated(),
+                $request->file('profile_photo')
+            );
 
-            if ($request->hasFile('profile_photo')) {
-                $photoPath = $request->file('profile_photo')->store('speakers', 'public');
-            }
-
-            $result = DB::transaction(function () use ($validated, $photoPath) {
-                $speaker = Speaker::create([
-                    'first_name'     => $validated['first_name'],
-                    'middle_name'    => $validated['middle_name'] ?? null,
-                    'last_name'      => $validated['last_name'],
-                    'suffix'         => $validated['suffix'] ?? null,
-                    'gender'         => $validated['gender'],
-                    'birth_date'     => $validated['birth_date'],
-                    'email'          => $validated['email'] ?? null,
-                    'contact_number' => $validated['contact_number'] ?? null,
-                    'profile_photo'  => $photoPath, // path na lang, hindi na ang file
-                ]);
-
-                $employment = $speaker->employment()->create([
-                    'position'        => $validated['position'] ?? null,
-                    'office'          => $validated['office'] ?? null,
-                    'employment_type' => $validated['employment_type'] ?? null,
-                    'salary_grade'    => $validated['salary_grade'] ?? null,
-                ]);
-
-                $professional = $speaker->professionalInfo()->create([
-                    'professional_title'  => $validated['professional_title'] ?? null,
-                    'specialization'      => $validated['specialization'] ?? null,
-                    'biography'           => $validated['biography'] ?? null,
-                    'years_of_experience' => $validated['years_of_experience'] ?? null,
-                ]);
-
-                return [
-                    'speaker'      => $speaker,
-                    'employment'   => $employment,
-                    'professional' => $professional,
-                ];
-            });
-
-            return $this->successMessage($result, 'Speaker created successfully', 201);
+            return $this->successMessage($speaker, 'Speaker created successfully', 201);
         } catch (\Throwable $e) {
-            // pumalya ang database, burahin ang na-upload na file
-            if ($photoPath) {
-                Storage::disk('public')->delete($photoPath);
-            }
-
-            return $this->errorMessage($e->getMessage(), 500);
+            return $this->errorMessage('Unable to create speaker. Please try again.', 500);
         }
     }
 
     public function update(EventUpdateSpeakerRequest $request, int $speakerId)
     {
-        $newPhotoPath = null;
-
         try {
-            $speaker = Speaker::find($speakerId);
+            $speaker = $this->speakerService->updateSpeaker(
+                $speakerId,
+                $request->validated(),
+                $request->file('profile_photo'),
+                $request->boolean('remove_photo')
+            );
 
             if (!$speaker) {
                 return $this->errorMessage('Speaker not found', 404);
             }
 
-            $validated   = $request->validated();
-            $oldPhotoPath = $speaker->profile_photo;
-            $removePhoto  = $request->boolean('remove_photo');
-
-            if ($request->hasFile('profile_photo')) {
-                $newPhotoPath = $request->file('profile_photo')->store('speakers', 'public');
-            }
-
-            $result = DB::transaction(function () use ($speaker, $validated, $newPhotoPath, $removePhoto) {
-                // wala na ang 'profile_photo' dito, hiwalay ang handling niya
-                $speakerData = Arr::only($validated, [
-                    'first_name',
-                    'middle_name',
-                    'last_name',
-                    'suffix',
-                    'gender',
-                    'birth_date',
-                    'email',
-                    'contact_number',
-                ]);
-
-                if ($newPhotoPath) {
-                    $speakerData['profile_photo'] = $newPhotoPath;
-                } elseif ($removePhoto) {
-                    $speakerData['profile_photo'] = null;
-                }
-
-                $employmentData = Arr::only($validated, [
-                    'position',
-                    'office',
-                    'employment_type',
-                    'salary_grade',
-                ]);
-
-                $professionalData = Arr::only($validated, [
-                    'professional_title',
-                    'specialization',
-                    'biography',
-                    'years_of_experience',
-                ]);
-
-                if ($speakerData) {
-                    $speaker->update($speakerData);
-                }
-
-                if ($employmentData) {
-                    $speaker->employment()->updateOrCreate([], $employmentData);
-                }
-
-                if ($professionalData) {
-                    $speaker->professionalInfo()->updateOrCreate([], $professionalData);
-                }
-
-                return $speaker->load(['employment', 'professionalInfo']);
-            });
-
-            // tagumpay ang database, ligtas nang burahin ang lumang litrato
-            if ($oldPhotoPath && ($newPhotoPath || $removePhoto)) {
-                Storage::disk('public')->delete($oldPhotoPath);
-            }
-
-            return $this->successMessage($result, 'Speaker updated successfully', 200);
+            return $this->successMessage($speaker, 'Speaker updated successfully', 200);
         } catch (\Throwable $e) {
-            if ($newPhotoPath) {
-                Storage::disk('public')->delete($newPhotoPath);
-            }
-
             return $this->errorMessage($e->getMessage(), 500);
         }
     }
@@ -168,22 +76,8 @@ class SpeakerController extends Controller
     public function destroy(int $speakerId)
     {
         try {
-            $speaker = Speaker::find($speakerId);
-
-            if (!$speaker) {
+            if (!$this->speakerService->deleteSpeaker($speakerId)) {
                 return $this->errorMessage('Speaker not found', 404);
-            }
-
-            DB::transaction(function () use ($speaker) {
-                // Tahasang burahin ang child rows. Hindi nakakasama kahit may cascade na.
-                $speaker->employment()->delete();
-                $speaker->professionalInfo()->delete();
-                $speaker->delete();
-            });
-
-            // Burahin ang litrato kung may na-upload (ayusin ang disk ayon sa setup mo)
-            if ($speaker->profile_photo) {
-                Storage::disk('public')->delete($speaker->profile_photo);
             }
 
             return $this->successMessage(null, 'Speaker deleted successfully', 200);
@@ -194,9 +88,33 @@ class SpeakerController extends Controller
 
     public function show(int $speakerId)
     {
+        return $this->successMessage(
+            $this->speakerService->getSpeaker($speakerId),
+            'Speaker Profile',
+            200
+        );
+    }
 
-        $speaker = Speaker::with(['employment', 'professionalInfo'])->find($speakerId);
+    public function fetchSpeaker(Request $request)
+    {
+        return $this->successMessage(
+            $this->speakerService->searchSpeakers($request->query('search')),
+            'Fetch list Speaker successfully',
+            200
+        );
+    }
 
-        return $this->successMessage($speaker, 'Speaker Profile', 200);
+    public function history(Request $request, int $speakerId)
+    {
+        $data = $this->speakerService->getHistory(
+            $speakerId,
+            max((int) $request->query('page', 1), 1),
+            max((int) $request->query('per_page', 5), 1),
+            trim((string) $request->query('search', '')),
+            $request->url(),
+            $request->query()
+        );
+
+        return $this->successMessage($data, 'Speaker history', 200);
     }
 }

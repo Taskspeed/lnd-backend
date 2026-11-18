@@ -53,6 +53,7 @@ class EventUpdateScheduleRequest extends FormRequest
             'DateTime.*.afternoon_in' => 'nullable|date_format:h:i A',
             'DateTime.*.afternoon_out' => 'nullable|date_format:h:i A',
             'DateTime.*.speakers'               => ['nullable', 'array'],
+            'DateTime.*.speakers.*.speaker_id' => ['required', 'integer', 'exists:speakers,id'],
             'DateTime.*.speakers.*.speaker_name' => ['required', 'string', 'max:255'],
             'DateTime.*.speakers.*.position'     => ['nullable', 'string', 'max:255'],
             'DateTime.*.speakers.*.agency'       => ['nullable', 'string', 'max:255'],
@@ -109,7 +110,7 @@ class EventUpdateScheduleRequest extends FormRequest
             // assessment
         'assessment'                  => ['nullable', 'array', 'max:10'],
         // 'assessment.*.type'           => ['required_with:assessment', 'in:pre_test,post_test', 'distinct'],
-        'assessment.*.type'         => ['nullable', 'string', 'max:255'],
+        'assessment.*.event_name'         => ['nullable', 'string', 'max:255'],
         'assessment.*.title'          => ['nullable', 'string', 'max:255'],
         'assessment.*.passing_score'  => ['nullable', 'integer', 'min:0'],
 

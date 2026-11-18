@@ -40,6 +40,7 @@ class EventAddSpeakerRequest extends FormRequest
             'office' => 'nullable|string',
             'employment_type' => 'nullable|string',
             'salary_grade' => 'nullable|integer',
+            'agency' => 'nullable|string',
 
 
             //   'educational_attainment',

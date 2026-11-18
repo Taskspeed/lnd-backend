@@ -318,10 +318,13 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
 
     Route::prefix('speaker')->group(function () {
         Route::get('/', [SpeakerController::class, 'index']);
+         Route::get('/fetch', [SpeakerController::class, 'fetchSpeaker']);
         Route::get('/show/{speakerId}', [SpeakerController::class, 'show']);
         Route::post('/store', [SpeakerController::class, 'store']);
         Route::put('/update/{speakerId}', [SpeakerController::class, 'update']);
         Route::delete('/delete/{speakerId}', [SpeakerController::class, 'destroy']);
+        Route::get('history/{speakerId}', [SpeakerController::class, 'history']);
+        
     });
 
 

@@ -23,11 +23,12 @@ class Speaker extends Model
     'contact_number',
     'profile_photo',
     'is_active',
+  
   ];
 
 
 
-  protected $appends = ['speakerId', 'speaker_name', 'profile_photo_url'];
+  protected $appends = ['speaker_id','speaker_name', 'profile_photo_url'];
   protected $hidden = [
     'id',
     'created_at',

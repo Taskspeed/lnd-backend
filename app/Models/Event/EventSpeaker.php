@@ -12,24 +12,28 @@ class EventSpeaker extends Model
 
     protected $fillable = [
         'schedule_date_time_id',
+        'speaker_id',
         'speaker_name',
         'agency',
         'position'
     ];
-
-    protected $appends = ['speakerId'];
-    protected $hidden = ['id' ,'created_at','updated_at'];
-    protected $casts = [ 
-           'schedule_date_time_id' => 'integer',
+// protected $appends = ['speakerId'];
+    
+    protected $hidden = ['id', 'created_at', 'updated_at'];
+    protected $casts = [
+        'schedule_date_time_id' => 'integer',
+        'speaker_id' => 'integer',
     ];
 
-    public function getSpeakerIdAttribute()
-    {
-        return $this->id;
-    }
+    // public function getSpeakerIdAttribute()
+    // {
+    //     return $this->id;
+    // }
     // EventSpeaker
-public function dateTime()
-{
-    return $this->belongsTo(EventScheduleDateTime::class, 'schedule_date_time_id');
-}
+    public function dateTime()
+    {
+        return $this->belongsTo(EventScheduleDateTime::class, 'schedule_date_time_id');
+    }
+
+    
 }
