@@ -317,7 +317,7 @@ class EventService
                     'eventCore',
                     'eventTechnical',
                     'eventLeadership',
-                    // 'eventAssessment',
+                    'assessments',
                     'scheduleDateTime' => function ($query) {
                         $query->with('speakers');
                     },
@@ -538,6 +538,7 @@ class EventService
 
                 foreach ($dt['speakers'] ?? [] as $speaker) {
                     $dateTime->speakers()->create([
+                        'speaker_id' => $speaker['speaker_id'] ?? null,
                         'speaker_name' => $speaker['speaker_name'] ?? null,
                         'position'     => $speaker['position'] ?? null,
                         'agency'       => $speaker['agency'] ?? null,
@@ -550,7 +551,7 @@ class EventService
             foreach ($validated['assessment'] ?? [] as $a) {
                 $assessment = Assessment::create([
                     'event_schedule_id' => $schedule->id,
-                    'type'              => $a['type'],            // pre_test | post_test
+                    'event_name'              => $a['event_name'],            // pre_test | post_test
                     'title'             => $a['title'] ?? null,
                     'passing_score'     => $a['passing_score'] ?? 0,
                 ]);
