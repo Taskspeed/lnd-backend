@@ -2,6 +2,7 @@
 
 namespace App\Models\Forms\LAP;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 class LearningApplicationPlanForm extends Model
@@ -23,21 +24,31 @@ class LearningApplicationPlanForm extends Model
         'techinal',
         'supervisory',
         'managerial',
-        'significant_learning_insight'
+        'significant_learning_insight',
+        'image'
     ];
 
-     protected $appends = ['learning_application_plan_form_id'];
+    protected $appends = ['learning_application_plan_form_id'];
     protected $hidden = ['id', 'created_at', 'updated_at'];
 
     protected $casts = [
-  
+
         'employee_form_submission_id' => 'integer',
         'foundation' => 'boolean',
         'techinal' => 'boolean',
         'supervisory' => 'boolean',
         'managerial' => 'boolean',
-         
+
     ];
+
+    protected function image(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value, $attributes) => $value
+                ? url("/api/erms/learning-application-plan/image/{$attributes['id']}")
+                : null,
+        );
+    }
 
     public function getLearningApplicationPlanFormIdAttribute()
     {

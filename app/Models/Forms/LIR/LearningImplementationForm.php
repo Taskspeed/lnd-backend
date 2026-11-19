@@ -2,6 +2,7 @@
 
 namespace App\Models\Forms\LIR;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 class LearningImplementationForm extends Model
@@ -24,28 +25,41 @@ class LearningImplementationForm extends Model
         'beneficiaries_strategies_applied',
         'performance_indicators_behavior_toward_work',
         'financial_aid_training_attended',
-        'return_financial_aid'
+        'return_financial_aid',
+        'image'
     ];
-  protected $appends = ['learning_implementation_form_id'];
+    protected $appends = ['learning_implementation_form_id'];
     protected $hidden = ['id', 'created_at', 'updated_at'];
 
     protected $casts = [
-  
+
         'employee_form_submission_id' => 'integer'
     ];
+
+    protected function image(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value, $attributes) => $value
+                ? url("/api/erms/learning-implementation/image/{$attributes['id']}")
+                : null,
+        );
+    }
 
     public function getLearningImplementationFormIdAttribute()
     {
         return $this->id;
     }
 
-    public function coreImplementation(){
+    public function coreImplementation()
+    {
         return $this->hasOne(CoreImplementation::class);
     }
-    public function technicalImplementation(){
+    public function technicalImplementation()
+    {
         return $this->hasOne(TechinicalImplementation::class);
     }
-    public function learderShipImplementation(){
+    public function learderShipImplementation()
+    {
         return $this->hasOne(LeadershipImplementation::class);
     }
 }

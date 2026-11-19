@@ -22,7 +22,7 @@ class TechnicalCompetencie extends Model
 
 
         protected $casts = [
-              'planning_organizing' => 'boolean',
+        'planning_organizing' => 'boolean',
         'monitoring_evaluation' => 'boolean',
         'records_management' => 'boolean',
         'partnering_networking' => 'boolean',

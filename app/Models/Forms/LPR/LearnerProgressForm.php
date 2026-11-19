@@ -3,6 +3,8 @@
 namespace App\Models\Forms\LPR;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\Storage;
 
 class LearnerProgressForm extends Model
 {
@@ -29,7 +31,8 @@ class LearnerProgressForm extends Model
         'problem_solving_decision_making_competency',
         'remarks',
         'monitoring_evaluation_competency',
-        'attention_detail_competency'
+        'attention_detail_competency',
+        'image'
     ];
 
     protected $appends = ['learner_progress_form_id'];
@@ -59,6 +62,15 @@ class LearnerProgressForm extends Model
 
     ];
 
+    protected function image(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value, $attributes) => $value
+                ? url("/api/erms/learner-progress/image/{$attributes['id']}")
+                : null,
+        );
+    }
+    
     public function coreProgress()
     {
         return  $this->hasOne(CoreProgress::class);

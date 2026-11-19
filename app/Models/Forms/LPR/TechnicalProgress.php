@@ -36,6 +36,6 @@ class TechnicalProgress extends Model
         'records_management'=> 'boolean',
         'partnering_networking'=> 'boolean',
         'process_management'=> 'boolean',
-          'attention_details'=> 'boolean',
+        'attention_details'=> 'boolean',
     ];
 }

@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Form\LearningApplicationMonitoringFormRequest;
 use App\Models\Event\EmployeeFormSubmission;
 use App\Models\Forms\LAMR\LearningApplicationMonitoringForm;
+use App\Services\EmployeeFileServices;
 use App\Services\Forms\LearningApplicationMonitoringFormService;
 use App\Traits\ApiResponseTrait;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 
 class EmployeeLearningApplicationMonitoringFormController extends Controller
@@ -16,10 +19,14 @@ class EmployeeLearningApplicationMonitoringFormController extends Controller
     use ApiResponseTrait;
 
     protected LearningApplicationMonitoringFormService $learningApplicationMonitoringFormService;
+    protected EmployeeFileServices $employeeFileService;
 
-    public function __construct(LearningApplicationMonitoringFormService $learningApplicationMonitoringFormService)
-    {
+    public function __construct(
+        LearningApplicationMonitoringFormService $learningApplicationMonitoringFormService,
+        EmployeeFileServices $employeeFileService
+    ) {
         $this->learningApplicationMonitoringFormService = $learningApplicationMonitoringFormService;
+        $this->employeeFileService = $employeeFileService;
     }
 
     /**
@@ -50,20 +57,20 @@ class EmployeeLearningApplicationMonitoringFormController extends Controller
     /**
      * Display the specified resource.
      */
-     public function show(int $learningMonitoringFormId)
+    public function show(int $learningMonitoringFormId)
     {
 
         $learnera_application_monitoring = LearningApplicationMonitoringForm::with(['coreMonitoring', 'leaderShipMonitoring', 'technicalMonitoring'])
-         ->find($learningMonitoringFormId);
+            ->find($learningMonitoringFormId);
 
         if (!$learnera_application_monitoring) {
             return $this->errorMessage('Learning application monitoring report id not found', 400);
         }
 
-         $status = EmployeeFormSubmission::find($learnera_application_monitoring->employee_form_submission_id);
+        $status = EmployeeFormSubmission::find($learnera_application_monitoring->employee_form_submission_id);
 
 
-            return $this->successMessage([
+        return $this->successMessage([
             'form' => $learnera_application_monitoring,
             'status' => $status,
         ], 'Success fetch', 200);
@@ -72,7 +79,7 @@ class EmployeeLearningApplicationMonitoringFormController extends Controller
     /**
      * Update the specified resource in storage.
      */
-     public function update(LearningApplicationMonitoringFormRequest $request, int $learningApplicationMonitoringFormId)
+    public function update(LearningApplicationMonitoringFormRequest $request, int $learningApplicationMonitoringFormId)
     {
         $validated = $request->validated();
 
@@ -92,12 +99,44 @@ class EmployeeLearningApplicationMonitoringFormController extends Controller
     {
 
         try {
-            
+
             $result = $this->learningApplicationMonitoringFormService->delete($learningApplicationMonitoringFormId);
-            return $this->successMessage($result,'success delete',200);
-        
+            return $this->successMessage($result, 'success delete', 200);
         } catch (\Exception $e) {
-            return $this->errorMessage($e->getMessage(),400);
+            return $this->errorMessage($e->getMessage(), 400);
         }
+    }
+
+
+    public function upload(Request $request, int $learningApplicationMonitoringFormId)
+    {
+        $validated = $request->validate([
+            'image'             => 'required|image|mimes:jpg,jpeg,png|max:10240',
+            'event_schedule_id' => 'required|integer',
+        ]);
+
+        try {
+            $result = $this->learningApplicationMonitoringFormService->uploadImage(
+                (int) $learningApplicationMonitoringFormId,   // <- i-cast dito
+                $validated,
+                $this->employeeFileService
+            );
+
+            return $this->successMessage($result, 'Successfully uploaded image.', 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return $this->errorMessage('Form record not found.', 404);
+        } catch (\Exception $e) {
+            return $this->errorMessage($e->getMessage(), 400);
+        }
+    }
+
+    public function viewImage(int $learningApplicationMonitoringFormId)
+    {
+        $form = LearningApplicationMonitoringForm::findOrFail($learningApplicationMonitoringFormId);
+        $path = $form->getRawOriginal('image');
+
+        abort_unless($path && $this->employeeFileService->exists($path), 404, 'File not found.');
+
+        return Storage::disk('local')->response($path);
     }
 }

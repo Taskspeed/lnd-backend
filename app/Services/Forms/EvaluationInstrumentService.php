@@ -5,6 +5,7 @@ namespace App\Services\Forms;
 use App\Models\Event\Event;
 use App\Models\Event\EventSchedule;
 use App\Models\Forms\LES\EvaluationInstrument;
+use App\Services\EmployeeFileServices;
 use App\Traits\FormSubmittedNotification;
 use App\Traits\ResubmitsForm;
 use Illuminate\Support\Facades\DB;
@@ -101,5 +102,28 @@ class EvaluationInstrumentService
             'disagree'          => $item['disagree'] ?? false,
             'strongly_disagree' => $item['strongly_disagree'] ?? false,
         ];
+    }
+
+            public function uploadImage(
+        int $evaluationInstrumentId,
+        array $validated,
+        EmployeeFileServices $fileService
+    ) {
+        $evaluation = EvaluationInstrument::findOrFail($evaluationInstrumentId);
+
+        // Upload image to forms folder
+        $path = $fileService->upload(
+            $evaluation->control_no,
+            (int) $validated['event_schedule_id'],
+            $validated['image'],
+            'forms'
+        );
+
+        // Save file path to database
+        $evaluation->update([
+            'image' => $path,
+        ]);
+
+        return $evaluation->fresh();
     }
 }

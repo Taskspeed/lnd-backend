@@ -9,6 +9,7 @@ use App\Models\Forms\LIR\CoreImplementation;
 use App\Models\Forms\LIR\LeadershipImplementation;
 use App\Models\Forms\LIR\LearningImplementationForm;
 use App\Models\Forms\LIR\TechinicalImplementation;
+use App\Services\EmployeeFileServices;
 use App\Traits\FormSubmittedNotification;
 use App\Traits\ResubmitsForm;
 use Illuminate\Support\Facades\DB;
@@ -29,10 +30,7 @@ class LearningImplementationFormService
     {
         return DB::transaction(function () use ($validated) {
 
-            $event = Event::with(['form' => function ($query) {
-                $query->where('form_name', $this->formName());
-            }])
-                ->where('id', $validated['event_id'] ?? null)
+                   $event = Event::where('id', $validated['event_id'])
                 ->first();
 
             if (!$event) {
@@ -220,5 +218,28 @@ class LearningImplementationFormService
 
             return $learning_implementation;
         });
+    }
+
+         public function uploadImage(
+        int $learningImplementationFormId,
+        array $validated,
+        EmployeeFileServices $fileService
+    ) {
+        $learning_implementation = LearningImplementationForm::findOrFail($learningImplementationFormId);
+
+        // Upload image to forms folder
+        $path = $fileService->upload(
+            $learning_implementation->control_no,
+            (int) $validated['event_schedule_id'],
+            $validated['image'],
+            'forms'
+        );
+
+        // Save file path to database
+        $learning_implementation->update([
+            'image' => $path,
+        ]);
+
+        return $learning_implementation->fresh();
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Employee\NominatedEmployee;
 use App\Models\Event\EmployeeFormSubmission;
 use App\Models\Event\Event;
+use App\Models\Event\EventForm;
 use App\Models\Forms\LAMR\LearningApplicationMonitoringForm;
 use App\Models\Forms\LAP\LearningApplicationPlanForm;
 use App\Models\Forms\LES\EvaluationInstrument;
@@ -25,7 +26,14 @@ class EmployeeEventController extends Controller
 
     // need to optimize later on
 
-
+    private const EVENT_FORMS = [
+        'Learner Progress Report'                => LearnerProgressForm::class,
+        'Learning Application Plan'              => LearningApplicationPlanForm::class,
+        'Learning Implementation Report'         => LearningImplementationForm::class,
+        'Learning Application Monitoring Report' => LearningApplicationMonitoringForm::class,
+        'Resources Speaker Evaluation Form'      => TrainingEvaluationSpeakers::class,
+        'Level 1 Evaluation Instrument'          => EvaluationInstrument::class,
+    ];
     // get the list of event of employee
     public function index(Request $request, string $controlNo)
     {
@@ -50,20 +58,18 @@ class EmployeeEventController extends Controller
     }
 
 
-
     public function show(int $eventId, int $eventScheduleId, string $controlNo)
     {
         $employee = NominatedEmployee::with(['event' => function ($query) use ($eventScheduleId) {
-
             $query->with(['schedule' => function ($query) use ($eventScheduleId) {
-
-                $query->where('id', $eventScheduleId)->with(['scheduleDateTime','eventAssessment']);
+                $query->where('id', $eventScheduleId)
+                    ->with(['scheduleDateTime','assessments','form']);
             }]);
         }])
             ->select('event_id', 'control_no', 'office')
             ->where('control_no', $controlNo)
             ->where('event_id', $eventId)
-            ->first(); // isang event lang naman ang hahanapin, so first() na lang instead of get()
+            ->first();
 
         if (!$employee) {
             return $this->errorMessage('Employee event not found', 404);
@@ -74,25 +80,41 @@ class EmployeeEventController extends Controller
             ->where('event_schedule_id', $eventScheduleId)
             ->get();
 
-        $totalRequired = $employee->event->form->count();
+        // forms ay nasa schedule na, hindi na sa event
+        $totalRequired  = EventForm::where('event_schedule_id', $eventScheduleId)->count();
         $totalSubmitted = $submissions->count();
 
         $employee->forms_summary = [
-            'total_required' => $totalRequired,
-            'total_submitted' => $totalSubmitted,
-            'remaining_form_need_to_submit'    => max($totalRequired - $totalSubmitted, 0),
-            'approved'        => $submissions->where('status', 'Approved')->count(),
-            'pending'         => $submissions->where('status', 'Pending')->count(),
-            'returned'        => $submissions->where('status', 'Returned')->count(),
+            'total_required'                => $totalRequired,
+            'total_submitted'               => $totalSubmitted,
+            'remaining_form_need_to_submit' => max($totalRequired - $totalSubmitted, 0),
+            'approved'                      => $submissions->where('status', 'Approved')->count(),
+            'pending'                       => $submissions->where('status', 'Pending')->count(),
+            'returned'                      => $submissions->where('status', 'Returned')->count(),
         ];
 
-        $employee->submitted_forms = $submissions->map(function ($sub) {
+       $recordIds = [];
+        foreach ($submissions->groupBy('form_name') as $formName => $group) {
+            $model = self::EVENT_FORMS[$formName] ?? null;
+            if (!$model) continue;
+
+            // keyBy submission id para makuha buong record (id + image)
+            $recordIds[$formName] = $model::whereIn('employee_form_submission_id', $group->pluck('id'))
+                ->get(['id', 'employee_form_submission_id', 'image'])
+                ->keyBy('employee_form_submission_id');
+        }
+
+        $employee->submitted_forms = $submissions->map(function ($sub) use ($recordIds) {
+            $record = $recordIds[$sub->form_name][$sub->id] ?? null;
+
             return [
-                'employee_form_submission_id'    => $sub->id,
-                'form_name'    => $sub->form_name,
-                'status'       => $sub->status,
-                'submitted_at' => $sub->submitted_at,
-                'remarks'      => $sub->remarks,
+                'employee_form_submission_id' => $sub->id,
+                'form_name'                   => $sub->form_name,
+                'status'                      => $sub->status,
+                'submitted_at'                => $sub->submitted_at,
+                'remarks'                     => $sub->remarks,
+                'form_record_id'              => $record?->id,
+                'image'                       => $record?->image ? asset('storage/' . $record->image) : null,
             ];
         })->values();
 
@@ -181,15 +203,24 @@ class EmployeeEventController extends Controller
             ->with(['schedule' => function ($query) use ($eventScheduleId) {
                 $query->select('id', 'event_id', 'venue_name', 'conducted_by')
                     ->where('id', $eventScheduleId)
-                    ->with(['eventCore', 'eventLeaderShip', 'eventTechnical', 'scheduleDateTime', 'speaker']);
+                    ->with(['eventCore', 'eventLeaderShip', 'eventTechnical', 'scheduleDateTime' => function($query){
+                        $query->with('speakers');
+                    }]);
             }])
             ->first();
 
-        $event?->schedule->each(function ($schedule) {
+            $event?->schedule->each(function ($schedule) {
             $schedule->schedule_date_range = $this->formatDateRanges($schedule->scheduleDateTime);
+
+            // kunin ang speakers bago i-unset ang scheduleDateTime
+            $speakers = $schedule->scheduleDateTime
+                ->flatMap(fn ($dateTime) => $dateTime->speakers)
+                ->unique('id')   // iisang speaker lang kahit ilang araw siya
+                ->values();
+
+            $schedule->setRelation('speakers', $speakers);
             $schedule->unsetRelation('scheduleDateTime');
         });
-
         return $this->successMessage(
             ['employee' => $employee_nominated, 'event' => $event],
             'Success fetch',

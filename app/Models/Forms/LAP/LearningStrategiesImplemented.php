@@ -23,7 +23,7 @@ class LearningStrategiesImplemented extends Model
           protected $hidden = [ 'created_at', 'updated_at'];
 
           protected $casts = [
-               'learning_application_plan_form_id' => 'integer',
+        'learning_application_plan_form_id' => 'integer',
         'immediate_application_skills'=> 'boolean',
         'knowledge_sharing'=> 'boolean',
         'peer_coaching_collaboration'=> 'boolean',

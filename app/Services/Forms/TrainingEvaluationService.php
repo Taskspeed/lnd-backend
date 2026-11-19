@@ -9,6 +9,7 @@ use App\Models\Forms\RSE\TrainingEvaluationSpeakers;
 use App\Models\RSP\vwEmployee;
 use App\Models\User;
 use App\Notifications\EmployeeSubmitFormNotification;
+use App\Services\EmployeeFileServices;
 use App\Traits\FormSubmittedNotification;
 use App\Traits\ResubmitsForm;
 use Illuminate\Support\Facades\DB;
@@ -82,5 +83,28 @@ class TrainingEvaluationService
 
             return $trainingEvaluation->load('speakerEvaluation');
         });
+    }
+
+            public function uploadImage(
+        int $trainingSpeakerId,
+        array $validated,
+        EmployeeFileServices $fileService
+    ) {
+        $trainingSpeaker = TrainingEvaluationSpeakers::findOrFail($trainingSpeakerId);
+
+        // Upload image to forms folder
+        $path = $fileService->upload(
+            $trainingSpeaker->control_no,
+            (int) $validated['event_schedule_id'],
+            $validated['image'],
+            'forms'
+        );
+
+        // Save file path to database
+        $trainingSpeaker->update([
+            'image' => $path,
+        ]);
+
+        return $trainingSpeaker->fresh();
     }
 }

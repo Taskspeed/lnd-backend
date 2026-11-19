@@ -7,10 +7,13 @@ use App\Http\Requests\Form\LearningImplementationFormRequest;
 use App\Models\Event\EmployeeFormSubmission;
 use App\Models\Forms\LAMR\LearningApplicationMonitoringForm;
 use App\Models\Forms\LAP\LearningApplicationPlan;
+use App\Models\Forms\LIR\LearningImplementationForm;
 use App\Models\Forms\LIR\LearningImplementationReport;
+use App\Services\EmployeeFileServices;
 use App\Services\Forms\LearningImplementationFormService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class EmployeeLearningImplementationFormController extends Controller
 {
@@ -20,9 +23,11 @@ class EmployeeLearningImplementationFormController extends Controller
 
     protected LearningImplementationFormService $LearningImplementationFormService;
 
-    public function __construct(LearningImplementationFormService $LearningImplementationFormService)
+    protected EmployeeFileServices $employeeFileService;
+    public function __construct(LearningImplementationFormService $LearningImplementationFormService, EmployeeFileServices $employeeFileService)
     {
         $this->LearningImplementationFormService = $LearningImplementationFormService;
+        $this->employeeFileService = $employeeFileService;
     }
     /**
      * Display a listing of the resource.
@@ -104,5 +109,37 @@ class EmployeeLearningImplementationFormController extends Controller
         } catch (\Exception $e) {
             return $this->errorMessage($e->getMessage(), 400);
         }
+    }
+
+    public function upload(Request $request, string $learningImplementationId)
+    {
+        $validated = $request->validate([
+            'image'             => 'required|image|mimes:jpg,jpeg,png|max:10240',
+            'event_schedule_id' => 'required|integer',
+        ]);
+
+        try {
+            $result = $this->LearningImplementationFormService->uploadImage(
+                (int) $learningImplementationId,   // <- i-cast dito
+                $validated,
+                $this->employeeFileService
+            );
+
+            return $this->successMessage($result, 'Successfully uploaded image.', 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return $this->errorMessage('Form record not found.', 404);
+        } catch (\Exception $e) {
+            return $this->errorMessage($e->getMessage(), 400);
+        }
+    }
+
+    public function viewImage(int $learningImplementationFormId)
+    {
+        $form = LearningImplementationForm::findOrFail($learningImplementationFormId);
+        $path = $form->getRawOriginal('image');
+
+        abort_unless($path && $this->employeeFileService->exists($path), 404, 'File not found.');
+
+        return Storage::disk('local')->response($path);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models\Forms\LAMR;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 class LearningApplicationMonitoringForm extends Model
@@ -25,7 +26,8 @@ class LearningApplicationMonitoringForm extends Model
         'target_date_completion',
         'status_as_of_v1',
         'status_as_of_v2',
-        'remarks'
+        'remarks',
+        'image'
     ];
 
     protected $appends = ['learning_application_monitoring_form_id'];
@@ -37,22 +39,34 @@ class LearningApplicationMonitoringForm extends Model
         'employee_form_submission_id' => 'integer'
     ];
 
+    protected function image(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value, $attributes) => $value
+                ? url("/api/erms/learning-application-monitoring/image/{$attributes['id']}")
+                : null,
+        );
+    }
+
     public function getLearningApplicationMonitoringFormIdAttribute()
     {
         return $this->id;
     }
 
-    public function coreMonitoring(){
+    public function coreMonitoring()
+    {
 
         return $this->hasOne(CoreMonitoring::class);
     }
-    
-    public function leaderShipMonitoring(){
+
+    public function leaderShipMonitoring()
+    {
 
         return $this->hasOne(LeadershipMonitoring::class);
     }
-    
-    public function technicalMonitoring(){
+
+    public function technicalMonitoring()
+    {
 
         return $this->hasOne(technicalMonitoring::class);
     }

@@ -111,6 +111,8 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/store', [EmployeeLearnerProgressFormController::class, 'store'])->withoutMiddleware(['auth:sanctum']);
             Route::put('/upload/supporting/image/{learnerProgressFormId}', [EmployeeLearnerProgressFormController::class, 'upload'])->withoutMiddleware(['auth:sanctum']);
             // Route::put('/update/{learnerProgressFormId}', [EmployeeLearnerProgressFormController::class, 'update'])->withoutMiddleware(['auth:sanctum']);
+            Route::get('/image/{learnerProgressFormId}', [EmployeeLearnerProgressFormController::class, 'viewImage'])->withoutMiddleware(['auth:sanctum']);
+
             Route::delete('/delete/{learnerProgressFormId}', [EmployeeLearnerProgressFormController::class, 'destroy'])->withoutMiddleware(['auth:sanctum']);
         });
 
@@ -118,6 +120,7 @@ Route::middleware('auth:sanctum')->group(function () {
             // Route::get('/{learningMonitoringFormId}', [EmployeeLearningApplicationMonitoringFormController::class, 'show'])->withoutMiddleware(['auth:sanctum']);
             Route::post('/store', [EmployeeLearningApplicationMonitoringFormController::class, 'store'])->withoutMiddleware(['auth:sanctum']);
             Route::put('/upload/supporting/image/{learningMonitoringFormId}', [EmployeeLearningApplicationMonitoringFormController::class, 'upload'])->withoutMiddleware(['auth:sanctum']);
+            Route::get('/image/{learningMonitoringFormId}', [EmployeeLearningApplicationMonitoringFormController::class, 'viewImage'])->withoutMiddleware(['auth:sanctum']);
 
             // Route::put('/update/{learningMonitoringFormId}', [EmployeeLearningApplicationMonitoringFormController::class, 'update'])->withoutMiddleware(['auth:sanctum']);
             Route::delete('/delete/{learningMonitoringFormId}', [EmployeeLearningApplicationMonitoringFormController::class, 'destroy'])->withoutMiddleware(['auth:sanctum']);
@@ -126,6 +129,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('learning-application-plan')->group(function () {
             Route::get('/{learningApplicationPlanFormId}', [EmployeeLearningApplicationPlanFormController::class, 'show'])->withoutMiddleware(['auth:sanctum']);
             Route::post('/store', [EmployeeLearningApplicationPlanFormController::class, 'store'])->withoutMiddleware(['auth:sanctum']);
+            Route::put('/upload/supporting/image/{learningApplicationPlanFormId}', [EmployeeLearningApplicationPlanFormController::class, 'upload'])->withoutMiddleware(['auth:sanctum']);
+            Route::get('/image/{learningApplicationPlanFormId}', [EmployeeLearningApplicationPlanFormController::class, 'viewImage'])->withoutMiddleware(['auth:sanctum']);
+
             // Route::put('/update/{learningApplicationPlanFormId}', [EmployeeLearningApplicationPlanFormController::class, 'update'])->withoutMiddleware(['auth:sanctum']);
             Route::delete('/delete/{learningApplicationPlanFormId}', [EmployeeLearningApplicationPlanFormController::class, 'destroy'])->withoutMiddleware(['auth:sanctum']);
         });
@@ -133,6 +139,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('learning-implementation')->group(function () {
             // Route::get('/{learningImplementationFormId}', [EmployeeLearningImplementationFormController::class, 'show'])->withoutMiddleware(['auth:sanctum']);
             Route::post('/store', [EmployeeLearningImplementationFormController::class, 'store'])->withoutMiddleware(['auth:sanctum']);
+            Route::put('/upload/supporting/image/{learningImplementationFormId}', [EmployeeLearningImplementationFormController::class, 'upload'])->withoutMiddleware(['auth:sanctum']);
+            Route::get('/image/{learningImplementationFormId}', [EmployeeLearningImplementationFormController::class, 'viewImage'])->withoutMiddleware(['auth:sanctum']);
+
             // Route::put('/update/{learningImplementationFormId}', [EmployeeLearningImplementationFormController::class, 'update'])->withoutMiddleware(['auth:sanctum']);
             Route::delete('/delete/{learningImplementationFormId}', [EmployeeLearningImplementationFormController::class, 'destroy'])->withoutMiddleware(['auth:sanctum']);
         });
@@ -140,11 +149,17 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::prefix('evaluation-instrument')->group(function () {
             Route::post('/store', [EmployeeEvalautionInstrumentController::class, 'store'])->withoutMiddleware(['auth:sanctum']);
+            Route::put('/upload/supporting/image/{evaluationInstrumentId}', [EmployeeEvalautionInstrumentController::class, 'upload'])->withoutMiddleware(['auth:sanctum']);
+            Route::get('/image/{evaluationInstrumentId}', [EmployeeEvalautionInstrumentController::class, 'viewImage'])->withoutMiddleware(['auth:sanctum']);
+
         });
 
 
         Route::prefix('resource-speaker-evaluation')->group(function () {
             Route::post('/store', [EmployeeTrainingEvaluationController::class, 'store'])->withoutMiddleware(['auth:sanctum']);
+         Route::put('/upload/supporting/image/{resourceSpeakerEvaluationId}', [EmployeeTrainingEvaluationController::class, 'upload'])->withoutMiddleware(['auth:sanctum']);
+            Route::get('/image/{resourceSpeakerEvaluationId}', [EmployeeTrainingEvaluationController::class, 'viewImage'])->withoutMiddleware(['auth:sanctum']);
+
         });
 
         Route::prefix('document')->group(function () {
@@ -168,6 +183,12 @@ Route::middleware('auth:sanctum')->group(function () {
         
         Route::prefix('print')->group(function () {
         Route::get('/form-submissions/{submissionId}/pdf/learner-progress',[FormPdfController::class, 'learnerProgress'])->withoutMiddleware(['auth:sanctum']);
+        Route::get('/form-submissions/{submissionId}/pdf/learning-application-plan',[FormPdfController::class, 'learningApplicationPlan'])->withoutMiddleware(['auth:sanctum']);
+        Route::get('/form-submissions/{submissionId}/pdf/learning-implementation',[FormPdfController::class, 'learningImplementation'])->withoutMiddleware(['auth:sanctum']);
+        Route::get('/form-submissions/{submissionId}/pdf/learning-application-monitoring',[FormPdfController::class, 'learningApplicationMonitoring'])->withoutMiddleware(['auth:sanctum']);
+        Route::get('/form-submissions/{submissionId}/pdf/resource-speaker-evaluation',[FormPdfController::class, 'resourceSpeakerEvaluation'])->withoutMiddleware(['auth:sanctum']);
+        Route::get('/form-submissions/{submissionId}/pdf/evaluation-instrument',[FormPdfController::class, 'evaluationInstrument'])->withoutMiddleware(['auth:sanctum']);
+
         });
 
     });

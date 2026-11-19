@@ -15,6 +15,7 @@ use App\Models\Forms\LAP\ResourcesUtilized;
 use App\Models\Forms\LAP\SupervisoryCompetencie;
 use App\Models\Forms\LAP\TargetDateCompletion;
 use App\Models\Forms\LAP\TechnicalCompetencie;
+use App\Services\EmployeeFileServices;
 use App\Traits\FormSubmittedNotification;
 use App\Traits\ResubmitsForm;
 use Illuminate\Support\Facades\DB;
@@ -34,19 +35,16 @@ class LearningApplicationPlanFormService
     {
         return DB::transaction(function () use ($validated) {
 
-            $event = Event::with(['form' => function ($query) {
-                $query->where('form_name', $this->formName());
-            }])
-                ->where('id', $validated['event_id'] ?? null)
+             $event = Event::where('id', $validated['event_id'])
                 ->first();
 
             if (!$event) {
                 throw new \Exception('Event not found.');
             }
 
-            if ($event->form->isEmpty()) {
-                throw new \Exception('This form is not available for this event.');
-            }
+            // if ($event->form->isEmpty()) {
+            //     throw new \Exception('This form is not available for this event.');
+            // }
 
             $event_schedule = EventSchedule::where('id', $validated['event_schedule_id'] ?? null)
                 ->where('event_id', $event->id)
@@ -356,5 +354,28 @@ class LearningApplicationPlanFormService
 
             return $learner_application_plan;
         });
+    }
+
+     public function uploadImage(
+        int $LearningApplicationPlanFormId,
+        array $validated,
+        EmployeeFileServices $fileService
+    ) {
+        $learning_application_form = LearningApplicationPlanForm::findOrFail($LearningApplicationPlanFormId);
+
+        // Upload image to forms folder
+        $path = $fileService->upload(
+            $learning_application_form->control_no,
+            (int) $validated['event_schedule_id'],
+            $validated['image'],
+            'forms'
+        );
+
+        // Save file path to database
+        $learning_application_form->update([
+            'image' => $path,
+        ]);
+
+        return $learning_application_form->fresh();
     }
 }

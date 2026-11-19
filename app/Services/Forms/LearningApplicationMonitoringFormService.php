@@ -9,6 +9,7 @@ use App\Models\Forms\LAMR\CoreMonitoring;
 use App\Models\Forms\LAMR\LeadershipMonitoring;
 use App\Models\Forms\LAMR\LearningApplicationMonitoringForm;
 use App\Models\Forms\LAMR\TechnicalMonitoring;
+use App\Services\EmployeeFileServices;
 use App\Traits\FormSubmittedNotification;
 use App\Traits\ResubmitsForm;
 use Illuminate\Support\Facades\DB;
@@ -27,19 +28,16 @@ class LearningApplicationMonitoringFormService
     {
         return DB::transaction(function () use ($validated) {
 
-            $event = Event::with(['form' => function ($query) {
-                $query->where('form_name', $this->formName());
-            }])
-                ->where('id', $validated['event_id'] ?? null)
+               $event = Event::where('id', $validated['event_id'])
                 ->first();
 
             if (!$event) {
                 throw new \Exception('Event not found.');
             }
 
-            if ($event->form->isEmpty()) {
-                throw new \Exception('This form is not available for this event.');
-            }
+            // if ($event->form->isEmpty()) {
+            //     throw new \Exception('This form is not available for this event.');
+            // }
 
             $event_schedule = EventSchedule::where('id', $validated['event_schedule_id'] ?? null)
                 ->where('event_id', $event->id)
@@ -98,7 +96,7 @@ class LearningApplicationMonitoringFormService
             if ($form_submit->wasRecentlyCreated) {
                 DB::afterCommit(fn() => $this->notifyHrAdmins($event, $event_schedule, $form_submit, $this->formName()));
             }
-            
+
             return [
                 $learning_application_form,
                 $core_monitoring,
@@ -218,5 +216,28 @@ class LearningApplicationMonitoringFormService
 
             return $learner_application_monitoring;
         });
+    }
+
+    public function uploadImage(
+        int $learningApplicationMonitoringFormId,
+        array $validated,
+        EmployeeFileServices $fileService
+    ) {
+        $learner_application_monitoring = LearningApplicationMonitoringForm::findOrFail($learningApplicationMonitoringFormId);
+
+        // Upload image to forms folder
+        $path = $fileService->upload(
+            $learner_application_monitoring->control_no,
+            (int) $validated['event_schedule_id'],
+            $validated['image'],
+            'forms'
+        );
+
+        // Save file path to database
+        $learner_application_monitoring->update([
+            'image' => $path,
+        ]);
+
+        return $learner_application_monitoring->fresh();
     }
 }

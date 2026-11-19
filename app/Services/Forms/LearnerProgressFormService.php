@@ -10,6 +10,7 @@ use App\Models\Forms\LPR\CoreProgress;
 use App\Models\Forms\LPR\LeadershipProgress;
 use App\Models\Forms\LPR\LearnerProgressForm;
 use App\Models\Forms\LPR\TechnicalProgress;
+use App\Services\EmployeeFileServices;
 use App\Traits\FormSubmittedNotification;
 use App\Traits\ResubmitsForm;
 use Exception;
@@ -30,10 +31,7 @@ class LearnerProgressFormService
     {
         return DB::transaction(function () use ($validated) {
 
-            $event = Event::with(['form' => function ($query) {
-                $query->where('form_name', $this->formName());
-            }])
-                ->where('id', $validated['event_id'] ?? null)
+            $event = Event::where('id', $validated['event_id'])
                 ->first();
 
             if (!$event) {
@@ -99,7 +97,7 @@ class LearnerProgressFormService
                 'process_management' => $validated['process_management'] ?? null,
                 'attention_details' => $validated['attention_details'] ?? null,
             ]);
-            
+
             // notification for admin form
             if ($form_submit->wasRecentlyCreated) {
                 DB::afterCommit(fn() => $this->notifyHrAdmins($event, $event_schedule, $form_submit, $this->formName()));
@@ -226,5 +224,28 @@ class LearnerProgressFormService
 
             return $learnerForm;
         });
+    }
+
+    public function uploadImage(
+        int $LearnerProgressFormId,
+        array $validated,
+       EmployeeFileServices $fileService
+    ) {
+        $learnerForm = LearnerProgressForm::findOrFail($LearnerProgressFormId);
+
+        // Upload image to forms folder
+        $path = $fileService->upload(
+            $learnerForm->control_no,
+            (int) $validated['event_schedule_id'],
+            $validated['image'],
+            'forms'
+        );
+
+        // Save file path to database
+        $learnerForm->update([
+            'image' => $path,
+        ]);
+
+        return $learnerForm->fresh();
     }
 }
