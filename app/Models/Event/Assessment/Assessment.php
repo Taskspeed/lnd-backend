@@ -12,7 +12,7 @@ class Assessment extends Model
 
     protected $fillable = [
         'event_schedule_id',
-        'event_name',
+        'description',
         'title',
         'passing_score'
 

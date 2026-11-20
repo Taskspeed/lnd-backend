@@ -122,7 +122,7 @@ class EventAddScheduleRequest extends FormRequest
                 // assessment
             'assessment'                  => ['nullable', 'array', 'max:10'],
             // 'assessment.*.type'           => ['required_with:assessment', 'in:pre_test,post_test', 'distinct'],
-        'assessment.*.event_name'         => ['nullable', 'string', 'max:255'],
+        'assessment.*.description'         => ['nullable', 'string', 'max:255'],
             'assessment.*.title'          => ['nullable', 'string', 'max:255'],
             'assessment.*.passing_score'  => ['nullable', 'integer', 'min:0'],
 

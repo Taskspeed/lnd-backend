@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Erms;
 
 use App\Http\Controllers\Controller;
 use App\Models\Employee\NominatedEmployee;
+use App\Models\Event\Assessment\AssessmentAnswer;
 use App\Models\Event\EmployeeFormSubmission;
 use App\Models\Event\Event;
 use App\Models\Event\EventForm;
@@ -16,6 +17,7 @@ use App\Models\Forms\RSE\TrainingEvaluationSpeakers;
 use App\Traits\ApiResponseTrait;
 use App\Traits\FormatsDateRanges;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class EmployeeEventController extends Controller
@@ -58,69 +60,100 @@ class EmployeeEventController extends Controller
     }
 
 
-    public function show(int $eventId, int $eventScheduleId, string $controlNo)
-    {
-        $employee = NominatedEmployee::with(['event' => function ($query) use ($eventScheduleId) {
-            $query->with(['schedule' => function ($query) use ($eventScheduleId) {
-                $query->where('id', $eventScheduleId)
-                    ->with(['scheduleDateTime','assessments','form']);
-            }]);
-        }])
-            ->select('event_id', 'control_no', 'office')
-            ->where('control_no', $controlNo)
-            ->where('event_id', $eventId)
-            ->first();
+ public function show(int $eventId, int $eventScheduleId, string $controlNo)
+{
+    $employee = NominatedEmployee::with(['event' => function ($query) use ($eventScheduleId) {
+        $query->with(['schedule' => function ($query) use ($eventScheduleId) {
+            $query->where('id', $eventScheduleId)
+                ->with(['scheduleDateTime', 'assessments', 'form']);
+        }]);
+    }])
+        ->select('id', 'event_id', 'control_no', 'office')
+        ->where('control_no', $controlNo)
+        ->where('event_id', $eventId)
+        ->first();
 
-        if (!$employee) {
-            return $this->errorMessage('Employee event not found', 404);
-        }
-
-        $submissions = EmployeeFormSubmission::where('control_no', $controlNo)
-            ->where('event_id', $eventId)
-            ->where('event_schedule_id', $eventScheduleId)
-            ->get();
-
-        // forms ay nasa schedule na, hindi na sa event
-        $totalRequired  = EventForm::where('event_schedule_id', $eventScheduleId)->count();
-        $totalSubmitted = $submissions->count();
-
-        $employee->forms_summary = [
-            'total_required'                => $totalRequired,
-            'total_submitted'               => $totalSubmitted,
-            'remaining_form_need_to_submit' => max($totalRequired - $totalSubmitted, 0),
-            'approved'                      => $submissions->where('status', 'Approved')->count(),
-            'pending'                       => $submissions->where('status', 'Pending')->count(),
-            'returned'                      => $submissions->where('status', 'Returned')->count(),
-        ];
-
-       $recordIds = [];
-        foreach ($submissions->groupBy('form_name') as $formName => $group) {
-            $model = self::EVENT_FORMS[$formName] ?? null;
-            if (!$model) continue;
-
-            // keyBy submission id para makuha buong record (id + image)
-            $recordIds[$formName] = $model::whereIn('employee_form_submission_id', $group->pluck('id'))
-                ->get(['id', 'employee_form_submission_id', 'image'])
-                ->keyBy('employee_form_submission_id');
-        }
-
-        $employee->submitted_forms = $submissions->map(function ($sub) use ($recordIds) {
-            $record = $recordIds[$sub->form_name][$sub->id] ?? null;
-
-            return [
-                'employee_form_submission_id' => $sub->id,
-                'form_name'                   => $sub->form_name,
-                'status'                      => $sub->status,
-                'submitted_at'                => $sub->submitted_at,
-                'remarks'                     => $sub->remarks,
-                'form_record_id'              => $record?->id,
-                'image'                       => $record?->image ? asset('storage/' . $record->image) : null,
-            ];
-        })->values();
-
-        return $this->successMessage($employee, 'Employee list of event', 200);
+    if (!$employee) {
+        return $this->errorMessage('Employee event not found', 404);
     }
 
+    // <-- idinagdag: ito ang binabasa ng frontend
+    $employee->nominated_employee_id = $employee->id;
+
+    $submissions = EmployeeFormSubmission::where('control_no', $controlNo)
+        ->where('event_id', $eventId)
+        ->where('event_schedule_id', $eventScheduleId)
+        ->get();
+
+    // forms ay nasa schedule na, hindi na sa event
+    $totalRequired  = EventForm::where('event_schedule_id', $eventScheduleId)->count();
+    $totalSubmitted = $submissions->count();
+
+    $employee->forms_summary = [
+        'total_required'                => $totalRequired,
+        'total_submitted'               => $totalSubmitted,
+        'remaining_form_need_to_submit' => max($totalRequired - $totalSubmitted, 0),
+        'approved'                      => $submissions->where('status', 'Approved')->count(),
+        'pending'                       => $submissions->where('status', 'Pending')->count(),
+        'returned'                      => $submissions->where('status', 'Returned')->count(),
+    ];
+
+    $recordIds = [];
+    foreach ($submissions->groupBy('form_name') as $formName => $group) {
+        $model = self::EVENT_FORMS[$formName] ?? null;
+        if (!$model) continue;
+
+        // keyBy submission id para makuha buong record (id + image)
+        $recordIds[$formName] = $model::whereIn('employee_form_submission_id', $group->pluck('id'))
+            ->get(['id', 'employee_form_submission_id', 'image'])
+            ->keyBy('employee_form_submission_id');
+    }
+
+    $employee->submitted_forms = $submissions->map(function ($sub) use ($recordIds) {
+        $record = $recordIds[$sub->form_name][$sub->id] ?? null;
+
+        return [
+            'employee_form_submission_id' => $sub->id,
+            'form_name'                   => $sub->form_name,
+            'status'                      => $sub->status,
+            'submitted_at'                => $sub->submitted_at,
+            'remarks'                     => $sub->remarks,
+            'form_record_id'              => $record?->id,
+            'image'                       => $record?->image ? asset('storage/' . $record->image) : null,
+        ];
+    })->values();
+
+    // ---------- Assessment status (submitted / score / passed) ----------
+    $schedule      = $employee->event?->schedule?->first();
+    $assessments   = $schedule?->assessments ?? collect();
+    $assessmentIds = $assessments->map(fn ($a) => $a->assessmentId ?? $a->id)->values();
+
+    $scores = AssessmentAnswer::query()
+        ->join('assessment_questions as q', 'q.id', '=', 'assessment_answers.assessment_question_id')
+        ->where('assessment_answers.nominated_employee_id', $employee->id)
+        ->whereIn('q.assessment_id', $assessmentIds)
+        ->groupBy('q.assessment_id')
+        ->selectRaw('q.assessment_id, SUM(assessment_answers.earned_points) as score')
+        ->pluck('score', 'assessment_id');
+
+    $totals = DB::table('assessment_questions')
+        ->whereIn('assessment_id', $assessmentIds)
+        ->groupBy('assessment_id')
+        ->selectRaw('assessment_id, SUM(points) as total')
+        ->pluck('total', 'assessment_id');
+
+    foreach ($assessments as $a) {
+        $id    = $a->assessmentId ?? $a->id;
+        $score = (int) ($scores[$id] ?? 0);
+
+        $a->setAttribute('submitted', $scores->has($id));
+        $a->setAttribute('score', $score);
+        $a->setAttribute('total_points', (int) ($totals[$id] ?? 0));
+        $a->setAttribute('passed', $scores->has($id) && $score >= (int) $a->passing_score);
+    }
+
+    return $this->successMessage($employee, 'Employee list of event', 200);
+}
 
     private const FORM_MODELS = [
         'Learning Application Plan' => [

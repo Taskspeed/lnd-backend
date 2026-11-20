@@ -23,6 +23,54 @@ use Illuminate\Support\Facades\Log;
 class ScheduleService
 {
     use TimeFormat;
+    private function createQuestions(Assessment $assessment, array $questions): void
+{
+    foreach ($questions as $index => $q) {
+        $question = $assessment->questions()->create([
+            'question'      => $q['question'],
+            'question_type' => $q['question_type'],
+            'points'        => $q['points'] ?? 0,
+            'sort_order'    => $index + 1,
+        ]);
+
+        foreach ($q['options'] ?? [] as $option) {
+            $question->options()->create([
+                'option_text' => $option['option_text'],
+                'is_correct'  => $option['is_correct'] ?? false,
+            ]);
+        }
+    }
+}
+
+private function questionsChanged(Assessment $assessment, array $incoming): bool
+{
+    $existing = $assessment->questions
+        ->sortBy('sort_order')
+        ->map(fn ($q) => [
+            'question'      => $q->question,
+            'question_type' => $q->question_type,
+            'points'        => $q->points,
+            'options'       => $q->options->sortBy('id')->map(fn ($o) => [
+                'option_text' => $o->option_text,
+                'is_correct'  => $o->is_correct,
+            ])->all(),
+        ])->all();
+
+    return $this->normalizeQuestions($existing) !== $this->normalizeQuestions($incoming);
+}
+
+private function normalizeQuestions(array $questions): array
+{
+    return collect($questions)->values()->map(fn ($q) => [
+        'question' => trim($q['question'] ?? ''),
+        'type'     => $q['question_type'] ?? null,
+        'points'   => (int) ($q['points'] ?? 0),
+        'options'  => collect($q['options'] ?? [])->values()->map(fn ($o) => [
+            'text'    => trim($o['option_text'] ?? ''),
+            'correct' => (bool) ($o['is_correct'] ?? false),
+        ])->all(),
+    ])->all();
+}
 
     public function addSchedule(?array $validated)
     {
@@ -47,7 +95,7 @@ class ScheduleService
                 'form_due_date'          => $validated['form_due_date'] ?? null,
                 'sg_from'   => $validated['sg_from'] ?? null,
                 'sg_to'  => $validated['sg_to'] ?? null,
-                'is_assessment_open' => $form['is_assessment_open'] ?? false,
+                  'is_assessment_open' => $validated['is_assessment_open'] ?? false,
             ]);
 
             $event  = Event::find($validated['event_id']);
@@ -133,7 +181,7 @@ class ScheduleService
             foreach ($validated['assessment'] ?? [] as $a) {
                 $assessment = Assessment::create([
                     'event_schedule_id' => $schedule->id,
-                 'event_name'              => $a['event_name'],          // pre_test | post_test
+                 'description'              => $a['description'],          // pre_test | post_test
                     'title'             => $a['title'] ?? null,
                     'passing_score'     => $a['passing_score'] ?? 0,
                 ]);
@@ -252,7 +300,7 @@ class ScheduleService
                 'form_due_date'          => $validated['form_due_date'] ?? null,
                 'sg_from'   => $validated['sg_from'] ?? null,
                 'sg_to'  => $validated['sg_to'] ?? null,
-                 'is_assessment_open' => $form['is_assessment_open'] ?? false,
+                'is_assessment_open' => $validated['is_assessment_open'] ?? false,
             ]);
 
             $schedule->employeeTag()->delete();
@@ -303,41 +351,41 @@ class ScheduleService
 
     
 
-            $keepIds = [];
+          $keepIds = [];
 
-            foreach ($validated['assessment'] ?? [] as $a) {
-                $assessment = Assessment::updateOrCreate(
-                    ['id' => $a['id'] ?? null, 'event_schedule_id' => $schedule->id],
-                    [
-                        'event_name'          => $a['event_name'],
-                        'title'         => $a['title'] ?? null,
-                        'passing_score' => $a['passing_score'] ?? 0,
-                    ]
-                );
-                $keepIds[] = $assessment->id;
+foreach ($validated['assessment'] ?? [] as $a) {
+    // hanapin lang sa assessments ng schedule na ito
+    $assessment = !empty($a['id'])
+        ? $schedule->assessments()->with('questions.options')->find($a['id'])
+        : null;
 
-                // questions at options lang ang ire-rebuild
-                $assessment->questions()->delete();
+    $data = [
+        'description'   => $a['description'] ?? null,
+        'title'         => $a['title'] ?? null,
+        'passing_score' => $a['passing_score'] ?? 0,
+    ];
 
-                foreach ($a['questions'] ?? [] as $index => $q) {
-                    $question = $assessment->questions()->create([
-                        'question'      => $q['question'],
-                        'question_type' => $q['question_type'],
-                        'points'        => $q['points'] ?? 0,
-                        'sort_order'    => $index + 1,
-                    ]);
+    // BAGONG assessment
+    if (!$assessment) {
+        $assessment = $schedule->assessments()->create($data);
+        $this->createQuestions($assessment, $a['questions'] ?? []);
+        $keepIds[] = $assessment->id;
+        continue;
+    }
 
-                    foreach ($q['options'] ?? [] as $option) {
-                        $question->options()->create([
-                            'option_text' => $option['option_text'],
-                            'is_correct'  => $option['is_correct'] ?? false,
-                        ]);
-                    }
-                }
-            }
+    // EXISTING: laging i-update ang title/description/passing score (hindi nabubura ang id)
+    $assessment->update($data);
+    $keepIds[] = $assessment->id;
 
-            // tanggalin lang ang mga assessment na inalis ng user
-            $schedule->assessments()->whereNotIn('id', $keepIds)->delete();
+    // questions: i-rebuild LANG kung talagang may nagbago
+    if ($this->questionsChanged($assessment, $a['questions'] ?? [])) {
+        $assessment->questions()->delete(); // cascade lang dito sa assessment na ito
+        $this->createQuestions($assessment, $a['questions'] ?? []);
+    }
+}
+
+// tanggalin lang ang mga assessment na inalis talaga ng user
+$schedule->assessments()->whereNotIn('id', $keepIds)->delete();
 
             $schedule->form()->delete();
 

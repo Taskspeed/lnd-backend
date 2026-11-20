@@ -7,7 +7,7 @@ use App\Http\Controllers\Erms\Documents\DocumentController;
 use App\Http\Controllers\Erms\EmployeeEventController;
 use App\Http\Controllers\Erms\Form\EmployeeEvalautionInstrumentController;
 use App\Http\Controllers\Erms\Form\EmployeeLearnerProgressFormController;
-
+use App\Http\Controllers\Erms\Assessment\AssessmentController as ErmsAssessmentController;
 use App\Http\Controllers\Erms\Form\EmployeeLearningApplicationMonitoringFormController;
 use App\Http\Controllers\Erms\Form\EmployeeLearningApplicationPlanFormController;
 use App\Http\Controllers\Erms\Form\EmployeeLearningImplementationFormController;
@@ -43,11 +43,11 @@ use App\Http\Controllers\Office\OfficeController;
 
 use App\Http\Controllers\Print\FormPdfController;
 use App\Http\Controllers\ReportController;;
+
 use App\Http\Controllers\User\PermissionController;
 use App\Http\Controllers\User\RoleController;
 use App\Http\Controllers\User\UserController;
 use Illuminate\Support\Facades\Route;
-
 
 
 
@@ -151,15 +151,13 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/store', [EmployeeEvalautionInstrumentController::class, 'store'])->withoutMiddleware(['auth:sanctum']);
             Route::put('/upload/supporting/image/{evaluationInstrumentId}', [EmployeeEvalautionInstrumentController::class, 'upload'])->withoutMiddleware(['auth:sanctum']);
             Route::get('/image/{evaluationInstrumentId}', [EmployeeEvalautionInstrumentController::class, 'viewImage'])->withoutMiddleware(['auth:sanctum']);
-
         });
 
 
         Route::prefix('resource-speaker-evaluation')->group(function () {
             Route::post('/store', [EmployeeTrainingEvaluationController::class, 'store'])->withoutMiddleware(['auth:sanctum']);
-         Route::put('/upload/supporting/image/{resourceSpeakerEvaluationId}', [EmployeeTrainingEvaluationController::class, 'upload'])->withoutMiddleware(['auth:sanctum']);
+            Route::put('/upload/supporting/image/{resourceSpeakerEvaluationId}', [EmployeeTrainingEvaluationController::class, 'upload'])->withoutMiddleware(['auth:sanctum']);
             Route::get('/image/{resourceSpeakerEvaluationId}', [EmployeeTrainingEvaluationController::class, 'viewImage'])->withoutMiddleware(['auth:sanctum']);
-
         });
 
         Route::prefix('document')->group(function () {
@@ -180,17 +178,24 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/unread/count', [NotificationController::class, 'ermsunreadCount'])->withoutMiddleware(['auth:sanctum']);
         });
 
-        
-        Route::prefix('print')->group(function () {
-        Route::get('/form-submissions/{submissionId}/pdf/learner-progress',[FormPdfController::class, 'learnerProgress'])->withoutMiddleware(['auth:sanctum']);
-        Route::get('/form-submissions/{submissionId}/pdf/learning-application-plan',[FormPdfController::class, 'learningApplicationPlan'])->withoutMiddleware(['auth:sanctum']);
-        Route::get('/form-submissions/{submissionId}/pdf/learning-implementation',[FormPdfController::class, 'learningImplementation'])->withoutMiddleware(['auth:sanctum']);
-        Route::get('/form-submissions/{submissionId}/pdf/learning-application-monitoring',[FormPdfController::class, 'learningApplicationMonitoring'])->withoutMiddleware(['auth:sanctum']);
-        Route::get('/form-submissions/{submissionId}/pdf/resource-speaker-evaluation',[FormPdfController::class, 'resourceSpeakerEvaluation'])->withoutMiddleware(['auth:sanctum']);
-        Route::get('/form-submissions/{submissionId}/pdf/evaluation-instrument',[FormPdfController::class, 'evaluationInstrument'])->withoutMiddleware(['auth:sanctum']);
 
+        Route::prefix('print')->group(function () {
+            Route::get('/form-submissions/{submissionId}/pdf/learner-progress', [FormPdfController::class, 'learnerProgress'])->withoutMiddleware(['auth:sanctum']);
+            Route::get('/form-submissions/{submissionId}/pdf/learning-application-plan', [FormPdfController::class, 'learningApplicationPlan'])->withoutMiddleware(['auth:sanctum']);
+            Route::get('/form-submissions/{submissionId}/pdf/learning-implementation', [FormPdfController::class, 'learningImplementation'])->withoutMiddleware(['auth:sanctum']);
+            Route::get('/form-submissions/{submissionId}/pdf/learning-application-monitoring', [FormPdfController::class, 'learningApplicationMonitoring'])->withoutMiddleware(['auth:sanctum']);
+            Route::get('/form-submissions/{submissionId}/pdf/resource-speaker-evaluation', [FormPdfController::class, 'resourceSpeakerEvaluation'])->withoutMiddleware(['auth:sanctum']);
+            Route::get('/form-submissions/{submissionId}/pdf/evaluation-instrument', [FormPdfController::class, 'evaluationInstrument'])->withoutMiddleware(['auth:sanctum']);
         });
 
+          Route::prefix('assessment')->group(function () {
+
+            Route::get('/{assessmentId}', [AssessmentController::class, 'getAssessment'])->withoutMiddleware(['auth:sanctum']);
+           
+            Route::post('/{assessmentId}/submit', [ErmsAssessmentController::class, 'submitAssessmentAnswer'])->withoutMiddleware(['auth:sanctum']);
+
+            Route::get('{assessmentId}/result', [ErmsAssessmentController::class, 'myResult'])->withoutMiddleware(['auth:sanctum']);
+                 });
     });
 
     Route::prefix('notifications')->group(function () {
@@ -339,19 +344,18 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
 
     Route::prefix('speaker')->group(function () {
         Route::get('/', [SpeakerController::class, 'index']);
-         Route::get('/fetch', [SpeakerController::class, 'fetchSpeaker']);
+        Route::get('/fetch', [SpeakerController::class, 'fetchSpeaker']);
         Route::get('/show/{speakerId}', [SpeakerController::class, 'show']);
         Route::post('/store', [SpeakerController::class, 'store']);
         Route::put('/update/{speakerId}', [SpeakerController::class, 'update']);
         Route::delete('/delete/{speakerId}', [SpeakerController::class, 'destroy']);
         Route::get('history/{speakerId}', [SpeakerController::class, 'history']);
-        
     });
 
 
 
 
-    Route::prefix('event')->group(function () { 
+    Route::prefix('event')->group(function () {
         Route::get('/index', [EventController::class, 'index']);
         Route::post('/store', [EventController::class, 'store']);
         Route::put('/edit/{eventId}', [EventController::class, 'edit']);
@@ -402,12 +406,11 @@ Route::middleware(['auth:sanctum', 'role:hr_admin'])->group(function () {
         });
 
 
-          Route::prefix('assessment')->group(function () {
+        Route::prefix('assessment')->group(function () {
 
-                Route::get('/{assessmentId}', [AssessmentController::class, 'getAssessment']);
-                Route::get('print/{assessmentId}', [AssessmentController::class, 'printAssessment']);
-
-            });
+            Route::get('/{assessmentId}', [AssessmentController::class, 'getAssessment']);
+            Route::get('print/{assessmentId}', [AssessmentController::class, 'printAssessment']);
+        });
     });
 
 

@@ -551,7 +551,7 @@ class EventService
             foreach ($validated['assessment'] ?? [] as $a) {
                 $assessment = Assessment::create([
                     'event_schedule_id' => $schedule->id,
-                    'event_name'              => $a['event_name'],            // pre_test | post_test
+                    'description'              => $a['description'],            // pre_test | post_test
                     'title'             => $a['title'] ?? null,
                     'passing_score'     => $a['passing_score'] ?? 0,
                 ]);
