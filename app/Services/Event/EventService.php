@@ -412,7 +412,7 @@ class EventService
                 'form_due_date'          => $validated['form_due_date'] ?? null,
                 'sg_from'   => $validated['sg_from'] ?? null,
                 'sg_to'  => $validated['sg_to'] ?? null,
-                'is_assessment_open' => $form['is_assessment_open'] ?? false,
+                'is_assessment_open' => $validated['is_assessment_open'] ?? false,
             ]);
 
             // ---------- save into ARMS (Tblevent) ----------
